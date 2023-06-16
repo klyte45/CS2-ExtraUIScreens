@@ -1,0 +1,3 @@
+[submodule "ExtraUIScreens/BelzontCommons"]
+	path = ExtraUIScreens/BelzontCommons
+	url = ../BelzontCommons
