@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Root Config</title>
+  <!--
+    Remove this if you only support browsers that support async/await.
+    This is needed by babel to share largeish helper code for compiling async/await in older
+    browsers. More information at https://github.com/single-spa/create-single-spa/issues/112
+  -->
+  <script src="dependencies/runtime.min.js"></script>
+  <!--
+    This CSP allows any SSL-enabled host and for arbitrary eval(), but you should limit these directives further to increase your app's security.
+    Learn more about CSP policies at https://content-security-policy.com/#directive
+  -->
+
+  <% if (!isLocal) { %>
+    <meta http-equiv="Content-Security-Policy"
+      content="default-src 'self' https: localhost:*; script-src 'unsafe-inline' 'unsafe-eval' https: localhost:*; connect-src https: localhost:* ws://localhost:*; style-src 'unsafe-inline' https:; object-src 'none';">
+
+    <% } %>
+      <meta name="importmap-type" content="systemjs-importmap" />
+      <!-- If you wish to turn off import-map-overrides for specific environments (prod), uncomment the line below -->
+      <!-- More info at https://github.com/joeldenning/import-map-overrides/blob/master/docs/configuration.md#domain-list -->
+      <!-- <meta name="import-map-overrides-domains" content="denylist:prod.example.com" /> -->
+
+      <!-- Shared dependencies go into this import map. Your shared dependencies must be of one of the following formats:
+
+    1. System.register (preferred when possible) - https://github.com/systemjs/systemjs/blob/master/docs/system-register.md
+    2. UMD - https://github.com/umdjs/umd
+    3. Global variable
+
+    More information about shared dependencies can be found at https://single-spa.js.org/docs/recommended-setup#sharing-with-import-maps.
+  -->
+      <script type="systemjs-importmap">
+    {
+      "imports": {
+        "single-spa": "./dependencies/single-spa.min.js",
+        "react": "./dependencies/react.production.min.js",
+        "react-dom": "./dependencies/react-dom.production.min.js",
+        "@k45-euis/root-config": "./k45-euis-root-config.js"
+      }
+    }
+  </script>
+      <link rel="preload" href="dependencies/single-spa.min.js" as="script">
+
+      <!-- Add your organization's prod import map URL to this script's src  -->
+      <!-- <script type="systemjs-importmap" src="/importmap.json"></script> -->
+
+      <% if (isLocal) { %>
+        <script type="systemjs-importmap">
+    {
+      "imports": {
+        "@k45-euis/root-config": "//localhost:9000/k45-euis-root-config.js"
+      }
+    }
+  </script>
+        <% } %>
+
+          <!--
+    If you need to support Angular applications, uncomment the script tag below to ensure only one instance of ZoneJS is loaded
+    Learn more about why at https://single-spa.js.org/docs/ecosystem-angular/#zonejs
+  -->
+          <!-- <script src="https://cdn.jsdelivr.net/npm/zone.js@0.11.3/dist/zone.min.js"></script> -->
+
+          <script src="dependencies/import-map-overrides.js"></script>
+          <% if (isLocal) { %>
+            <script src="dependencies/system.min.js"></script>
+            <script src="dependencies/amd.min.js"></script>
+            <% } else { %>
+              <script src="dependencies/system.min.js"></script>
+              <script src="dependencies/amd.min.js"></script>
+              <link href="coui://gameui/index.css" rel="stylesheet">
+              <% } %>
+                <link href="base.css" rel="stylesheet">
+                <script src="cohtml.js"></script>
+</head>
+
+<body>
+  <noscript>
+    You need to enable JavaScript to run this app.
+  </noscript>
+  <main></main>
+  <script>
+    System.import('@k45-euis/root-config');
+  </script>
+  <import-map-overrides-full show-when-local-storage="devtools" dev-libs></import-map-overrides-full>
+  <div id="taskbar">
+    <div class="rightInfo">
+      <div class="monitorNum" data-bind-value="{{__euis_main.monitorIdentifierText}}"></div>
+      <div class="clock" data-bind-value="{{__euis_main.currentTime}}">16:15</div>
+      <div class="date" data-bind-value="{{__euis_main.currentDate}}">10/03/2015</div>
+    </div>
+  </div>
+</body>
+
+</html>
