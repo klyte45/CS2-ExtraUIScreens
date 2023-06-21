@@ -293,7 +293,7 @@ namespace ExtraUIScreens
                         if (uiSys.UIViews[0].View.IsReadyForBindings())
                         {
                             if (DebugMode) Console.WriteLine($"Sending app for monitor {i + 1}: {appRegisterData.AppName}");
-                            uiSys.UIViews[0].View.TriggerEvent("k45::euis.registerApplication", appRegisterData.AppName, appRegisterData.DisplayName, appRegisterData.UrlJs, appRegisterData.UrlIcon);
+                            uiSys.UIViews[0].View.TriggerEvent("k45::euis.registerApplication", appRegisterData.AppName, appRegisterData.DisplayName, appRegisterData.UrlJs, appRegisterData.UrlCss, appRegisterData.UrlIcon);
                             registeredApplications.Add(appRegisterData);
                             foreach (var call in appRegisterData.CallsToBind)
                             {
@@ -328,6 +328,11 @@ namespace ExtraUIScreens
             if (!appRegisterData.UrlJs.StartsWith("coui://") && !appRegisterData.UrlJs.StartsWith("http://localhost"))
             {
                 LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': The application js must be registered in the game ui system (under coui://) or under localhost if under development (starting with http://localhost).");
+                return false;
+            }
+            if (!appRegisterData.UrlCss.StartsWith("coui://") && !appRegisterData.UrlCss.StartsWith("http://localhost"))
+            {
+                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': The application css must be registered in the game ui system (under coui://) or under localhost if under development (starting with http://localhost).");
                 return false;
             }
             if (!appRegisterData.UrlIcon.StartsWith("coui://"))

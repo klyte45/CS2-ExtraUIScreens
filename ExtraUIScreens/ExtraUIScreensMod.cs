@@ -95,6 +95,7 @@ namespace ExtraUIScreens
             public string DisplayName { get; set; }
 
             public string UrlJs { get; set; }
+            public string UrlCss { get; set; }
 
             public string UrlIcon { get; set; }
 

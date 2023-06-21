@@ -18,9 +18,10 @@ namespace ExtraUIScreens
 
         private static bool OnSaveGame(MenuUISystem __instance, string saveName)
         {
-            Texture2D target = ScreenshotHelper.CreateTarget("SaveGamePanel", 680, 383, GraphicsFormat.R8G8B8A8_UNorm);
-            ScreenshotHelper.TakeScreenshot(Camera.main, target, (MenuHelpers.SaveGamePreviewSettings)previewSettings.GetValue(__instance));
-            __instance.SaveGame(saveName, target, delegate (Guid x)
+            RenderTexture target = ScreenCaptureHelper.CreateRenderTarget("SaveGamePanel", 680, 383, GraphicsFormat.R8G8B8A8_UNorm);
+            ScreenCaptureHelper.CaptureScreenshot(Camera.main, target, (MenuHelpers.SaveGamePreviewSettings)previewSettings.GetValue(__instance));
+            ScreenCaptureHelper.AsyncRequest request = new ScreenCaptureHelper.AsyncRequest(target);
+            __instance.SaveGame(saveName, request, delegate (Guid x)
             {
                 UnityEngine.Object.Destroy(target);
             }, false);

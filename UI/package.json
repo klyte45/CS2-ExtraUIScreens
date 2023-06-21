@@ -6,7 +6,6 @@
     "test": "cross-env BABEL_ENV=test jest --passWithNoTests",
     "format": "prettier --write .",
     "check-format": "prettier --check .",
-    "prepare": "husky install",
     "build": "concurrently npm:build:*",
     "build:webpack": "webpack --mode=production",
     "build:types": "tsc"
@@ -44,6 +43,8 @@
     "@types/jest": "^27.0.1",
     "@types/systemjs": "^6.1.1",
     "@types/webpack-env": "^1.16.2",
+    "postcss": "^8.4.24",
+    "postcss-prefix-selector": "^1.16.0",
     "single-spa": "^5.9.3"
   },
   "types": "dist/k45-euis-root-config.d.ts"

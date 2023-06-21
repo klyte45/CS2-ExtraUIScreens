@@ -1,6 +1,8 @@
 ///<reference path="cohtml.d.ts" />
 ///<reference path="../root/src/euis.d.ts" />
 import { LifeCycles, getAppNames, registerApplication, start, unregisterApplication } from "single-spa";
+import prefixer from 'postcss-prefix-selector';
+import postcss from "postcss";
 
 const ROOT_APP_NAME = "@k45-euis/root";
 
@@ -8,6 +10,7 @@ type ApplicationInjectionData = {
   appName: string,
   displayName: string,
   jsUrl: string,
+  cssUrl: string,
   iconUrl: string
 }
 
@@ -40,8 +43,8 @@ engine.whenReady.then(() => {
     engine.trigger("k45::euis.listActiveAppsInMonitor->", Object.entries(appDatabase).filter(x => x[1].button).map(x => x[0]))
   })
 
-  engine.on("k45::euis.registerApplication", (appName: string, displayName: string, jsUrl: string, iconUrl: string) => {
-    fullRegisterApp({ appName, displayName, iconUrl, jsUrl })
+  engine.on("k45::euis.registerApplication", (appName: string, displayName: string, jsUrl: string, cssUrl: string, iconUrl: string) => {
+    fullRegisterApp({ appName, displayName, iconUrl, jsUrl, cssUrl })
   });
 
   engine.on("k45::euis.unregisterApplication", (appName: string) => {
@@ -80,6 +83,7 @@ function applicationRegistering() {
     appName: ROOT_APP_NAME,
     displayName: "EUIS Settings",
     iconUrl: "./euis.png",
+    cssUrl: null,
     jsUrl: "coui://k45.euis/UI/k45-euis-root.js"//"http://localhost:8500/k45-euis-root.js"
   }
 
@@ -126,6 +130,22 @@ async function fullRegisterApp(appData: ApplicationInjectionData) {
   }
 }
 
+async function load(url: string): Promise<string> {
+  return new Promise((res, rej) => {
+    var xhr = new XMLHttpRequest();
+    xhr.timeout = 1800;
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status >= 200 && xhr.status < 300) res(xhr.responseText);
+        else rej(xhr)
+      }
+    };
+    xhr.open("GET", url, true);
+    xhr.send()
+    setTimeout(() => rej("Timeout!"), 2200);
+  });
+}
+
 function registerApplicationCommons(appData: ApplicationInjectionData, customProps?: any) {
   const appName = appData.appName;
   registerApplication(appName,
@@ -140,8 +160,9 @@ function registerApplicationCommons(appData: ApplicationInjectionData, customPro
         document.appendChild(importMap);
         lifecycle = await System.import<LifeCycles>(appData.jsUrl);
       }
+
       return {
-        bootstrap: lifecycle.bootstrap,
+        bootstrap: [lifecycle.bootstrap],
         mount(props) {
           return new Promise(async (resolve, reject) => {
             resolve(undefined);
@@ -149,6 +170,38 @@ function registerApplicationCommons(appData: ApplicationInjectionData, customPro
               await Promise.all(lifecycle.mount.map(x => x(props)))
             } else {
               await lifecycle.mount(props)
+            }
+            const rootEl = document.getElementById("single-spa-application:" + appName);
+            rootEl.querySelectorAll("style, link[type=stylesheet]").forEach((x) => {
+              x.parentNode.removeChild(x);
+            })
+
+            if (appData.cssUrl) {
+              try {
+                const safeName = appName.replace(/[@\/]/g, "_");
+                console.log(safeName);
+                rootEl.setAttribute("data-safe-name", safeName);
+                const cssContent = await load(appData.cssUrl);
+                const parsedContent = postcss().use(prefixer({
+                  prefix: `div[data-safe-name=${safeName}]`,
+                  transform(prefix, selector, prefixedSelector) {
+                    if (selector.match(/^(html|body)/)) {
+                      return selector.replace(/^([^\s]*)/, `$1 ${prefix}`);
+                    }
+                    if (selector.match(/^:root/)) {
+                      return selector.replace(/^([^\s]*)/, prefix);
+                    }
+                    return prefixedSelector;
+                  },
+                })).process(cssContent).css
+
+                const cssNode = document.createElement("style");
+                cssNode.innerHTML = parsedContent;
+                cssNode.id = "style:" + rootEl.id.split(":")[1];
+                document.querySelector("head").appendChild(cssNode);
+              } catch (e) {
+                console.error("Failed to load css: " + appData.cssUrl, e)
+              }
             }
             appDatabase[appName]?.button?.classList.add("active");
           });
@@ -163,6 +216,20 @@ function registerApplicationCommons(appData: ApplicationInjectionData, customPro
             }
             const rootEl = document.getElementById("single-spa-application:" + appName);
             rootEl.parentNode.removeChild(rootEl);
+            const cssEl = document.getElementById("style:" + appName);
+            if (cssEl) {
+              cssEl.parentNode.removeChild(cssEl);
+              [...(document.styleSheets as any)].forEach(
+                (x: CSSStyleSheet) => {
+                  if ((x.ownerNode as any).id == cssEl.id) {
+                    do {
+                      x.deleteRule(0);
+                    } while (x.cssRules.length > 0);
+                  }
+                }
+              )
+              cssEl.id = ""
+            }
             appDatabase[appName]?.button?.classList.remove("active");
           });
         },

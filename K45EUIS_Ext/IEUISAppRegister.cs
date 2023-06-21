@@ -8,6 +8,7 @@ namespace K45EUIS_Ext
         string AppName { get; }
         string DisplayName { get; }
         string UrlJs { get; }
+        string UrlCss { get; }
         string UrlIcon { get; }
         string ModderIdentifier { get; }
         string ModAcronym { get; }
