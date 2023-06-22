@@ -15,5 +15,7 @@ namespace K45EUIS_Ext
 
         Dictionary<string, Delegate> EventsToBind { get; }
         Dictionary<string, Delegate> CallsToBind { get; }
+
+        void OnGetEventRegister(Action<string, object[]> eventCaller);
     }
 }

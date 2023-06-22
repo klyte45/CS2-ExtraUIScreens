@@ -278,13 +278,34 @@ namespace ExtraUIScreens
             }
         }
 
-        private HashSet<IEUISAppRegister> registeredApplications = new HashSet<IEUISAppRegister>();
+        private readonly HashSet<IEUISAppRegister> registeredApplications = new();
+
+        private void SendEventToApp(string modderId, string appName, string eventName, params object[] args)
+        {
+            foreach (var uiSys in uiSystemArray)
+            {
+                if (uiSys != null && uiSys.UIViews[0].View.IsReadyForBindings())
+                {
+                    switch (args is null ? 0 : args.Length)
+                    {
+                        case 0: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}"); break;
+                        case 1: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0]); break;
+                        case 2: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1]); break;
+                        case 3: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1], args[2]); break;
+                        case 4: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1], args[2], args[3]); break;
+                        case 5: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1], args[2], args[3], args[4]); break;
+                        case 6: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1], args[2], args[3], args[4], args[5]); break;
+                        case 7: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
+                        default: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
+                    }
+                }
+            }
+        }
 
         internal void RegisterApplication(IEUISAppRegister appRegisterData)
         {
             if (ValidateAppRegister(appRegisterData))
             {
-
                 for (int i = 1; i < uiSystemArray.Length; i++)
                 {
                     UISystem uiSys = uiSystemArray[i];
@@ -310,6 +331,7 @@ namespace ExtraUIScreens
                         }
                     }
                 }
+                appRegisterData.OnGetEventRegister((string eventName, object[] args) => SendEventToApp(appRegisterData.ModderIdentifier, appRegisterData.AppName, eventName, args));
             }
         }
 

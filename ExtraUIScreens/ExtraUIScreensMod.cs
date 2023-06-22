@@ -106,6 +106,10 @@ namespace ExtraUIScreens
             public Dictionary<string, Delegate> EventsToBind { get; set; }
 
             public Dictionary<string, Delegate> CallsToBind { get; set; }
+
+            public void OnGetEventRegister(Action<string, object[]> eventCaller)
+            {
+            }
         }
     }
 }
