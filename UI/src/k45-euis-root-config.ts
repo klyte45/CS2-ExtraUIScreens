@@ -151,16 +151,7 @@ function registerApplicationCommons(appData: ApplicationInjectionData, customPro
   registerApplication(appName,
     async () => {
       let lifecycle: LifeCycles;
-      try {
-        lifecycle = await System.import<LifeCycles>(appName);
-      } catch {
-        const importMap = document.createElement("script");
-        importMap.setAttribute("type", "systemjs-importmap")
-        importMap.text = JSON.stringify({ imports: { [appName]: appData.jsUrl } });
-        document.appendChild(importMap);
-        lifecycle = await System.import<LifeCycles>(appData.jsUrl);
-      }
-
+      lifecycle = await System.import<LifeCycles>(appData.jsUrl);
       return {
         bootstrap: [lifecycle.bootstrap],
         mount(props) {
@@ -179,7 +170,6 @@ function registerApplicationCommons(appData: ApplicationInjectionData, customPro
             if (appData.cssUrl) {
               try {
                 const safeName = appName.replace(/[@\/]/g, "_");
-                console.log(safeName);
                 rootEl.setAttribute("data-safe-name", safeName);
                 const cssContent = await load(appData.cssUrl);
                 const parsedContent = postcss().use(prefixer({
