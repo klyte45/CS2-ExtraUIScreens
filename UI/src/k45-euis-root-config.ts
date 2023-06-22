@@ -164,7 +164,7 @@ function registerApplicationCommons(appData: ApplicationInjectionData, customPro
             }
             const rootEl = document.getElementById("single-spa-application:" + appName);
             rootEl.querySelectorAll("style, link[type=stylesheet]").forEach((x) => {
-              x.parentNode.removeChild(x);
+              removeCssElement(x);
             })
 
             if (appData.cssUrl) {
@@ -208,17 +208,7 @@ function registerApplicationCommons(appData: ApplicationInjectionData, customPro
             rootEl.parentNode.removeChild(rootEl);
             const cssEl = document.getElementById("style:" + appName);
             if (cssEl) {
-              cssEl.parentNode.removeChild(cssEl);
-              [...(document.styleSheets as any)].forEach(
-                (x: CSSStyleSheet) => {
-                  if ((x.ownerNode as any).id == cssEl.id) {
-                    do {
-                      x.deleteRule(0);
-                    } while (x.cssRules.length > 0);
-                  }
-                }
-              )
-              cssEl.id = ""
+              removeCssElement(cssEl);
             }
             appDatabase[appName]?.button?.classList.remove("active");
           });
@@ -228,6 +218,20 @@ function registerApplicationCommons(appData: ApplicationInjectionData, customPro
     },
     (location) => getApplicationScreenPositionOrdinal(location, appName) >= 0,
     customProps);
+}
+
+function removeCssElement(cssEl: Element) {
+  cssEl.parentNode.removeChild(cssEl);
+  [...(document.styleSheets as any)].forEach(
+    (x: CSSStyleSheet) => {
+      if ((x.ownerNode as any) == cssEl) {
+        do {
+          x.deleteRule(0);
+        } while (x.cssRules.length > 0);
+      }
+    }
+  );
+  cssEl.id = "";
 }
 
 function registerTaskbarButtonForApplication(appData: ApplicationInjectionData) {
