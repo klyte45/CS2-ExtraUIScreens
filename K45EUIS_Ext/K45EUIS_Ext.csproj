@@ -33,6 +33,11 @@
     <Compile Include="IEUISAppRegister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Colossal.UI.Binding">
+      <HintPath>..\..\_Managed DLLs\Colossal.UI.Binding.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

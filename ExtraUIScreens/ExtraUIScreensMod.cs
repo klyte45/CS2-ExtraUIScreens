@@ -1,5 +1,6 @@
 ﻿using Belzont.Interfaces;
 using Belzont.Utils;
+using Colossal.UI.Binding;
 using Game;
 using Game.Modding;
 using Game.UI.Menu;
@@ -95,6 +96,7 @@ namespace ExtraUIScreens
             public string DisplayName { get; set; }
 
             public string UrlJs { get; set; }
+
             public string UrlCss { get; set; }
 
             public string UrlIcon { get; set; }
@@ -102,14 +104,16 @@ namespace ExtraUIScreens
             public string ModderIdentifier { get; set; }
 
             public string ModAcronym { get; set; }
+            public string ModAppIdentifier { get; set; }
 
-            public Dictionary<string, Delegate> EventsToBind { get; set; }
 
-            public Dictionary<string, Delegate> CallsToBind { get; set; }
+            public Action<Action<string, object[]>> OnGetEventEmitter { get; set; }
 
-            public void OnGetEventRegister(Action<string, object[]> eventCaller)
-            {
-            }
+            public Action<Action<string, Delegate>> OnGetEventsBinder { get; set; }
+
+            public Action<Action<string, Delegate>> OnGetCallsBinder { get; set; }
+
+            public Action<Func<string, Action<IJsonWriter>, RawValueBinding>> OnGetRawValueBindingRegisterer { get; set; }
         }
     }
 }

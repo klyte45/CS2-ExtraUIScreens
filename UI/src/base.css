@@ -119,6 +119,7 @@
     border-bottom-color: rgba(215, 215, 215, 0.600000) !important;
     border-bottom-style: solid !important;
     border-bottom-width: 2.000000px !important;
+    overflow: scroll !important;
   }
 
   div#taskbar .appButton {

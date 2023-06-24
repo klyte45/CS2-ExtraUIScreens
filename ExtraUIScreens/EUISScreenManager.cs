@@ -3,6 +3,7 @@ using Belzont.Utils;
 using cohtml.InputSystem;
 using cohtml.Net;
 using Colossal.UI;
+using Colossal.UI.Binding;
 using Game.Input;
 using Game.SceneFlow;
 using Game.Settings;
@@ -15,6 +16,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using Action = System.Action;
 using UISystem = Colossal.UI.UISystem;
 
 namespace ExtraUIScreens
@@ -164,14 +166,14 @@ namespace ExtraUIScreens
         {
             yield return 0;
             var result = new string[Display.displays.Length][];
-            Console.WriteLine($"Registered apps: {string.Join("|", registeredApplications.Select(x => x.AppName))}");
+            Console.WriteLine($"Registered apps: {string.Join("|", registeredApplications.Select(x => x.GetFullAppName()))}");
             for (int i = 1; i < Display.displays.Length; i++)
             {
                 var wrapper = new Wrapper<string[]>();
                 yield return DoCallToMonitorToGetApplicationsEnabled(i + 1, wrapper);
                 Console.WriteLine($"Apps enabled in display {i}: {string.Join("|", wrapper.Value ?? new string[0])}");
                 result[i] = wrapper.Value != null
-                    ? registeredApplications.Select(x => x.AppName).Where(x => !wrapper.Value.Contains(x)).ToArray()
+                    ? registeredApplications.Select(x => x.GetFullAppName()).Where(x => !wrapper.Value.Contains(x)).ToArray()
                     : new string[0];
             }
             ExtraUIScreensMod.Instance.ModData.SetDisabledAppsByMonitor(result);
@@ -286,17 +288,18 @@ namespace ExtraUIScreens
             {
                 if (uiSys != null && uiSys.UIViews[0].View.IsReadyForBindings())
                 {
+                    var eventNameFull = $"{modderId}::{appName}.{eventName}";
                     switch (args is null ? 0 : args.Length)
                     {
-                        case 0: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}"); break;
-                        case 1: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0]); break;
-                        case 2: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1]); break;
-                        case 3: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1], args[2]); break;
-                        case 4: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1], args[2], args[3]); break;
-                        case 5: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1], args[2], args[3], args[4]); break;
-                        case 6: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1], args[2], args[3], args[4], args[5]); break;
-                        case 7: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
-                        default: uiSys.UIViews[0].View.TriggerEvent($"{modderId}::{appName}.{eventName}", args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
+                        case 0: uiSys.UIViews[0].View.TriggerEvent(eventNameFull); break;
+                        case 1: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0]); break;
+                        case 2: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1]); break;
+                        case 3: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2]); break;
+                        case 4: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3]); break;
+                        case 5: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4]); break;
+                        case 6: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5]); break;
+                        case 7: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
+                        default: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
                     }
                 }
             }
@@ -313,25 +316,101 @@ namespace ExtraUIScreens
                     {
                         if (uiSys.UIViews[0].View.IsReadyForBindings())
                         {
-                            if (DebugMode) Console.WriteLine($"Sending app for monitor {i + 1}: {appRegisterData.AppName}");
-                            uiSys.UIViews[0].View.TriggerEvent("k45::euis.registerApplication", appRegisterData.AppName, appRegisterData.DisplayName, appRegisterData.UrlJs, appRegisterData.UrlCss, appRegisterData.UrlIcon);
+                            if (DebugMode) Console.WriteLine($"Sending app for monitor {i + 1}: {appRegisterData.GetFullAppName()}");
+                            uiSys.UIViews[0].View.TriggerEvent("k45::euis.registerApplication", appRegisterData.GetFullAppName(), appRegisterData.DisplayName, appRegisterData.UrlJs, appRegisterData.UrlCss, appRegisterData.UrlIcon);
                             registeredApplications.Add(appRegisterData);
-                            foreach (var call in appRegisterData.CallsToBind)
-                            {
-                                var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{call.Key}";
-                                uiSys.UIViews[0].View.BindCall(callAddress, call.Value);
-                                LogUtils.DoLog("Registered call '{0}' @ Monitor #'{1}'", callAddress, i + 1);
-                            }
-                            foreach (var eventItem in appRegisterData.EventsToBind)
-                            {
-                                var bindAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{eventItem.Key}";
-                                uiSys.UIViews[0].View.RegisterForEvent(bindAddress, eventItem.Value);
-                                LogUtils.DoLog("Registered for event '{0}' @ Monitor #'{1}'", bindAddress, i + 1);
-                            }
                         }
                     }
                 }
-                appRegisterData.OnGetEventRegister((string eventName, object[] args) => SendEventToApp(appRegisterData.ModderIdentifier, appRegisterData.AppName, eventName, args));
+                var internalAppName = appRegisterData.GetInternalAppName();
+                var modderId = appRegisterData.ModderIdentifier;
+                appRegisterData.OnGetEventEmitter((string eventName, object[] args) => SendEventToApp(modderId, internalAppName, eventName, args));
+                appRegisterData.OnGetCallsBinder((string eventName, Delegate action) => RegisterCall(appRegisterData, eventName, action));
+                appRegisterData.OnGetEventsBinder((string eventName, Delegate action) => RegisterEvent(appRegisterData, eventName, action));
+                appRegisterData.OnGetRawValueBindingRegisterer((string eventName, Action<IJsonWriter> binding) => RegisterBindObserver(appRegisterData, eventName, binding));
+            }
+        }
+
+        private RawValueBinding RegisterBindObserver(IEUISAppRegister appRegisterData, string callName, Action<IJsonWriter> action)
+        {
+            var binder = new RawValueBinding($"{appRegisterData.ModderIdentifier}::{appRegisterData.GetInternalAppName()}", callName, action);
+            for (int i = 1; i < uiSystemArray.Length; i++)
+            {
+                UISystem uiSys = uiSystemArray[i];
+                if (uiSys != null)
+                {
+                    var monitorId = i + 1;
+                    var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.GetInternalAppName()}.{callName}";
+                    LogUtils.DoLog("Sending binding '{0}' ({2}) for register @ Monitor #{1}", callAddress, monitorId, binder.path);
+                    void registerCall()
+                    {
+                        binder.Attach(uiSys.UIViews[0].View);
+                        LogUtils.DoLog("Registered binding '{0}' @ Monitor #{1}", callAddress, monitorId);
+                    }
+                    if (uiSys.UIViews[0].View.IsReadyForBindings())
+                    {
+                        registerCall();
+                    }
+                    else
+                    {
+                        uiSys.UIViews[0].Listener.ReadyForBindings += registerCall;
+                    }
+                }
+            }
+            return binder;
+        }
+
+        private void RegisterCall(IEUISAppRegister appRegisterData, string callName, Delegate action)
+        {
+            for (int i = 1; i < uiSystemArray.Length; i++)
+            {
+                UISystem uiSys = uiSystemArray[i];
+                if (uiSys != null)
+                {
+                    var monitorId = i + 1;
+                    var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.GetInternalAppName()}.{callName}";
+                    LogUtils.DoLog("Sending call '{0}' for register @ Monitor #'{1}'", callAddress, monitorId);
+                    void registerCall()
+                    {
+                        uiSys.UIViews[0].View.BindCall(callAddress, action);
+                        LogUtils.DoLog("Registered call '{0}' @ Monitor #'{1}'", callAddress, monitorId);
+                    }
+                    if (uiSys.UIViews[0].View.IsReadyForBindings())
+                    {
+                        registerCall();
+                    }
+                    else
+                    {
+                        uiSys.UIViews[0].Listener.ReadyForBindings += registerCall;
+                    }
+                }
+            }
+        }
+
+        private void RegisterEvent(IEUISAppRegister appRegisterData, string eventName, Delegate action)
+        {
+            for (int i = 1; i < uiSystemArray.Length; i++)
+            {
+                UISystem uiSys = uiSystemArray[i];
+                if (uiSys != null)
+                {
+                    var monitorId = i + 1;
+                    var eventAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.GetInternalAppName()}.{eventName}";
+                    LogUtils.DoLog("Sending event '{0}' for register @ Monitor #'{1}'", eventAddress, monitorId);
+                    void registerCall()
+                    {
+                        uiSys.UIViews[0].View.RegisterForEvent(eventAddress, action);
+                        LogUtils.DoLog("Registered for event '{0}' @ Monitor #'{1}'", eventAddress, monitorId);
+                    }
+                    if (uiSys.UIViews[0].View.IsReadyForBindings())
+                    {
+                        registerCall();
+                    }
+                    else
+                    {
+                        uiSys.UIViews[0].Listener.ReadyForBindings += registerCall;
+                    }
+                }
             }
         }
 
@@ -342,9 +421,14 @@ namespace ExtraUIScreens
                 LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': Modder name must be 3-10 characters and must contain only characters in this regex: [a-z0-9\\-]");
                 return false;
             }
-            if (!Regex.IsMatch(appRegisterData.AppName, $"^@{appRegisterData.ModderIdentifier}\\/[a-z0-9\\-]{{3,20}}$"))
+            if (!Regex.IsMatch(appRegisterData.ModAcronym, "^[a-z0-9]{2,5}$"))
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': Application must start with '@' + Modder identifier + '/'. After that, the application name must be 3-20 characters and must contain only characters in this regex: [a-z0-9\\-]");
+                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': Mod acronym must be 2-5 characters and must contain only characters in this regex: [a-z0-9]");
+                return false;
+            }
+            if (!Regex.IsMatch(appRegisterData.ModAppIdentifier, "^[a-z0-9\\-]{0,24}$"))
+            {
+                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': App name must be 0-24 characters and must contain only characters in this regex: [a-z0-9\\-]");
                 return false;
             }
             if (!appRegisterData.UrlJs.StartsWith("coui://") && !appRegisterData.UrlJs.StartsWith("http://localhost"))
@@ -362,14 +446,19 @@ namespace ExtraUIScreens
                 LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': The application icon must be registered in the game ui system (under coui://).");
                 return false;
             }
-            if (appRegisterData.CallsToBind is null)
+            if (appRegisterData.OnGetCallsBinder is null)
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': Calls to bind must not be null!");
+                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': OnGetCallsBinder must not be null!");
                 return false;
             }
-            if (appRegisterData.EventsToBind is null)
+            if (appRegisterData.OnGetEventsBinder is null)
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': Events to bind must not be null!");
+                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': OnGetEventsBinder must not be null!");
+                return false;
+            }
+            if (appRegisterData.OnGetEventEmitter is null)
+            {
+                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': OnGetEventEmitter must not be null!");
                 return false;
             }
 
