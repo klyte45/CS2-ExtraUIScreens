@@ -2,6 +2,7 @@ const { merge } = require("webpack-merge");
 const singleSpaDefaults = require("webpack-config-single-spa-ts");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = (webpackConfigEnv, argv) => {
   const orgName = "k45-euis";
@@ -24,16 +25,30 @@ module.exports = (webpackConfigEnv, argv) => {
           orgName,
         },
       }),
+      new MiniCssExtractPlugin({
+        filename: `base.css`
+      }),
       new CopyPlugin({
         patterns: [
           "src/euis.png",
           "src/euis-hover.png",
           "src/cohtml.js",
-          { from: "src/*.css", to() { return "[name][ext]"; } },
           "dependencies/*",
           { from: "root/dist/*.js", to() { return "[name][ext]"; } }
         ],
       }),
     ],
+    module: {
+      rules: [
+        {
+          test: /\.(s[ac]|c)ss$/i,
+          use: [
+            MiniCssExtractPlugin.loader,
+            "css-loader",
+            "sass-loader",
+          ],
+        }
+      ],
+    },
   });
 };

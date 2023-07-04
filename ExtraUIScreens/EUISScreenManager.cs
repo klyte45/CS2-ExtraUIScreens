@@ -35,6 +35,8 @@ namespace ExtraUIScreens
         private UIInputSystem[] inputSystemArray;
         private UISystem[] uiSystemArray;
 
+        private bool showMonitor1;
+
         public void Awake()
         {
             if (Instance != null)
@@ -49,50 +51,57 @@ namespace ExtraUIScreens
         public void Start()
         {
             uiSystemArray = new UISystem[8];
-            if (Display.displays.Length > 1)
+            ReadyCount = 0;
+            ReadyCountTarget = Display.displays.Length;
+
+
+            var defView = GameManager.instance.userInterface.view;
+            var uiSys = GameManager.instance.userInterface.view.uiSystem;
+            ((DefaultResourceHandler)uiSys.resourceHandler).HostLocationsMap.Add(MOD_HOST, new List<string> { BasicIMod.ModInstallFolder });
+            inputSystemArray = new UIInputSystem[9];
+            inputSystemArray[0] = GameManager.UIInputSystem;
+            m_GlobalBarrier = InputManager.instance.CreateGlobalBarrier();
+            defView.Listener.NodeMouseEvent += (a, eventData, c, d) =>
             {
-                ReadyCount = 0;
-                ReadyCountTarget = Display.displays.Length - 1;
+                UpdateInputSystem(eventData, 0);
+                return Actions.ContinueHandling;
+            };
 
+            var interfaceSettings = SharedSettings.instance.userInterface;
 
-                var defView = GameManager.instance.userInterface.view;
-                var uiSys = GameManager.instance.userInterface.view.uiSystem;
-                ((DefaultResourceHandler)uiSys.resourceHandler).HostLocationsMap.Add(MOD_HOST, new List<string> { BasicIMod.ModInstallFolder });
-                inputSystemArray = new UIInputSystem[8];
-                inputSystemArray[0] = GameManager.UIInputSystem;
-                uiSystemArray[0] = uiSys;
-                defView.Listener.NodeMouseEvent += (a, eventData, c, d) =>
+            for (int i = 0; i < Display.displays.Length; i++)
+            {
+                if (ExtraUIScreensMod.Instance.ModData.IsMonitorActive(i))
                 {
-                    UpdateInputSystem(eventData, fieldUIInput, 0);
-                    return Actions.ContinueHandling;
-                };
-
-                var interfaceSettings = SharedSettings.instance.userInterface;
-
-                for (int i = 1; i < Display.displays.Length; i++)
+                    InitializeMonitor(i);
+                }
+                else
                 {
-                    if (ExtraUIScreensMod.Instance.ModData.IsMonitorActive(i))
-                    {
-                        InitializeMonitor(i);
-                    }
-                    else
-                    {
-                        ReadyCountTarget--;
-                    }
+                    ReadyCountTarget--;
                 }
             }
         }
         private static readonly FieldInfo fieldUIInput = typeof(GameManager).GetField("m_UIInputSystem", RedirectorUtils.allFlags);
 
+        public void Update()
+        {
+            if (lastMonitorId < 2 && Input.GetKeyDown(KeyCode.Tab) && Input.GetKey(KeyCode.LeftControl))
+            {
+                showMonitor1 = !showMonitor1;
+                uiSystemArray[0].UIViews[0].View.TriggerEvent("k45::euis.toggleMon1", showMonitor1);
+                UpdateActiveMonitor();
+            }
+        }
 
         public void InitializeMonitor(int displayId) => StartCoroutine(InitializeMonitor_impl(displayId));
 
         private IEnumerator InitializeMonitor_impl(int displayId)
         {
-            if (Display.displays[displayId].active) yield break;
+            if (displayId > 0 && Display.displays[displayId].active) yield break;
+            if (displayId == 0 && uiSystemArray[0] != null) yield break;
             yield return 0;
             var defView = GameManager.instance.userInterface.view;
-            Display.displays[displayId].Activate();
+            if (displayId > 0) Display.displays[displayId].Activate();
             uiSystemArray[displayId] = UIManager.instance.CreateUISystem(new UISystem.Settings
             {
                 debuggerPort = 9450 + displayId,
@@ -100,26 +109,33 @@ namespace ExtraUIScreens
                 localizationManager = new UILocalizationManager(GameManager.instance.localizationManager),
                 resourceHandler = defView.uiSystem.resourceHandler
             });
-            inputSystemArray[displayId] = new UIInputSystem(uiSystemArray[displayId]);
+            var thisMonitorId = displayId + 1;
+            inputSystemArray[thisMonitorId] = new UIInputSystem(uiSystemArray[displayId]);
             yield return 0;
-
-            var camgo = new GameObject();
-            GameObject.DontDestroyOnLoad(camgo);
-            var cam = camgo.AddComponent<Camera>();
-            cam.cameraType = CameraType.Preview;
-            cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = Color.gray;
-
+            Camera cam;
             UIView.Settings settings = UIView.Settings.New;
             settings.isTransparent = true;
             settings.acceptsInput = true;
-            var baseUri = new UriBuilder() { Scheme = "coui", Host = MOD_HOST, Path = @"UI/index.html" }.Uri.AbsoluteUri;
+            if (displayId != 0)
+            {
+                var camgo = new GameObject();
+                GameObject.DontDestroyOnLoad(camgo);
+                cam = camgo.AddComponent<Camera>();
+                cam.cameraType = CameraType.Preview;
+                cam.clearFlags = CameraClearFlags.SolidColor;
+                cam.backgroundColor = Color.gray;
+                cam.targetDisplay = displayId;
+            }
+            else
+            {
+                cam = defView.RenderingCamera;
+                settings.enableBackdropFilter = false;
+            }
+            var baseUri = new UriBuilder() { Scheme = "coui", Host = MOD_HOST, Path = @"UI/index.html" }/* new UriBuilder { Scheme = "http", Host = "localhost", Port = 8400, Path = "index.html" } */.Uri.AbsoluteUri;
             yield return 0;
 
             var modView = uiSystemArray[displayId].CreateView(baseUri, settings, cam);
             modView.enabled = true;
-            cam.targetDisplay = displayId;
-            var thisMonitorId = displayId + 1;
             modView.Listener.ReadyForBindings += () =>
             {
                 modView.View.BindCall("k45::euis.getMonitorId", new Func<int>(() => thisMonitorId));
@@ -150,7 +166,7 @@ namespace ExtraUIScreens
             };
             modView.Listener.NodeMouseEvent += (a, eventData, c, d) =>
             {
-                UpdateInputSystem(eventData, fieldUIInput, thisMonitorId);
+                UpdateInputSystem(eventData, thisMonitorId);
                 return Actions.ContinueHandling;
             };
         }
@@ -167,7 +183,7 @@ namespace ExtraUIScreens
             yield return 0;
             var result = new string[Display.displays.Length][];
             Console.WriteLine($"Registered apps: {string.Join("|", registeredApplications.Select(x => x.GetFullAppName()))}");
-            for (int i = 1; i < Display.displays.Length; i++)
+            for (int i = 0; i < Display.displays.Length; i++)
             {
                 var wrapper = new Wrapper<string[]>();
                 yield return DoCallToMonitorToGetApplicationsEnabled(i + 1, wrapper);
@@ -182,10 +198,21 @@ namespace ExtraUIScreens
         }
 
         private int lastMonitorId = -1;
-        private bool UpdateInputSystem(IMouseEventData b, FieldInfo fieldUIInput, int thisMonitorId)
+        private ProxyActionMap.Barrier m_GlobalBarrier;
+        private bool UpdateInputSystem(IMouseEventData b, int thisMonitorId)
+        {
+            if (b.Type == MouseEventData.EventType.MouseMove)
+            {
+                UpdateActiveMonitor();
+            }
+            return thisMonitorId == lastMonitorId;
+        }
+
+        private void UpdateActiveMonitor()
         {
             var targetIdx = Mathf.RoundToInt(Display.RelativeMouseAt(Input.mousePosition).z);
-            if (b.Type == MouseEventData.EventType.MouseMove && targetIdx != lastMonitorId)
+            if (targetIdx != 0 || showMonitor1) { targetIdx++; }
+            if (targetIdx != lastMonitorId)
             {
                 lastMonitorId = targetIdx;
                 fieldUIInput.SetValue(GameManager.instance, inputSystemArray[lastMonitorId]);
@@ -204,12 +231,16 @@ namespace ExtraUIScreens
                         inputSys.Disable();
                     }
                 }
+                if (lastMonitorId != 0)
+                {
+                    InputManager.instance.mouseOverUI = true;
+                    m_GlobalBarrier.blocked = true;
+                }
+                else
+                {
+                    m_GlobalBarrier.blocked = false;
+                }
             }
-            if (lastMonitorId != 0)
-            {
-                InputManager.instance.mouseOverUI = true;
-            }
-            return thisMonitorId == lastMonitorId;
         }
 
         private IEnumerator GetMonitorEnabledApplcations(int monitorId, View callerView)
@@ -222,7 +253,7 @@ namespace ExtraUIScreens
 
         private IEnumerator DoCallToMonitorToGetApplicationsEnabled(int monitorId, Wrapper<string[]> appList)
         {
-            if (monitorId <= 1 || monitorId > uiSystemArray.Length || uiSystemArray[monitorId - 1] is null)
+            if (monitorId <= 0 || monitorId > uiSystemArray.Length || uiSystemArray[monitorId - 1] is null)
             {
                 appList.Value = new string[0];
                 yield break;
@@ -242,7 +273,7 @@ namespace ExtraUIScreens
                 localAppList = x;
             }));
             targetView.TriggerEvent("k45::euis.listActiveAppsInMonitor", monitorId);
-            for (int framesRemaining = 20; framesRemaining > 0; framesRemaining--)
+            for (int framesRemaining = 5; framesRemaining > 0; framesRemaining--)
             {
                 if (localAppList != null) break;
                 yield return 0;
@@ -253,7 +284,7 @@ namespace ExtraUIScreens
 
         private void RemoveAppFromMonitor(string appName, int monitorId)
         {
-            if (monitorId > 1 && monitorId <= uiSystemArray.Length && !(uiSystemArray[monitorId - 1] is null))
+            if (monitorId > 0 && monitorId <= uiSystemArray.Length && uiSystemArray[monitorId - 1] is not null)
             {
                 foreach (var uiSys in uiSystemArray)
                 {
@@ -268,7 +299,7 @@ namespace ExtraUIScreens
 
         private void AddAppToMonitor(string appName, int monitorId)
         {
-            if (monitorId > 1 && monitorId <= uiSystemArray.Length && !(uiSystemArray[monitorId - 1] is null))
+            if (monitorId > 0 && monitorId <= uiSystemArray.Length && uiSystemArray[monitorId - 1] is not null)
             {
                 foreach (var uiSys in uiSystemArray)
                 {
@@ -309,7 +340,7 @@ namespace ExtraUIScreens
         {
             if (ValidateAppRegister(appRegisterData))
             {
-                for (int i = 1; i < uiSystemArray.Length; i++)
+                for (int i = 0; i < uiSystemArray.Length; i++)
                 {
                     UISystem uiSys = uiSystemArray[i];
                     if (uiSys != null)
@@ -334,7 +365,7 @@ namespace ExtraUIScreens
         private RawValueBinding RegisterBindObserver(IEUISAppRegister appRegisterData, string callName, Action<IJsonWriter> action)
         {
             var binder = new RawValueBinding($"{appRegisterData.ModderIdentifier}::{appRegisterData.GetInternalAppName()}", callName, action);
-            for (int i = 1; i < uiSystemArray.Length; i++)
+            for (int i = 0; i < uiSystemArray.Length; i++)
             {
                 UISystem uiSys = uiSystemArray[i];
                 if (uiSys != null)
@@ -362,7 +393,7 @@ namespace ExtraUIScreens
 
         private void RegisterCall(IEUISAppRegister appRegisterData, string callName, Delegate action)
         {
-            for (int i = 1; i < uiSystemArray.Length; i++)
+            for (int i = 0; i < uiSystemArray.Length; i++)
             {
                 UISystem uiSys = uiSystemArray[i];
                 if (uiSys != null)
@@ -389,7 +420,7 @@ namespace ExtraUIScreens
 
         private void RegisterEvent(IEUISAppRegister appRegisterData, string eventName, Delegate action)
         {
-            for (int i = 1; i < uiSystemArray.Length; i++)
+            for (int i = 0; i < uiSystemArray.Length; i++)
             {
                 UISystem uiSys = uiSystemArray[i];
                 if (uiSys != null)
@@ -467,7 +498,7 @@ namespace ExtraUIScreens
 
         internal void UnregisterApplication(string appName)
         {
-            for (int i = 1; i < uiSystemArray.Length; i++)
+            for (int i = 0; i < uiSystemArray.Length; i++)
             {
                 UISystem uiSys = uiSystemArray[i];
                 if (uiSys != null)
@@ -483,7 +514,7 @@ namespace ExtraUIScreens
 
         internal void OnMonitorActivityChanged()
         {
-            for (int i = 1; i < uiSystemArray.Length; i++)
+            for (int i = 0; i < uiSystemArray.Length; i++)
             {
                 UISystem uiSys = uiSystemArray[i];
                 if (uiSys != null)

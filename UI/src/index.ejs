@@ -54,7 +54,7 @@
         <script type="systemjs-importmap">
     {
       "imports": {
-        "@k45-euis/root-config": "//localhost:9000/k45-euis-root-config.js"
+        "@k45-euis/root-config": "//localhost:8400/k45-euis-root-config.js"
       }
     }
   </script>
@@ -70,6 +70,7 @@
           <% if (isLocal) { %>
             <script src="dependencies/system.min.js"></script>
             <script src="dependencies/amd.min.js"></script>
+            <link href="coui://gameui/index.css" rel="stylesheet">
             <% } else { %>
               <script src="dependencies/system.min.js"></script>
               <script src="dependencies/amd.min.js"></script>
@@ -79,7 +80,7 @@
                 <script src="cohtml.js"></script>
 </head>
 
-<body>
+<body class="transparent">
   <noscript>
     You need to enable JavaScript to run this app.
   </noscript>
@@ -95,6 +96,7 @@
       <div class="date" data-bind-value="{{__euis_main.currentDate}}">10/03/2015</div>
     </div>
   </div>
+  <div id="bgMask"></div>
 </body>
 
 </html>

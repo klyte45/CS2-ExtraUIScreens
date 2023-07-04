@@ -62,7 +62,7 @@ export class TableScreenSelect extends Component<{ rootProps: RootProps }, {
 
   static async loadData(component: TableScreenSelect, activeMask: number) {
     const quantityMonitors = await component.props.rootProps.getQuantityMonitors();
-    const appsActive = ObjectTyped.fromEntries(await Promise.all([...new Array(quantityMonitors - 1)].map(async (_, i) => { return [(i + 2).toString(), await component.props.rootProps.listActiveAppsInMonitor(i + 2)] as [string, string[]]; })));
+    const appsActive = ObjectTyped.fromEntries(await Promise.all([...new Array(quantityMonitors)].map(async (_, i) => { return [(i + 1).toString(), await component.props.rootProps.listActiveAppsInMonitor(i + 1)] as [string, string[]]; })));
     component.setState({
       quantityMonitors: quantityMonitors,
       allApps: (await component.props.rootProps.getAppNames()).filter(x => x != "@k45-euis/root"),
@@ -91,11 +91,11 @@ export class TableScreenSelect extends Component<{ rootProps: RootProps }, {
           <div style={modAppNameStyle}>{appData.appName}</div>
         </div>
         <div style={flexSpace}></div>
-        {new Array(this.state.quantityMonitors - 1).fill(null).map((_, i) => {
-          if (this.checkMonitorActive(i + 2))
+        {new Array(this.state.quantityMonitors).fill(null).map((_, i) => {
+          if (this.checkMonitorActive(i + 1))
             return <div key={i} className="label__DGc7_" style={columnStyleRightCheck}>
-              <CheckboxTitleless isChecked={() => { return thisComponent.state.appsByMonitor[i + 2]?.includes(x); }} onClick={(k) => {
-                (k ? rootProps.reintroduceAppButton(x, i + 2) : rootProps.removeAppButton(x, i + 2));
+              <CheckboxTitleless isChecked={() => { return thisComponent.state.appsByMonitor[i + 1]?.includes(x); }} onClick={(k) => {
+                (k ? rootProps.reintroduceAppButton(x, i + 1) : rootProps.removeAppButton(x, i + 1));
               }}>
               </CheckboxTitleless>
             </div>;
@@ -106,9 +106,9 @@ export class TableScreenSelect extends Component<{ rootProps: RootProps }, {
       <div className="field__MBOM9 field__UuCZq">
         <div className="label__DGc7_ label__ZLbNH" style={columnStyle}>{engine.translate("K45::EUIS.root[Table.AppNameColumn]")}</div>
         <div style={flexSpace}></div>
-        {Array(this.state.quantityMonitors - 1).fill(null).map((_, i) => {
-          if (this.checkMonitorActive(i + 2))
-            return <div key={i} className='label__DGc7_ label__ZLbNH' style={columnStyleRight}>{engine.translate("K45::EUIS.root[Table.ShowInMonitorCol]").replace("{0}", "" + (i + 2))}</div>;
+        {Array(this.state.quantityMonitors).fill(null).map((_, i) => {
+          if (this.checkMonitorActive(i + 1))
+            return <div key={i} className='label__DGc7_ label__ZLbNH' style={columnStyleRight}>{engine.translate("K45::EUIS.root[Table.ShowInMonitorCol]").replace("{0}", "" + (i + 1))}</div>;
         })}
       </div>
       {appRows}

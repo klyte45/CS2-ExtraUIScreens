@@ -3,6 +3,7 @@
 import { LifeCycles, getAppNames, registerApplication, start, unregisterApplication } from "single-spa";
 import prefixer from 'postcss-prefix-selector';
 import postcss from "postcss";
+import './base.scss'
 
 const ROOT_APP_NAME = "@k45-euis/root";
 
@@ -26,6 +27,18 @@ engine.whenReady.then(() => {
     engine.createJSModel('__euis_main', __euis_main);
     engine.synchronizeModels();
     updateCurrentTime();
+    if (x != 1) {
+      document.querySelector("body.transparent").classList.remove("transparent");
+    } else {
+      document.querySelector("body").classList.add("mon1");      
+      engine.on("k45::euis.toggleMon1", (enabled: boolean) => {
+        if (enabled) {
+          document.querySelector("body").classList.remove("transparent");
+        } else {
+          document.querySelector("body").classList.add("transparent");
+        }
+      });
+    }
     __euis_main.monitorIdentifierText = `MON #${x}`;
     __euis_main.monitorNumber = x;
     engine.updateWholeModel(__euis_main);
@@ -51,6 +64,13 @@ engine.whenReady.then(() => {
     fullUnregisterApp(appName);
   });
 
+  engine.on("k45::euis.activeMonitorMaskChange->", (mask: number) => {
+    if (mask & (1 << (__euis_main.monitorNumber - 1))) {
+      document.querySelector("body").classList.add("disabled");
+    } else {
+      document.querySelector("body").classList.remove("disabled");
+    }
+  });
   getAppsDisabledByDefault().then(() => engine.call("k45::euis.frontEndReady"))
 
 })

@@ -1,0 +1,206 @@
+  body {
+    height: 100%;
+    font-family: var(--fontFamily);
+    background-image: url('coui://gameui/Media/Menu/OverlayBackground.png');
+    background-size: cover;
+
+    &.mon1 {
+      background-image: none;
+
+      #bgMask {
+        background-color: rgba(12, 12, 12, .7);
+        position: fixed;
+        z-index: -5;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+      }
+    }
+
+    &.disabled {
+      display: none;
+    }
+
+    &.transparent {
+      background: transparent;
+
+      &.mon1 {
+        background-image: none;
+        #bgMask {
+          display: none;
+        }
+      }
+
+      div#taskbar {
+        right: unset;
+        width: 60px;
+        padding: 0;
+        overflow: hidden;
+        filter: opacity(0.250000);
+
+        .rightInfo,
+        .appButton {
+          display: none;
+        }
+      }
+
+      main,
+      div[id^="single-spa-application:"] {
+        display: none;
+      }
+    }
+  }
+
+
+  div#taskbar {
+    height: 50px;
+    position: fixed;
+    background-color: var(--menuPanel1);
+    backdrop-filter: var(--menuBlur);
+    color: var(--menuText1Normal);
+    text-transform: uppercase;
+    font-size: var(--fontSizeXL);
+    padding-top: 0.000000px;
+    padding-left: 70.000000rem;
+    padding-right: 90.000000rem;
+    padding-bottom: 0.000000px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: row;
+
+    %active {
+      background-color: rgba(65, 200, 250, 0.300000);
+      background-size: 35px;
+    }
+
+    .startMenu {
+      position: absolute;
+      background-color: var(--menuPanel1);
+      backdrop-filter: var(--menuBlur);
+      color: var(--menuText1Normal);
+      font-size: var(--fontSizeXL);
+      padding-top: 0px;
+      padding-left: 20rem;
+      padding-right: 20rem;
+      padding-bottom: 0px;
+      bottom: 0;
+      left: 0;
+      top: 0;
+      width: 60px;
+      display: block;
+      background-image: url('euis.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      transition-property: background-color, background-size;
+      transition-duration: 0.150000s;
+      transition-delay: 0.000000s;
+      transition-timing-function: ease;
+      background-size: 30px;
+
+      &:hover {
+        background-color: var(--menuPanel2);
+        background-image: url("euis-hover.png");
+        background-size: 35px;
+      }
+
+      &.active {
+        @extend %active
+      }
+    }
+
+    .rightInfo {
+      font-size: var(--fontSizeS);
+      position: absolute;
+      bottom: 2px;
+      right: 0;
+      top: 2px;
+      width: 80px;
+      height: 100%;
+      border-left: .5px solid rgba(220, 220, 220, .2);
+
+      .clock {
+        position: relative;
+        top: 50%;
+        right: 50%;
+        left: 50%;
+        margin-left: -100%;
+        line-height: 0;
+        height: 0;
+        text-align: center;
+      }
+
+      .date {
+        position: relative;
+        right: 50%;
+        top: 80%;
+        left: 50%;
+        margin-left: -100%;
+        line-height: 0;
+        height: 0;
+        text-align: center;
+      }
+
+      .monitorNum {
+        position: relative;
+        right: 50%;
+        top: 15%;
+        left: 50%;
+        margin-left: -100%;
+        line-height: 0;
+        height: 0;
+        text-align: center;
+        font-weight: bold;
+      }
+    }
+
+    .appButton {
+      width: 50.000000px;
+      height: 100.000000%;
+      background-color: rgba(65, 170, 250, 0.100000);
+      backdrop-filter: var(--menuBlur);
+      display: flex;
+      flex-direction: column;
+      background-repeat: no-repeat;
+      background-position: center;
+      text-align: center;
+      margin-left: 2.000000px;
+      transition-property: background-color, background-size;
+      transition-duration: 0.150000s;
+      transition-delay: 0.000000s;
+      transition-timing-function: ease;
+      background-size: 30px;
+      background-image: var(--appBtnIcon);
+
+      &:hover {
+        background-color: rgba(65, 170, 250, 0.600000);
+        background-size: 35px;
+      }
+
+      &.active {
+        @extend %active
+      }
+    }
+
+  }
+
+  main {
+    position: absolute;
+    bottom: 40px
+  }
+
+  div[id^="single-spa-application:"] {
+    background-color: var(--menuPanel1);
+    backdrop-filter: var(--menuBlur);
+    position: fixed;
+    left: 0.000000px !important;
+    right: 0.000000px !important;
+    top: 0.000000px !important;
+    bottom: 50.000000px !important;
+    border-bottom-color: rgba(215, 215, 215, 0.600000) !important;
+    border-bottom-style: solid !important;
+    border-bottom-width: 2.000000px !important;
+    overflow: scroll !important;
+  }

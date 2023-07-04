@@ -68,25 +68,17 @@ namespace ExtraUIScreens
 
         private List<IWidget> GetMonitorsMenuOptions()
         {
-            if (Display.displays.Length < 2)
-            {
-                return new List<IWidget>
-                {
-                    AddValueField("K45.EUIS.NoMonitors",()=>"")
-                };
-            }
-            else
-            {
-                return Display.displays.Where((x, i) => i > 0).Select((_, i) =>
+
+            return Display.displays.Select((_, i) =>
+              {
+                  var displayId = i;
+                  return AddBoolField($"K45.EUIS.UseMonitor{displayId + 1}", new Game.Reflection.DelegateAccessor<bool>(() => ModData.IsMonitorActive(displayId), (x) =>
                   {
-                      var displayId = i + 1;
-                      return AddBoolField($"K45.EUIS.UseMonitor{displayId + 1}", new Game.Reflection.DelegateAccessor<bool>(() => ModData.IsMonitorActive(displayId), (x) =>
-                      {
-                          ModData.SetMonitorActive(displayId, x);
-                          SaveModData();
-                      }));
-                  }).ToList();
-            }
+                      ModData.SetMonitorActive(displayId, x);
+                      SaveModData();
+                  }));
+              }).ToList();
+
         }
 
         private class EUISAppRegisterCurrent : IEUISAppRegister
