@@ -23,7 +23,6 @@ namespace ExtraUIScreens
 {
     public class EUISScreenManager : MonoBehaviour
     {
-        private const string MOD_HOST = "k45.euis";
         public static EUISScreenManager Instance { get; private set; }
 
         public static bool DebugMode { get; set; } = true;
@@ -57,7 +56,6 @@ namespace ExtraUIScreens
 
             var defView = GameManager.instance.userInterface.view;
             var uiSys = GameManager.instance.userInterface.view.uiSystem;
-            ((DefaultResourceHandler)uiSys.resourceHandler).HostLocationsMap.Add(MOD_HOST, new List<string> { BasicIMod.ModInstallFolder });
             inputSystemArray = new UIInputSystem[9];
             inputSystemArray[0] = GameManager.UIInputSystem;
             m_GlobalBarrier = InputManager.instance.CreateGlobalBarrier();
@@ -85,7 +83,7 @@ namespace ExtraUIScreens
 
         public void Update()
         {
-            if (lastMonitorId < 2 && Input.GetKeyDown(KeyCode.Tab) && Input.GetKey(KeyCode.LeftControl))
+            if (lastMonitorId < 2 && ExtraUIScreensMod.Instance.ModData.IsMonitorActive(0) && Input.GetKeyDown(KeyCode.Tab) && Input.GetKey(KeyCode.LeftControl))
             {
                 showMonitor1 = !showMonitor1;
                 uiSystemArray[0].UIViews[0].View.TriggerEvent("k45::euis.toggleMon1", showMonitor1);
@@ -131,7 +129,7 @@ namespace ExtraUIScreens
                 cam = defView.RenderingCamera;
                 settings.enableBackdropFilter = false;
             }
-            var baseUri = new UriBuilder() { Scheme = "coui", Host = MOD_HOST, Path = @"UI/index.html" }/* new UriBuilder { Scheme = "http", Host = "localhost", Port = 8400, Path = "index.html" } */.Uri.AbsoluteUri;
+            var baseUri = new UriBuilder() { Scheme = "coui", Host = BasicIMod.Instance.CouiHost, Path = @"UI/index.html" }/* new UriBuilder { Scheme = "http", Host = "localhost", Port = 8400, Path = "index.html" } */.Uri.AbsoluteUri;
             yield return 0;
 
             var modView = uiSystemArray[displayId].CreateView(baseUri, settings, cam);

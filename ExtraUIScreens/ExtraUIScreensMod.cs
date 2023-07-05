@@ -22,8 +22,6 @@ namespace ExtraUIScreens
 
         public override string Acronym => "EUIS";
 
-        public override Color ModColor => Color.gray;
-
         public override string Description => "Adds extra screens!";
 
         public override void DoOnCreateWorld(UpdateSystem updateSystem)
