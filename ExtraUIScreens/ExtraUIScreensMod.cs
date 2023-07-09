@@ -34,6 +34,14 @@ namespace ExtraUIScreens
                     EUISScreenManager.Instance.RegisterApplication(app);
                 }
             });
+            EUISScreenManager.Instance.DoOnceWhenReady(() =>
+            {
+                var mods = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISModRegister, IEUISModRegister>(() => new EUISModRegisterCurrent());
+                foreach (var mod in mods)
+                {
+                    EUISScreenManager.Instance.RegisterModActions(mod);
+                }
+            });
         }
 
         public override void OnDispose()
@@ -92,11 +100,12 @@ namespace ExtraUIScreens
             public string UrlIcon { get; set; }
 
             public string ModderIdentifier { get; set; }
-
             public string ModAcronym { get; set; }
             public string ModAppIdentifier { get; set; }
+        }
 
-
+        private class EUISModRegisterCurrent : IEUISModRegister
+        {
             public Action<Action<string, object[]>> OnGetEventEmitter { get; set; }
 
             public Action<Action<string, Delegate>> OnGetEventsBinder { get; set; }
@@ -104,6 +113,10 @@ namespace ExtraUIScreens
             public Action<Action<string, Delegate>> OnGetCallsBinder { get; set; }
 
             public Action<Func<string, Action<IJsonWriter>, RawValueBinding>> OnGetRawValueBindingRegisterer { get; set; }
+
+            public string ModderIdentifier { get; set; }
+
+            public string ModAcronym { get; set; }
         }
     }
 }

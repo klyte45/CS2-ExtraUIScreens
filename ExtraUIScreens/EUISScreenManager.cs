@@ -30,6 +30,7 @@ namespace ExtraUIScreens
         private int ReadyCountTarget { get; set; } = -1;
         private bool Ready { get; set; }
         private event Action OnReady;
+        private event Action OnceOnReady;
 
         private UIInputSystem[] inputSystemArray;
         private UISystem[] uiSystemArray;
@@ -153,6 +154,8 @@ namespace ExtraUIScreens
                         if (Ready)
                         {
                             OnReady?.Invoke();
+                            OnceOnReady?.Invoke();
+                            OnceOnReady = null;
                         }
                     }
                     else
@@ -351,25 +354,31 @@ namespace ExtraUIScreens
                         }
                     }
                 }
-                var internalAppName = appRegisterData.GetInternalAppName();
-                var modderId = appRegisterData.ModderIdentifier;
-                appRegisterData.OnGetEventEmitter((string eventName, object[] args) => SendEventToApp(modderId, internalAppName, eventName, args));
-                appRegisterData.OnGetCallsBinder((string eventName, Delegate action) => RegisterCall(appRegisterData, eventName, action));
-                appRegisterData.OnGetEventsBinder((string eventName, Delegate action) => RegisterEvent(appRegisterData, eventName, action));
-                appRegisterData.OnGetRawValueBindingRegisterer((string eventName, Action<IJsonWriter> binding) => RegisterBindObserver(appRegisterData, eventName, binding));
+            }
+        }
+        internal void RegisterModActions(IEUISModRegister modRegisterData)
+        {
+            if (ValidateModRegister(modRegisterData))
+            {
+                var internalAppName = modRegisterData.ModAcronym;
+                var modderId = modRegisterData.ModderIdentifier;
+                modRegisterData.OnGetEventEmitter((string eventName, object[] args) => SendEventToApp(modderId, internalAppName, eventName, args));
+                modRegisterData.OnGetCallsBinder((string eventName, Delegate action) => RegisterCall(modRegisterData, eventName, action));
+                modRegisterData.OnGetEventsBinder((string eventName, Delegate action) => RegisterEvent(modRegisterData, eventName, action));
+                modRegisterData.OnGetRawValueBindingRegisterer((string eventName, Action<IJsonWriter> binding) => RegisterBindObserver(modRegisterData, eventName, binding));
             }
         }
 
-        private RawValueBinding RegisterBindObserver(IEUISAppRegister appRegisterData, string callName, Action<IJsonWriter> action)
+        private RawValueBinding RegisterBindObserver(IEUISModRegister appRegisterData, string callName, Action<IJsonWriter> action)
         {
-            var binder = new RawValueBinding($"{appRegisterData.ModderIdentifier}::{appRegisterData.GetInternalAppName()}", callName, action);
+            var binder = new RawValueBinding($"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}", callName, action);
             for (int i = 0; i < uiSystemArray.Length; i++)
             {
                 UISystem uiSys = uiSystemArray[i];
                 if (uiSys != null)
                 {
                     var monitorId = i + 1;
-                    var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.GetInternalAppName()}.{callName}";
+                    var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{callName}";
                     LogUtils.DoLog("Sending binding '{0}' ({2}) for register @ Monitor #{1}", callAddress, monitorId, binder.path);
                     void registerCall()
                     {
@@ -389,7 +398,7 @@ namespace ExtraUIScreens
             return binder;
         }
 
-        private void RegisterCall(IEUISAppRegister appRegisterData, string callName, Delegate action)
+        private void RegisterCall(IEUISModRegister appRegisterData, string callName, Delegate action)
         {
             for (int i = 0; i < uiSystemArray.Length; i++)
             {
@@ -397,7 +406,7 @@ namespace ExtraUIScreens
                 if (uiSys != null)
                 {
                     var monitorId = i + 1;
-                    var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.GetInternalAppName()}.{callName}";
+                    var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{callName}";
                     LogUtils.DoLog("Sending call '{0}' for register @ Monitor #'{1}'", callAddress, monitorId);
                     void registerCall()
                     {
@@ -416,7 +425,7 @@ namespace ExtraUIScreens
             }
         }
 
-        private void RegisterEvent(IEUISAppRegister appRegisterData, string eventName, Delegate action)
+        private void RegisterEvent(IEUISModRegister appRegisterData, string eventName, Delegate action)
         {
             for (int i = 0; i < uiSystemArray.Length; i++)
             {
@@ -424,7 +433,7 @@ namespace ExtraUIScreens
                 if (uiSys != null)
                 {
                     var monitorId = i + 1;
-                    var eventAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.GetInternalAppName()}.{eventName}";
+                    var eventAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{eventName}";
                     LogUtils.DoLog("Sending event '{0}' for register @ Monitor #'{1}'", eventAddress, monitorId);
                     void registerCall()
                     {
@@ -475,6 +484,20 @@ namespace ExtraUIScreens
                 LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': The application icon must be registered in the game ui system (under coui://).");
                 return false;
             }
+            return true;
+        }
+        private bool ValidateModRegister(IEUISModRegister appRegisterData)
+        {
+            if (!Regex.IsMatch(appRegisterData.ModderIdentifier, "^[a-z0-9\\-]{3,10}$"))
+            {
+                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': Modder name must be 3-10 characters and must contain only characters in this regex: [a-z0-9\\-]");
+                return false;
+            }
+            if (!Regex.IsMatch(appRegisterData.ModAcronym, "^[a-z0-9]{2,5}$"))
+            {
+                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': Mod acronym must be 2-5 characters and must contain only characters in this regex: [a-z0-9]");
+                return false;
+            }
             if (appRegisterData.OnGetCallsBinder is null)
             {
                 LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': OnGetCallsBinder must not be null!");
@@ -490,7 +513,11 @@ namespace ExtraUIScreens
                 LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': OnGetEventEmitter must not be null!");
                 return false;
             }
-
+            if (appRegisterData.OnGetRawValueBindingRegisterer is null)
+            {
+                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': OnGetEventEmitter must not be null!");
+                return false;
+            }
             return true;
         }
 
@@ -531,6 +558,17 @@ namespace ExtraUIScreens
             if (Ready)
             {
                 action();
+            }
+        }
+        public void DoOnceWhenReady(Action action)
+        {
+            if (Ready)
+            {
+                action();
+            }
+            else
+            {
+                OnceOnReady += action;
             }
         }
     }

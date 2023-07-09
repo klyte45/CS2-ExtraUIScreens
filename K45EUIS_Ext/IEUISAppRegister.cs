@@ -1,7 +1,4 @@
-﻿using Colossal.UI.Binding;
-using System;
-
-namespace K45EUIS_Ext
+﻿namespace K45EUIS_Ext
 {
     public interface IEUISAppRegister
     {
@@ -12,10 +9,6 @@ namespace K45EUIS_Ext
         string ModderIdentifier { get; }
         string ModAcronym { get; }
         string ModAppIdentifier { get; }
-        Action<Action<string, object[]>> OnGetEventEmitter { get; }
-        Action<Action<string, Delegate>> OnGetEventsBinder { get; }
-        Action<Action<string, Delegate>> OnGetCallsBinder { get; }
-        Action<Func<string, Action<IJsonWriter>, RawValueBinding>> OnGetRawValueBindingRegisterer { get; }
     }
 
     public static class EUISAppRegisterExtensions
