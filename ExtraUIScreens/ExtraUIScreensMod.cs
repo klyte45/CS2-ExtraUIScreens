@@ -34,12 +34,12 @@ namespace ExtraUIScreens
                     EUISScreenManager.Instance.RegisterApplication(app);
                 }
             });
-            EUISScreenManager.Instance.DoOnceWhenReady(() =>
+            EUISScreenManager.Instance.DoOnceWhenReady((x) =>
             {
                 var mods = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISModRegister, IEUISModRegister>(() => new EUISModRegisterCurrent());
                 foreach (var mod in mods)
                 {
-                    EUISScreenManager.Instance.RegisterModActions(mod);
+                    EUISScreenManager.Instance.RegisterModActions(mod, x);
                 }
             });
         }

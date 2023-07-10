@@ -30,7 +30,7 @@ engine.whenReady.then(() => {
     if (x != 1) {
       document.querySelector("body.transparent").classList.remove("transparent");
     } else {
-      document.querySelector("body").classList.add("mon1");      
+      document.querySelector("body").classList.add("mon1");
       engine.on("k45::euis.toggleMon1", (enabled: boolean) => {
         if (enabled) {
           document.querySelector("body").classList.remove("transparent");
@@ -71,7 +71,7 @@ engine.whenReady.then(() => {
       document.querySelector("body").classList.remove("disabled");
     }
   });
-  getAppsDisabledByDefault().then(() => engine.call("k45::euis.frontEndReady"))
+  getAppsDisabledByDefault().then(() => engine.call("k45::euis.frontEndReady", __euis_main.monitorNumber))
 
 })
 

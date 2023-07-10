@@ -30,7 +30,7 @@ namespace ExtraUIScreens
         private int ReadyCountTarget { get; set; } = -1;
         private bool Ready { get; set; }
         private event Action OnReady;
-        private event Action OnceOnReady;
+        private event Action<int> OnceOnReady;
 
         private UIInputSystem[] inputSystemArray;
         private UISystem[] uiSystemArray;
@@ -145,7 +145,7 @@ namespace ExtraUIScreens
                 modView.View.BindCall("k45::euis.removeAppButton", new Action<string, int>(RemoveAppFromMonitor));
                 modView.View.BindCall("k45::euis.reintroduceAppButton", new Action<string, int>(AddAppToMonitor));
                 modView.View.BindCall("k45::euis.getActiveMonitorMask", new Func<int>(() => ExtraUIScreensMod.Instance.ModData.InactiveMonitors));
-                modView.View.BindCall("k45::euis.frontEndReady", new Action(() =>
+                modView.View.BindCall("k45::euis.frontEndReady", new Action<int>((x) =>
                 {
                     if (!Ready)
                     {
@@ -154,13 +154,13 @@ namespace ExtraUIScreens
                         if (Ready)
                         {
                             OnReady?.Invoke();
-                            OnceOnReady?.Invoke();
-                            OnceOnReady = null;
+                            OnceOnReady?.Invoke(-1);
                         }
                     }
                     else
                     {
                         OnReady?.Invoke();
+                        OnceOnReady?.Invoke(x);
                     }
                     OnMonitorActivityChanged();
                 }));
@@ -356,98 +356,138 @@ namespace ExtraUIScreens
                 }
             }
         }
-        internal void RegisterModActions(IEUISModRegister modRegisterData)
+        internal void RegisterModActions(IEUISModRegister modRegisterData, int targetMonitor)
         {
             if (ValidateModRegister(modRegisterData))
             {
                 var internalAppName = modRegisterData.ModAcronym;
                 var modderId = modRegisterData.ModderIdentifier;
                 modRegisterData.OnGetEventEmitter((string eventName, object[] args) => SendEventToApp(modderId, internalAppName, eventName, args));
-                modRegisterData.OnGetCallsBinder((string eventName, Delegate action) => RegisterCall(modRegisterData, eventName, action));
-                modRegisterData.OnGetEventsBinder((string eventName, Delegate action) => RegisterEvent(modRegisterData, eventName, action));
-                modRegisterData.OnGetRawValueBindingRegisterer((string eventName, Action<IJsonWriter> binding) => RegisterBindObserver(modRegisterData, eventName, binding));
+                modRegisterData.OnGetCallsBinder((string eventName, Delegate action) => RegisterCall(modRegisterData, eventName, action, targetMonitor));
+                modRegisterData.OnGetEventsBinder((string eventName, Delegate action) => RegisterEvent(modRegisterData, eventName, action, targetMonitor));
+                modRegisterData.OnGetRawValueBindingRegisterer((string eventName, Action<IJsonWriter> binding) => RegisterBindObserver(modRegisterData, eventName, binding, targetMonitor));
             }
         }
 
-        private RawValueBinding RegisterBindObserver(IEUISModRegister appRegisterData, string callName, Action<IJsonWriter> action)
+        private readonly Dictionary<string, RawValueBinding> m_cachedBindings = new();
+        private RawValueBinding RegisterBindObserver(IEUISModRegister appRegisterData, string callName, Action<IJsonWriter> action, int targetMonitor)
         {
-            var binder = new RawValueBinding($"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}", callName, action);
-            for (int i = 0; i < uiSystemArray.Length; i++)
+            var bindingId = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}" + "." + callName;
+            var binder = m_cachedBindings.TryGetValue(bindingId, out var binderRes) ? binderRes : new RawValueBinding(bindingId, callName, action);
+            m_cachedBindings[bindingId] = binder;
+            if (targetMonitor < 0)
             {
-                UISystem uiSys = uiSystemArray[i];
-                if (uiSys != null)
+                for (int i = 0; i < uiSystemArray.Length; i++)
                 {
-                    var monitorId = i + 1;
-                    var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{callName}";
-                    LogUtils.DoLog("Sending binding '{0}' ({2}) for register @ Monitor #{1}", callAddress, monitorId, binder.path);
-                    void registerCall()
-                    {
-                        binder.Attach(uiSys.UIViews[0].View);
-                        LogUtils.DoLog("Registered binding '{0}' @ Monitor #{1}", callAddress, monitorId);
-                    }
-                    if (uiSys.UIViews[0].View.IsReadyForBindings())
-                    {
-                        registerCall();
-                    }
-                    else
-                    {
-                        uiSys.UIViews[0].Listener.ReadyForBindings += registerCall;
-                    }
+                    VinculateBindingToDisplay(appRegisterData, callName, binder, i);
                 }
             }
+            else
+            {
+                VinculateBindingToDisplay(appRegisterData, callName, binder, targetMonitor - 1);
+            }
+
             return binder;
         }
 
-        private void RegisterCall(IEUISModRegister appRegisterData, string callName, Delegate action)
+        private void VinculateBindingToDisplay(IEUISModRegister appRegisterData, string callName, RawValueBinding binder, int displayId)
         {
-            for (int i = 0; i < uiSystemArray.Length; i++)
+            UISystem uiSys = uiSystemArray[displayId];
+            if (uiSys != null)
             {
-                UISystem uiSys = uiSystemArray[i];
-                if (uiSys != null)
+                var monitorId = displayId + 1;
+                var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{callName}";
+                LogUtils.DoLog("Sending binding '{0}' ({2}) for register @ Monitor #{1}", callAddress, monitorId, binder.path);
+                void registerCall()
                 {
-                    var monitorId = i + 1;
-                    var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{callName}";
-                    LogUtils.DoLog("Sending call '{0}' for register @ Monitor #'{1}'", callAddress, monitorId);
-                    void registerCall()
-                    {
-                        uiSys.UIViews[0].View.BindCall(callAddress, action);
-                        LogUtils.DoLog("Registered call '{0}' @ Monitor #'{1}'", callAddress, monitorId);
-                    }
-                    if (uiSys.UIViews[0].View.IsReadyForBindings())
-                    {
-                        registerCall();
-                    }
-                    else
-                    {
-                        uiSys.UIViews[0].Listener.ReadyForBindings += registerCall;
-                    }
+                    binder.Attach(uiSys.UIViews[0].View);
+                    LogUtils.DoLog("Registered binding '{0}' @ Monitor #{1}", callAddress, monitorId);
+                }
+                if (uiSys.UIViews[0].View.IsReadyForBindings())
+                {
+                    registerCall();
+                }
+                else
+                {
+                    uiSys.UIViews[0].Listener.ReadyForBindings += registerCall;
                 }
             }
         }
 
-        private void RegisterEvent(IEUISModRegister appRegisterData, string eventName, Delegate action)
+        private void RegisterCall(IEUISModRegister appRegisterData, string callName, Delegate action, int targetMonitor)
         {
-            for (int i = 0; i < uiSystemArray.Length; i++)
+            if (targetMonitor < 0)
             {
-                UISystem uiSys = uiSystemArray[i];
-                if (uiSys != null)
+                for (int i = 0; i < uiSystemArray.Length; i++)
                 {
-                    var monitorId = i + 1;
-                    var eventAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{eventName}";
-                    LogUtils.DoLog("Sending event '{0}' for register @ Monitor #'{1}'", eventAddress, monitorId);
-                    void registerCall()
-                    {
-                        uiSys.UIViews[0].View.RegisterForEvent(eventAddress, action);
-                        LogUtils.DoLog("Registered for event '{0}' @ Monitor #'{1}'", eventAddress, monitorId);
-                    }
-                    if (uiSys.UIViews[0].View.IsReadyForBindings())
-                    {
-                        registerCall();
-                    }
-                    else
-                    {
-                        uiSys.UIViews[0].Listener.ReadyForBindings += registerCall;
-                    }
+                    RegisterCallInDisplay(appRegisterData, callName, action, i);
+                }
+            }
+            else
+            {
+                RegisterCallInDisplay(appRegisterData, callName, action, targetMonitor - 1);
+            }
+        }
+
+        private void RegisterCallInDisplay(IEUISModRegister appRegisterData, string callName, Delegate action, int displayId)
+        {
+            UISystem uiSys = uiSystemArray[displayId];
+            if (uiSys != null)
+            {
+                var monitorId = displayId + 1;
+                var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{callName}";
+                LogUtils.DoLog("Sending call '{0}' for register @ Monitor #'{1}'", callAddress, monitorId);
+                void registerCall()
+                {
+                    uiSys.UIViews[0].View.BindCall(callAddress, action);
+                    LogUtils.DoLog("Registered call '{0}' @ Monitor #'{1}'", callAddress, monitorId);
+                }
+                if (uiSys.UIViews[0].View.IsReadyForBindings())
+                {
+                    registerCall();
+                }
+                else
+                {
+                    uiSys.UIViews[0].Listener.ReadyForBindings += registerCall;
+                }
+            }
+        }
+
+        private void RegisterEvent(IEUISModRegister appRegisterData, string eventName, Delegate action, int targetMonitor)
+        {
+            if (targetMonitor < 0)
+            {
+                for (int i = 0; i < uiSystemArray.Length; i++)
+                {
+                    RegisterEventToDisplay(appRegisterData, eventName, action, i);
+                }
+            }
+            else
+            {
+                RegisterEventToDisplay(appRegisterData, eventName, action, targetMonitor - 1);
+            }
+        }
+
+        private void RegisterEventToDisplay(IEUISModRegister appRegisterData, string eventName, Delegate action, int displayId)
+        {
+            UISystem uiSys = uiSystemArray[displayId];
+            if (uiSys != null)
+            {
+                var monitorId = displayId + 1;
+                var eventAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{eventName}";
+                LogUtils.DoLog("Sending event '{0}' for register @ Monitor #'{1}'", eventAddress, monitorId);
+                void registerCall()
+                {
+                    uiSys.UIViews[0].View.RegisterForEvent(eventAddress, action);
+                    LogUtils.DoLog("Registered for event '{0}' @ Monitor #'{1}'", eventAddress, monitorId);
+                }
+                if (uiSys.UIViews[0].View.IsReadyForBindings())
+                {
+                    registerCall();
+                }
+                else
+                {
+                    uiSys.UIViews[0].Listener.ReadyForBindings += registerCall;
                 }
             }
         }
@@ -560,16 +600,9 @@ namespace ExtraUIScreens
                 action();
             }
         }
-        public void DoOnceWhenReady(Action action)
+        public void DoOnceWhenReady(Action<int> action)
         {
-            if (Ready)
-            {
-                action();
-            }
-            else
-            {
-                OnceOnReady += action;
-            }
+            OnceOnReady += action;
         }
     }
 }
