@@ -90,6 +90,10 @@ namespace ExtraUIScreens
                 uiSystemArray[0].UIViews[0].View.TriggerEvent("k45::euis.toggleMon1", showMonitor1);
                 UpdateActiveMonitor();
             }
+            foreach (IUpdateBinding updateBinding in m_UpdateBindings)
+            {
+                updateBinding.Update();
+            }
         }
 
         public void InitializeMonitor(int displayId) => StartCoroutine(InitializeMonitor_impl(displayId));
@@ -164,13 +168,26 @@ namespace ExtraUIScreens
                     }
                     OnMonitorActivityChanged();
                 }));
+                RegisterUpdateBinding(modView, new GetterValueBinding<string>("k45::euis", "interfaceStyle", () => SharedSettings.instance.userInterface.interfaceStyle, null, null));
             };
             modView.Listener.NodeMouseEvent += (a, eventData, c, d) =>
             {
                 UpdateInputSystem(eventData, thisMonitorId);
                 return Actions.ContinueHandling;
             };
+            GameManager.instance.localizationManager.EventActiveDictionaryChanged += () => modView.View.TriggerEvent("k45::euis.localeChanged");
+
         }
+
+        private void RegisterUpdateBinding(UIView modView, GetterValueBinding<string> uiStyleBinding)
+        {
+            m_UpdateBindings.Add(uiStyleBinding);
+            uiStyleBinding.Attach(modView.View);
+        }
+
+        private List<IUpdateBinding> m_UpdateBindings = new();
+
+        private List<IBinding> m_LocalizationChangedBindings = new();
 
         private Coroutine RunningAppSelectionDefaultSave;
 

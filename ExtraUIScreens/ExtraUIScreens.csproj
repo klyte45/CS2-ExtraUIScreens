@@ -80,19 +80,19 @@
     <Reference Include="System">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\System.dll</HintPath>
       <Private>False</Private>
-	</Reference>
-    <Reference Include="System.Xml" >
+    </Reference>
+    <Reference Include="System.Xml">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\System.Xml.dll</HintPath>
       <Private>False</Private>
-	</Reference>
-    <Reference Include="mscorlib" >
+    </Reference>
+    <Reference Include="mscorlib">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\mscorlib.dll</HintPath>
       <Private>False</Private>
-	</Reference>
-    <Reference Include="System.Xml.Linq" >
+    </Reference>
+    <Reference Include="System.Xml.Linq">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\System.Xml.Linq.dll</HintPath>
       <Private>False</Private>
-	</Reference>
+    </Reference>
     <Reference Include="Unity.Entities">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.Entities.dll</HintPath>
       <Private>False</Private>
@@ -115,11 +115,11 @@
     </Reference>
     <Reference Include="Unity.InputSystem">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.InputSystem.dll</HintPath>
-      <Private>False</Private> 
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="**\*.cs" Exclude="obj\**\*.cs"/>
+    <Compile Include="**\*.cs" Exclude="obj\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\K45EUIS_Ext\K45EUIS_Ext.csproj">
@@ -142,6 +142,8 @@ xcopy /y /e "$(TargetDir)*" "%25ModDir%25"
 del "%25ModDir%25*.pdb"
 
 mkdir "%25ModDir%25UI\"
-xcopy /y /e "$(SolutionDir)UI\dist\*" "%25ModDir%25UI\"</PostBuildEvent>
+xcopy /y /e "$(SolutionDir)UI\dist\*" "%25ModDir%25UI\"
+date /T
+time /T</PostBuildEvent>
   </PropertyGroup>
 </Project>
