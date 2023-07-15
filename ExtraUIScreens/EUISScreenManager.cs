@@ -249,15 +249,12 @@ namespace ExtraUIScreens
                         inputSys.Disable();
                     }
                 }
-                if (lastMonitorId != 0)
-                {
-                    InputManager.instance.mouseOverUI = true;
-                    m_GlobalBarrier.blocked = true;
-                }
-                else
-                {
-                    m_GlobalBarrier.blocked = false;
-                }
+                m_GlobalBarrier.blocked = lastMonitorId != 0;
+            }
+
+            if (lastMonitorId != 0)
+            {
+                InputManager.instance.mouseOverUI = true;
             }
         }
 
