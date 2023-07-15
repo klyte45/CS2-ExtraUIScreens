@@ -333,11 +333,12 @@ namespace ExtraUIScreens
 
         private void SendEventToApp(string modderId, string appName, string eventName, params object[] args)
         {
+            var eventNameFull = $"{modderId}::{appName}.{eventName}";
+            LogUtils.DoLog("Calling event: {0}", eventNameFull);
             foreach (var uiSys in uiSystemArray)
             {
                 if (uiSys != null && uiSys.UIViews[0].View.IsReadyForBindings())
                 {
-                    var eventNameFull = $"{modderId}::{appName}.{eventName}";
                     switch (args is null ? 0 : args.Length)
                     {
                         case 0: uiSys.UIViews[0].View.TriggerEvent(eventNameFull); break;
