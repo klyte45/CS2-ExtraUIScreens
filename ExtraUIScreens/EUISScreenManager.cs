@@ -230,6 +230,7 @@ namespace ExtraUIScreens
         {
             var targetIdx = Mathf.RoundToInt(Display.RelativeMouseAt(Input.mousePosition).z);
             if (targetIdx != 0 || showMonitor1) { targetIdx++; }
+            InputManager.instance.mouseOverUI = targetIdx > 0;
             if (targetIdx != lastMonitorId)
             {
                 lastMonitorId = targetIdx;
@@ -252,10 +253,6 @@ namespace ExtraUIScreens
                 m_GlobalBarrier.blocked = lastMonitorId != 0;
             }
 
-            if (lastMonitorId != 0)
-            {
-                InputManager.instance.mouseOverUI = true;
-            }
         }
 
         private IEnumerator GetMonitorEnabledApplcations(int monitorId, View callerView)
