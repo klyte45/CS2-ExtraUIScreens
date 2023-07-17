@@ -112,8 +112,6 @@ namespace ExtraUIScreens
 
             public Action<Action<string, Delegate>> OnGetCallsBinder { get; set; }
 
-            public Action<Func<string, Action<IJsonWriter>, RawValueBinding>> OnGetRawValueBindingRegisterer { get; set; }
-
             public string ModderIdentifier { get; set; }
 
             public string ModAcronym { get; set; }

@@ -377,7 +377,6 @@ namespace ExtraUIScreens
                 modRegisterData.OnGetEventEmitter((string eventName, object[] args) => SendEventToApp(modderId, internalAppName, eventName, args));
                 modRegisterData.OnGetCallsBinder((string eventName, Delegate action) => RegisterCall(modRegisterData, eventName, action, targetMonitor));
                 modRegisterData.OnGetEventsBinder((string eventName, Delegate action) => RegisterEvent(modRegisterData, eventName, action, targetMonitor));
-                modRegisterData.OnGetRawValueBindingRegisterer((string eventName, Action<IJsonWriter> binding) => RegisterBindObserver(modRegisterData, eventName, binding, targetMonitor));
             }
         }
 
@@ -561,11 +560,6 @@ namespace ExtraUIScreens
                 return false;
             }
             if (appRegisterData.OnGetEventEmitter is null)
-            {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': OnGetEventEmitter must not be null!");
-                return false;
-            }
-            if (appRegisterData.OnGetRawValueBindingRegisterer is null)
             {
                 LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': OnGetEventEmitter must not be null!");
                 return false;

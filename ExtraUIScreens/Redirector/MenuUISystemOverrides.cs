@@ -8,7 +8,7 @@ using UnityEngine.Experimental.Rendering;
 
 namespace ExtraUIScreens
 {
-    public class MenuUISystemOverrides : Redirector, IRedirectable
+    public class MenuUISystemOverrides : Redirector, IRedirectableWorldless
     {
         public void Awake()
         {

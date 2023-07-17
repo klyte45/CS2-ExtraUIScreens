@@ -10,6 +10,5 @@ namespace K45EUIS_Ext
         Action<Action<string, object[]>> OnGetEventEmitter { get; }
         Action<Action<string, Delegate>> OnGetEventsBinder { get; }
         Action<Action<string, Delegate>> OnGetCallsBinder { get; }
-        Action<Func<string, Action<IJsonWriter>, RawValueBinding>> OnGetRawValueBindingRegisterer { get; }
     }
 }
