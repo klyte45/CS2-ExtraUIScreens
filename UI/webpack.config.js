@@ -30,9 +30,7 @@ module.exports = (webpackConfigEnv, argv) => {
       }),
       new CopyPlugin({
         patterns: [
-          "src/euis.png",
-          "src/euis-hover.png",
-          "src/cohtml.js",
+          "src/images/*.png",
           "dependencies/*",
           { from: "root/dist/*.js", to() { return "[name][ext]"; } }
         ],

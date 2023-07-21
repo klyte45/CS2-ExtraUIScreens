@@ -2,7 +2,13 @@
   "extends": "ts-config-single-spa",
   "files": ["src/k45-euis-root-config.ts"],
   "compilerOptions": {
-    "declarationDir": "dist"
+    "baseUrl": "./",
+    "declarationDir": "dist",
+    "paths": {
+      "#styles/*": [
+        "src/styles/*"
+      ],
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["src/**/*.test*"]

@@ -91,7 +91,7 @@
       top: 0;
       width: 60px;
       display: block;
-      background-image: url('euis.png');
+      background-image: url('../images/euis.png');
       background-repeat: no-repeat;
       background-position: center;
       transition-property: background-color, background-size;
@@ -102,7 +102,7 @@
 
       &:hover {
         background-color: var(--menuPanel2);
-        background-image: url("euis-hover.png");
+        background-image: url("../images/euis-hover.png");
         background-size: 35px;
       }
 

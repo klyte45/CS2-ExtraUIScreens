@@ -77,7 +77,8 @@
               <link href="coui://gameui/index.css" rel="stylesheet">
               <% } %>
                 <link href="base.css" rel="stylesheet">
-                <script src="cohtml.js"></script>
+                <script src="dependencies/cohtml.js"></script>
+                <script src="dependencies/vanilla-tooltip.js"></script>
 </head>
 
 <body class="transparent">
@@ -87,6 +88,7 @@
   <main></main>
   <script>
     System.import('@k45-euis/root-config');
+    new Tooltip({ theme: "dark", delay: 750 });
   </script>
   <import-map-overrides-full show-when-local-storage="devtools" dev-libs></import-map-overrides-full>
   <div id="taskbar">

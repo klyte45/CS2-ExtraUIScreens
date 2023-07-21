@@ -3,7 +3,9 @@
 import { LifeCycles, getAppNames, registerApplication, start, unregisterApplication } from "single-spa";
 import prefixer from 'postcss-prefix-selector';
 import postcss from "postcss";
-import './base.scss'
+import '/src/styles/base.scss'
+import '/src/styles/tooltip.scss'
+import translate from "./utility/translate";
 
 const ROOT_APP_NAME = "@k45-euis/root";
 
@@ -132,7 +134,9 @@ function applicationRegistering() {
   const taskbar = document.getElementById("taskbar")
   const startMenu = document.createElement("div");
   startMenu.setAttribute('id', 'startMenu');
-  startMenu.setAttribute('class', 'startMenu');
+  startMenu.setAttribute('class', 'startMenu');  
+  startMenu.setAttribute("data-tooltip", `<b>${translate("startButton.tooltipTitle")}</b>${translate("startButton.tooltipDesc")}`);
+  startMenu.setAttribute("data-tootip-position", "top left");
   startMenu.onclick = () => toggleNavigationToApp(ROOT_APP_NAME)
   taskbar.appendChild(startMenu);
   appDatabase[ROOT_APP_NAME] = rootAppData;
@@ -272,6 +276,8 @@ function registerTaskbarButtonForApplication(appData: ApplicationInjectionData) 
   const taskbar = document.getElementById("taskbar")
   const appBtn = document.createElement("div");
   appBtn.setAttribute('id', 'appButton:' + appName);
+  appBtn.setAttribute("data-tooltip", appData.displayName);
+  appBtn.setAttribute("data-tootip-position", "top left");
   appBtn.setAttribute('class', 'appButton');
   appBtn.setAttribute('style', `--appBtnIcon: url(${appData.iconUrl})`)
   appBtn.setAttribute('title', engine.translate(`k45-euis.applicationName.${appName}`))
