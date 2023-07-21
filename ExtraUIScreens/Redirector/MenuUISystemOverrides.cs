@@ -1,4 +1,6 @@
 ﻿using Belzont.Utils;
+using cohtml.InputSystem;
+using Colossal.UI;
 using Game.UI;
 using Game.UI.Menu;
 using System;
@@ -25,6 +27,21 @@ namespace ExtraUIScreens
             {
                 UnityEngine.Object.Destroy(target);
             }, false);
+            return false;
+        }
+    }
+
+    public class UIInputSystemOverrides : Redirector, IRedirectableWorldless
+    {
+        public void Awake()
+        {
+            AddRedirect(typeof(UIInputSystem).GetMethod("SetMousePosition", RedirectorUtils.allFlags), GetType().GetMethod("BeforeSetMousePosition", RedirectorUtils.allFlags));
+        }
+        private static bool BeforeSetMousePosition(ref UIView uiView, ref Vector2 mousePosition, ref MouseEventDataCached mouseData)
+        {
+            var monitor = (int)Display.RelativeMouseAt(Input.mousePosition).z;
+            mouseData.X = (int)(mousePosition.x / Display.displays[monitor].renderingWidth * uiView.width);
+            mouseData.Y = (int)((1f - (mousePosition.y / Display.displays[monitor].renderingHeight)) * uiView.height);
             return false;
         }
     }

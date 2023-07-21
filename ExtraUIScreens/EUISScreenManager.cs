@@ -113,12 +113,13 @@ namespace ExtraUIScreens
                 resourceHandler = defView.uiSystem.resourceHandler
             });
             var thisMonitorId = displayId + 1;
-            inputSystemArray[thisMonitorId] = new UIInputSystem(uiSystemArray[displayId]);
+            var inputSys = inputSystemArray[thisMonitorId] = new UIInputSystem(uiSystemArray[displayId]);
             yield return 0;
             Camera cam;
             UIView.Settings settings = UIView.Settings.New;
             settings.isTransparent = true;
             settings.acceptsInput = true;
+            settings.pixelPerfect = true;
             if (displayId != 0)
             {
                 var camgo = new GameObject();
@@ -219,7 +220,7 @@ namespace ExtraUIScreens
         private ProxyActionMap.Barrier m_GlobalBarrier;
         private bool UpdateInputSystem(IMouseEventData b, int thisMonitorId)
         {
-            if (b.Type == MouseEventData.EventType.MouseMove)
+            if (b.Type == MouseEventData.EventType.MouseMove || b.Type == MouseEventData.EventType.MouseWheel || b.Type == MouseEventData.EventType.MouseDown)
             {
                 UpdateActiveMonitor();
             }
@@ -228,7 +229,9 @@ namespace ExtraUIScreens
 
         private void UpdateActiveMonitor()
         {
-            var targetIdx = Mathf.RoundToInt(Display.RelativeMouseAt(Input.mousePosition).z);
+            var relativePos = Display.RelativeMouseAt(Input.mousePosition);
+            var targetIdx = Mathf.RoundToInt(relativePos.z); ;
+            // LogUtils.DoLog("inputPos: {0} relPos: {1} mouseCurrent: {2}", Input.mousePosition, relativePos, Mouse.current?.position.ReadValue());
             if (targetIdx != 0 || showMonitor1) { targetIdx++; }
             InputManager.instance.mouseOverUI = targetIdx > 0;
             if (targetIdx != lastMonitorId)
