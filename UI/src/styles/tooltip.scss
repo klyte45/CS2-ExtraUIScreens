@@ -16,6 +16,10 @@
 
     transition: opacity 400ms ease-in 50ms;
 
+    * {
+        display: flex;
+        flex-wrap: wrap;
+    }
 
     &.tooltip-visible {
         opacity: 1;
