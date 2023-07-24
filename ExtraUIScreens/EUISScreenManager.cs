@@ -234,7 +234,7 @@ namespace ExtraUIScreens
             var targetIdx = Mathf.RoundToInt(relativePos.z); ;
             // LogUtils.DoLog("inputPos: {0} relPos: {1} mouseCurrent: {2}", Input.mousePosition, relativePos, Mouse.current?.position.ReadValue());
             if (targetIdx != 0 || showMonitor1) { targetIdx++; }
-            InputManager.instance.mouseOverUI = targetIdx > 0;
+            if (targetIdx > 0) InputManager.instance.mouseOverUI = true;
             if (targetIdx != lastMonitorId)
             {
                 lastMonitorId = targetIdx;
