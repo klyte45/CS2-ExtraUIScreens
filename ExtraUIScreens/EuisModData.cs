@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 
 namespace ExtraUIScreens
 {
-    public class EUISModData : IBasicModData
+    public class EuisModData : IBasicModData
     {
         [XmlAttribute]
         public bool DebugMode { get; set; }

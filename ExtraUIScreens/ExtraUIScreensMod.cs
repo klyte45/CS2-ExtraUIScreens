@@ -14,7 +14,7 @@ using UnityEngine;
 
 namespace ExtraUIScreens
 {
-    public class ExtraUIScreensMod : BasicIMod<EUISModData>, IMod
+    public class ExtraUIScreensMod : BasicIMod<EuisModData>, IMod
     {
         public static new ExtraUIScreensMod Instance => (ExtraUIScreensMod)BasicIMod.Instance;
         public override string SimpleName => "Extra UI Screens Mod";
@@ -56,9 +56,9 @@ namespace ExtraUIScreens
             new GameObject().AddComponent<EuisScreenManager>();
         }
 
-        public override EUISModData CreateNewModData()
+        public override EuisModData CreateNewModData()
         {
-            return new EUISModData();
+            return new EuisModData();
         }
 
         protected override IEnumerable<OptionsUISystem.Section> GenerateModOptionsSections()
