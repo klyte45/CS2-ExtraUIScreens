@@ -1,5 +1,6 @@
 ﻿using Belzont.Interfaces;
 using Belzont.Utils;
+using cohtml;
 using cohtml.InputSystem;
 using cohtml.Net;
 using Colossal.UI;
@@ -17,13 +18,14 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using Action = System.Action;
+using DefaultResourceHandler = Colossal.UI.DefaultResourceHandler;
 using UISystem = Colossal.UI.UISystem;
 
 namespace ExtraUIScreens
 {
-    public class EUISScreenManager : MonoBehaviour
+    public class EuisScreenManager : MonoBehaviour
     {
-        public static EUISScreenManager Instance { get; private set; }
+        public static EuisScreenManager Instance { get; private set; }
 
         public static bool DebugMode { get; set; } = true;
         private int ReadyCount { get; set; }
@@ -98,6 +100,8 @@ namespace ExtraUIScreens
 
         public void InitializeMonitor(int displayId) => StartCoroutine(InitializeMonitor_impl(displayId));
 
+        private EuisResourceHandler defaultResourceHandlerDisplays;
+
         private IEnumerator InitializeMonitor_impl(int displayId)
         {
             if (displayId > 0 && Display.displays[displayId].active) yield break;
@@ -105,12 +109,22 @@ namespace ExtraUIScreens
             yield return 0;
             var defView = GameManager.instance.userInterface.view;
             if (displayId > 0) Display.displays[displayId].Activate();
+            if (defaultResourceHandlerDisplays is null)
+            {
+                defaultResourceHandlerDisplays = new EuisResourceHandler();
+                var defaultRH = defView.uiSystem.resourceHandler as DefaultResourceHandler;
+                defaultResourceHandlerDisplays.HostLocationsMap = defaultRH.HostLocationsMap;
+                defaultResourceHandlerDisplays.coroutineHost = defaultRH.coroutineHost;
+                defaultResourceHandlerDisplays.userImagesManager = defaultRH.userImagesManager;
+                defaultResourceHandlerDisplays.System = CohtmlUISystem.GetDefaultUISystem();
+            }
+
             uiSystemArray[displayId] = UIManager.instance.CreateUISystem(new UISystem.Settings
             {
                 debuggerPort = 9450 + displayId,
                 enableDebugger = DebugMode,
                 localizationManager = new UILocalizationManager(GameManager.instance.localizationManager),
-                resourceHandler = defView.uiSystem.resourceHandler
+                resourceHandler = defaultResourceHandlerDisplays
             });
             var thisMonitorId = displayId + 1;
             var inputSys = inputSystemArray[thisMonitorId] = new UIInputSystem(uiSystemArray[displayId]);
@@ -506,6 +520,7 @@ namespace ExtraUIScreens
                 }
             }
         }
+
 
         private bool ValidateAppRegister(IEUISAppRegister appRegisterData)
         {

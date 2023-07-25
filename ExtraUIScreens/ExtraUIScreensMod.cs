@@ -1,5 +1,6 @@
 ﻿using Belzont.Interfaces;
 using Belzont.Utils;
+using cohtml;
 using Colossal.UI.Binding;
 using Game;
 using Game.Modding;
@@ -26,33 +27,33 @@ namespace ExtraUIScreens
 
         public override void DoOnCreateWorld(UpdateSystem updateSystem)
         {
-            EUISScreenManager.Instance.DoWhenReady(() =>
+            EuisScreenManager.Instance.DoWhenReady(() =>
             {
                 var apps = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISAppRegister, IEUISAppRegister>(() => new EUISAppRegisterCurrent());
                 foreach (var app in apps)
                 {
-                    EUISScreenManager.Instance.RegisterApplication(app);
+                    EuisScreenManager.Instance.RegisterApplication(app);
                 }
             });
-            EUISScreenManager.Instance.DoOnceWhenReady((x) =>
+            EuisScreenManager.Instance.DoOnceWhenReady((x) =>
             {
                 var mods = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISModRegister, IEUISModRegister>(() => new EUISModRegisterCurrent());
                 foreach (var mod in mods)
                 {
-                    EUISScreenManager.Instance.RegisterModActions(mod, x);
+                    EuisScreenManager.Instance.RegisterModActions(mod, x);
                 }
             });
         }
 
         public override void OnDispose()
         {
-            GameObject.Destroy(EUISScreenManager.Instance);
+            GameObject.Destroy(EuisScreenManager.Instance);
         }
 
 
         public override void DoOnLoad()
         {
-            new GameObject().AddComponent<EUISScreenManager>();
+            new GameObject().AddComponent<EuisScreenManager>();
         }
 
         public override EUISModData CreateNewModData()
@@ -111,7 +112,6 @@ namespace ExtraUIScreens
             public Action<Action<string, Delegate>> OnGetEventsBinder { get; set; }
 
             public Action<Action<string, Delegate>> OnGetCallsBinder { get; set; }
-
             public string ModderIdentifier { get; set; }
 
             public string ModAcronym { get; set; }

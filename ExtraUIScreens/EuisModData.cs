@@ -20,13 +20,13 @@ namespace ExtraUIScreens
             if (newValue)
             {
                 InactiveMonitors &= ~(1 << displayId);
-                EUISScreenManager.Instance.InitializeMonitor(displayId);
+                EuisScreenManager.Instance.InitializeMonitor(displayId);
             }
             else
             {
                 InactiveMonitors |= (1 << displayId);
             }
-            EUISScreenManager.Instance.OnMonitorActivityChanged();
+            EuisScreenManager.Instance.OnMonitorActivityChanged();
         }
         [XmlElement]
         public List<string> DisabledAppsByMonitor { get; set; }
