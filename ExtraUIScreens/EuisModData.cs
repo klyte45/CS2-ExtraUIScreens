@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 
 namespace ExtraUIScreens
 {
+    [XmlRoot("EuisData")]
     public class EuisModData : IBasicModData
     {
         [XmlAttribute]
