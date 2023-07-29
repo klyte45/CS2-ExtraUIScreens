@@ -1,7 +1,6 @@
 ﻿using Belzont.Interfaces;
 using Belzont.Utils;
-using cohtml;
-using Colossal.UI.Binding;
+using Colossal.IO.AssetDatabase;
 using Game;
 using Game.Modding;
 using Game.UI.Menu;
@@ -9,7 +8,9 @@ using Game.UI.Widgets;
 using K45EUIS_Ext;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace ExtraUIScreens
@@ -27,23 +28,10 @@ namespace ExtraUIScreens
 
         public override void DoOnCreateWorld(UpdateSystem updateSystem)
         {
-            EuisScreenManager.Instance.DoWhenReady(() =>
-            {
-                var apps = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISAppRegister, IEUISAppRegister>(() => new EUISAppRegisterCurrent());
-                foreach (var app in apps)
-                {
-                    EuisScreenManager.Instance.RegisterApplication(app);
-                }
-            });
-            EuisScreenManager.Instance.DoOnceWhenReady((x) =>
-            {
-                var mods = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISModRegister, IEUISModRegister>(() => new EUISModRegisterCurrent());
-                foreach (var mod in mods)
-                {
-                    EuisScreenManager.Instance.RegisterModActions(mod, x);
-                }
-            });
+            LoadExtraScreenFromMods();
         }
+
+
 
         public override void OnDispose()
         {
@@ -86,6 +74,40 @@ namespace ExtraUIScreens
                   }));
               }).ToList();
 
+        }
+        private static void LoadExtraScreenFromMods()
+        {
+            string[] allEuisAssemblies = Directory.GetFiles(AssetDatabase.kModsRootPath, "*.euis", SearchOption.AllDirectories);
+            LogUtils.DoLog($"EUIS Files found:\n {string.Join("\n", allEuisAssemblies)}");
+            foreach (var assemblyPath in allEuisAssemblies)
+            {
+                try
+                {
+                    var assembly = Assembly.LoadFile(assemblyPath);
+                    EuisScreenManager.Instance.DoWhenReady(() =>
+                    {
+                        var apps = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISAppRegister, IEUISAppRegister>(() => new EUISAppRegisterCurrent(), assembly);
+                        if (BasicIMod.DebugMode) LogUtils.DoLog($"Apps to load from '{{0}}':\n {string.Join("\n", apps.Select(x => x.DisplayName))}", assemblyPath);
+                        foreach (var app in apps)
+                        {
+                            EuisScreenManager.Instance.RegisterApplication(app);
+                        }
+                    });
+                    EuisScreenManager.Instance.DoOnceWhenReady((x) =>
+                    {
+                        var mods = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISModRegister, IEUISModRegister>(() => new EUISModRegisterCurrent(), assembly);
+                        if (BasicIMod.DebugMode) LogUtils.DoLog($"Apps to load from '{{0}}':\n {string.Join("\n", mods.Select(x => x.ModAcronym))}", assemblyPath);
+                        foreach (var mod in mods)
+                        {
+                            EuisScreenManager.Instance.RegisterModActions(mod, x);
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    LogUtils.DoErrorLog("Error loading euis assembly file @ {0}", e, assemblyPath);
+                }
+            }
         }
 
         private class EUISAppRegisterCurrent : IEUISAppRegister
