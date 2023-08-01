@@ -139,9 +139,11 @@ namespace ExtraUIScreens
                 var camgo = new GameObject();
                 GameObject.DontDestroyOnLoad(camgo);
                 cam = camgo.AddComponent<Camera>();
+                cam.farClipPlane = 1;
+                cam.nearClipPlane = 0.9f;
                 cam.cameraType = CameraType.Preview;
                 cam.clearFlags = CameraClearFlags.SolidColor;
-                cam.backgroundColor = Color.gray;
+                cam.backgroundColor = Color.black;
                 cam.targetDisplay = displayId;
             }
             else
@@ -192,7 +194,18 @@ namespace ExtraUIScreens
                 return Actions.ContinueHandling;
             };
             GameManager.instance.localizationManager.EventActiveDictionaryChanged += () => modView.View.TriggerEvent("k45::euis.localeChanged");
+            GameManager.instance.OnStageStartLoad += (x) => StartCoroutine(DisableViewOnLoad(modView, displayId != 0 ? cam : null));
+            GameManager.instance.OnStageEndLoad += (x) => { if (displayId != 0) cam.enabled = true; modView.enabled = true; modView.View.Reload(); };
+        }
 
+        private IEnumerator DisableViewOnLoad(UIView view, Camera cam)
+        {
+            view.enabled = false;
+            yield return 0;
+            if (cam != null)
+            {
+                cam.enabled = false;
+            }
         }
 
         private void RegisterUpdateBinding(UIView modView, GetterValueBinding<string> uiStyleBinding)
@@ -318,7 +331,7 @@ namespace ExtraUIScreens
             {
                 foreach (var uiSys in uiSystemArray)
                 {
-                    if (uiSys != null && uiSys.UIViews[0].View.IsReadyForBindings())
+                    if (uiSys != null && uiSys.UIViews[0].enabled && uiSys.UIViews[0].View.IsReadyForBindings())
                     {
                         uiSys.UIViews[0].View.TriggerEvent("k45::euis.removeAppButton->", monitorId, appName);
                     }
@@ -333,7 +346,7 @@ namespace ExtraUIScreens
             {
                 foreach (var uiSys in uiSystemArray)
                 {
-                    if (uiSys != null && uiSys.UIViews[0].View.IsReadyForBindings())
+                    if (uiSys != null && uiSys.UIViews[0].enabled && uiSys.UIViews[0].View.IsReadyForBindings())
                     {
                         uiSys.UIViews[0].View.TriggerEvent("k45::euis.reintroduceAppButton->", monitorId, appName);
                     }
@@ -349,7 +362,7 @@ namespace ExtraUIScreens
             LogUtils.DoLog("Calling event: {0}", eventNameFull);
             foreach (var uiSys in uiSystemArray)
             {
-                if (uiSys != null && uiSys.UIViews[0].View.IsReadyForBindings())
+                if (uiSys != null && uiSys.UIViews[0].enabled && uiSys.UIViews[0].View.IsReadyForBindings())
                 {
                     switch (args is null ? 0 : args.Length)
                     {
