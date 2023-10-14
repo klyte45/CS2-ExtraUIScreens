@@ -92,10 +92,6 @@ namespace ExtraUIScreens
                 uiSystemArray[0].UIViews[0].View.TriggerEvent("k45::euis.toggleMon1", showMonitor1);
                 UpdateActiveMonitor();
             }
-            foreach (IUpdateBinding updateBinding in m_UpdateBindings)
-            {
-                updateBinding.Update();
-            }
         }
 
         public void InitializeMonitor(int displayId) => StartCoroutine(InitializeMonitor_impl(displayId));
@@ -186,7 +182,9 @@ namespace ExtraUIScreens
                     }
                     OnMonitorActivityChanged();
                 }));
-                RegisterUpdateBinding(modView, new GetterValueBinding<string>("k45::euis", "interfaceStyle", () => SharedSettings.instance.userInterface.interfaceStyle, null, null));
+
+                modView.View.BindCall("k45::euis.interfaceStyle", () => SharedSettings.instance.userInterface.interfaceStyle);
+
             };
             modView.Listener.NodeMouseEvent += (a, eventData, c, d) =>
             {
@@ -209,15 +207,6 @@ namespace ExtraUIScreens
             }
         }
 
-        private void RegisterUpdateBinding(UIView modView, GetterValueBinding<string> uiStyleBinding)
-        {
-            m_UpdateBindings.Add(uiStyleBinding);
-            uiStyleBinding.Attach(modView.View);
-        }
-
-        private List<IUpdateBinding> m_UpdateBindings = new();
-
-        private List<IBinding> m_LocalizationChangedBindings = new();
 
         private Coroutine RunningAppSelectionDefaultSave;
 
@@ -230,12 +219,12 @@ namespace ExtraUIScreens
         {
             yield return 0;
             var result = new string[Display.displays.Length][];
-            Console.WriteLine($"Registered apps: {string.Join("|", registeredApplications.Select(x => x.GetFullAppName()))}");
+            if (ExtraUIScreensMod.DebugMode) LogUtils.DoLog($"Registered apps: {string.Join("|", registeredApplications.Select(x => x.GetFullAppName()))}");
             for (int i = 0; i < Display.displays.Length; i++)
             {
                 var wrapper = new Wrapper<string[]>();
                 yield return DoCallToMonitorToGetApplicationsEnabled(i + 1, wrapper);
-                Console.WriteLine($"Apps enabled in display {i}: {string.Join("|", wrapper.Value ?? new string[0])}");
+                if (ExtraUIScreensMod.DebugMode) LogUtils.DoLog($"Apps enabled in display {i}: {string.Join("|", wrapper.Value ?? new string[0])}");
                 result[i] = wrapper.Value != null
                     ? registeredApplications.Select(x => x.GetFullAppName()).Where(x => !wrapper.Value.Contains(x)).ToArray()
                     : new string[0];
@@ -260,7 +249,7 @@ namespace ExtraUIScreens
         {
             var relativePos = Display.RelativeMouseAt(Input.mousePosition);
             var targetIdx = Mathf.RoundToInt(relativePos.z); ;
-            // LogUtils.DoLog("inputPos: {0} relPos: {1} mouseCurrent: {2}", Input.mousePosition, relativePos, Mouse.current?.position.ReadValue());
+            //if (ExtraUIScreensMod.DebugMode)  LogUtils.DoLog("inputPos: {0} relPos: {1} mouseCurrent: {2}", Input.mousePosition, relativePos, Mouse.current?.position.ReadValue());
             if (targetIdx != 0 || showMonitor1) { targetIdx++; }
             if (targetIdx > 0) InputManager.instance.mouseOverUI = true;
             if (targetIdx != lastMonitorId)
@@ -330,13 +319,7 @@ namespace ExtraUIScreens
         {
             if (monitorId > 0 && monitorId <= uiSystemArray.Length && uiSystemArray[monitorId - 1] is not null)
             {
-                foreach (var uiSys in uiSystemArray)
-                {
-                    if (uiSys != null && uiSys.UIViews[0].enabled && uiSys.UIViews[0].View.IsReadyForBindings())
-                    {
-                        uiSys.UIViews[0].View.TriggerEvent("k45::euis.removeAppButton->", monitorId, appName);
-                    }
-                }
+                DoWithEachMonitorView(View => View.TriggerEvent("k45::euis.removeAppButton->", monitorId, appName));
             }
         }
 
@@ -345,12 +328,17 @@ namespace ExtraUIScreens
         {
             if (monitorId > 0 && monitorId <= uiSystemArray.Length && uiSystemArray[monitorId - 1] is not null)
             {
-                foreach (var uiSys in uiSystemArray)
+                DoWithEachMonitorView(View => View.TriggerEvent("k45::euis.reintroduceAppButton->", monitorId, appName));
+            }
+        }
+
+        private void DoWithEachMonitorView(Action<View> action)
+        {
+            foreach (var uiSys in uiSystemArray)
+            {
+                if (uiSys != null && uiSys.UIViews[0].enabled && uiSys.UIViews[0].View.IsReadyForBindings())
                 {
-                    if (uiSys != null && uiSys.UIViews[0].enabled && uiSys.UIViews[0].View.IsReadyForBindings())
-                    {
-                        uiSys.UIViews[0].View.TriggerEvent("k45::euis.reintroduceAppButton->", monitorId, appName);
-                    }
+                    action(uiSys.UIViews[0].View);
                 }
             }
         }
@@ -392,7 +380,7 @@ namespace ExtraUIScreens
                     {
                         if (uiSys.UIViews[0].View.IsReadyForBindings())
                         {
-                            if (DebugMode) Console.WriteLine($"Sending app for monitor {i + 1}: {appRegisterData.GetFullAppName()}");
+                            if (DebugMode) LogUtils.DoLog($"Sending app for monitor {i + 1}: {appRegisterData.GetFullAppName()}");
                             uiSys.UIViews[0].View.TriggerEvent("k45::euis.registerApplication", appRegisterData.GetFullAppName(), appRegisterData.DisplayName, appRegisterData.UrlJs, appRegisterData.UrlCss, appRegisterData.UrlIcon);
                             registeredApplications.Add(appRegisterData);
                         }
@@ -413,49 +401,6 @@ namespace ExtraUIScreens
         }
 
         private readonly Dictionary<string, RawValueBinding> m_cachedBindings = new();
-        private RawValueBinding RegisterBindObserver(IEUISModRegister appRegisterData, string callName, Action<IJsonWriter> action, int targetMonitor)
-        {
-            var bindingId = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}" + "." + callName;
-            var binder = m_cachedBindings.TryGetValue(bindingId, out var binderRes) ? binderRes : new RawValueBinding(bindingId, callName, action);
-            m_cachedBindings[bindingId] = binder;
-            if (targetMonitor < 0)
-            {
-                for (int i = 0; i < uiSystemArray.Length; i++)
-                {
-                    VinculateBindingToDisplay(appRegisterData, callName, binder, i);
-                }
-            }
-            else
-            {
-                VinculateBindingToDisplay(appRegisterData, callName, binder, targetMonitor - 1);
-            }
-
-            return binder;
-        }
-
-        private void VinculateBindingToDisplay(IEUISModRegister appRegisterData, string callName, RawValueBinding binder, int displayId)
-        {
-            UISystem uiSys = uiSystemArray[displayId];
-            if (uiSys != null)
-            {
-                var monitorId = displayId + 1;
-                var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{callName}";
-                LogUtils.DoLog("Sending binding '{0}' ({2}) for register @ Monitor #{1}", callAddress, monitorId, binder.path);
-                void registerCall()
-                {
-                    binder.Attach(uiSys.UIViews[0].View);
-                    LogUtils.DoLog("Registered binding '{0}' @ Monitor #{1}", callAddress, monitorId);
-                }
-                if (uiSys.UIViews[0].View.IsReadyForBindings())
-                {
-                    registerCall();
-                }
-                else
-                {
-                    uiSys.UIViews[0].Listener.ReadyForBindings += registerCall;
-                }
-            }
-        }
 
         private void RegisterCall(IEUISModRegister appRegisterData, string callName, Delegate action, int targetMonitor)
         {
@@ -609,7 +554,7 @@ namespace ExtraUIScreens
                 {
                     if (uiSys.UIViews[0].View.IsReadyForBindings())
                     {
-                        if (DebugMode) Console.WriteLine($"Removing app from monitor {i + 1}: {appName}");
+                        if (DebugMode) LogUtils.DoLog($"Removing app from monitor {i + 1}: {appName}");
                         uiSys.UIViews[0].View.TriggerEvent("k45::euis.unregisterApplication", appName);
                     }
                 }
@@ -642,6 +587,11 @@ namespace ExtraUIScreens
         public void DoOnceWhenReady(Action<int> action)
         {
             OnceOnReady += action;
+        }
+
+        internal void OnInterfaceStyleChanged()
+        {
+            DoWithEachMonitorView(View => View.TriggerEvent("k45::euis.interfaceStyle->", SharedSettings.instance.userInterface.interfaceStyle));
         }
     }
 }

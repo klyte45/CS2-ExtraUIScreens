@@ -75,24 +75,30 @@ engine.whenReady.then(() => {
     }
   });
   getAppsDisabledByDefault().then(() => engine.call("k45::euis.frontEndReady", __euis_main.monitorNumber))
-  engine.on("k45::euis.interfaceStyle.update", (styleName: string) => {
-    for (var t = document.body.classList.length - 1; t >= 0; t--) {
-      var n = document.body.classList[t];
-      if (n.startsWith("style--")) {
-        document.body.classList.remove(n);
-      }
-    }
-    document.body.classList.add("style--" + styleName);
+  engine.on("k45::euis.interfaceStyle->", (styleName: string) => {
+    setStyle(styleName);
   });
 
   try {
-    engine.trigger("k45::euis.interfaceStyle.subscribe")
   } catch (e) { console.log(e) }
 
 })
 
 let maximumOpenWindows = 1;
 let appDatabase: Record<string, ApplicationInjectionData & { button?: HTMLDivElement }> = {}
+
+function setStyle(styleName: string) {
+  for (var t = document.body.classList.length - 1; t >= 0; t--) {
+    var n = document.body.classList[t];
+    if (n.startsWith("style--")) {
+      document.body.classList.remove(n);
+    }
+  }
+  document.body.classList.add("style--" + styleName);
+}
+
+
+engine.call("k45::euis.interfaceStyle").then((x) => setStyle(x))
 
 function updateCurrentTime() {
   setTimeout(() => { updateTime(); setInterval(updateTime, 60000) }, 60500 - new Date().getSeconds() * 1000 - new Date().getMilliseconds());

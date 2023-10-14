@@ -1,5 +1,6 @@
 ﻿using Belzont.Interfaces;
 using Belzont.Utils;
+using Colossal.IO.AssetDatabase;
 using Game;
 using Game.Modding;
 using Game.UI.Menu;
@@ -39,8 +40,8 @@ namespace ExtraUIScreens
 
         public override void DoOnLoad()
         {
-            LoadExtraScreenFromMods();
             new GameObject().AddComponent<EuisScreenManager>();
+            LoadExtraScreenFromMods();
         }
 
         public override EuisModData CreateNewModData()
@@ -76,13 +77,17 @@ namespace ExtraUIScreens
         }
         private static void LoadExtraScreenFromMods()
         {
-            string[] allEuisAssemblies = Directory.GetFiles(Path.Combine(Application.persistentDataPath, "Mods"), "*.euis", SearchOption.AllDirectories);
+            var allEuisAssemblies = AssetDatabase.global.GetAssets<ExecutableAsset>().SelectMany(x => Directory.GetFiles(Path.GetDirectoryName(x.GetMeta().path), "*.euis", SearchOption.AllDirectories).Select(x => x.Trim())).ToHashSet();
+
             LogUtils.DoLog($"EUIS Files found:\n {string.Join("\n", allEuisAssemblies)}");
             foreach (var assemblyPath in allEuisAssemblies)
             {
                 try
                 {
+                    LogUtils.DoLog($"Loading assemblyPath: {assemblyPath}");
                     var assembly = Assembly.LoadFile(assemblyPath);
+                    LogUtils.DoLog($"Loaded assemblyPath: {assembly}");
+                    LogUtils.DoLog($"Instance = {EuisScreenManager.Instance}");
                     EuisScreenManager.Instance.DoWhenReady(() =>
                     {
                         var apps = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISAppRegister, IEUISAppRegister>(() => new EUISAppRegisterCurrent(), assembly);

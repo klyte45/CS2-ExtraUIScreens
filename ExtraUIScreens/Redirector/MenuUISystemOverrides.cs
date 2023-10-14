@@ -1,12 +1,8 @@
 ﻿using Belzont.Utils;
 using cohtml.InputSystem;
 using Colossal.UI;
-using Game.UI;
-using Game.UI.Menu;
-using System;
-using System.Reflection;
+using Game.Settings;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
 namespace ExtraUIScreens
 {
@@ -43,6 +39,18 @@ namespace ExtraUIScreens
             mouseData.X = (int)(mousePosition.x / Display.displays[monitor].renderingWidth * uiView.width);
             mouseData.Y = (int)((1f - (mousePosition.y / Display.displays[monitor].renderingHeight)) * uiView.height);
             return false;
+        }
+    }
+
+    public class InterfaceSettingsOverrides : Redirector, IRedirectableWorldless
+    {
+        public void Awake()
+        {
+            AddRedirect(typeof(InterfaceSettings).GetProperty("interfaceStyle", RedirectorUtils.allFlags).SetMethod, null, GetType().GetMethod("AfterSetInterfaceStyle", RedirectorUtils.allFlags));
+        }
+        private static void AfterSetInterfaceStyle()
+        {
+            EuisScreenManager.Instance.OnInterfaceStyleChanged();
         }
     }
 }

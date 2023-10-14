@@ -13,7 +13,8 @@ let tableStyle: CSSProperties = {
   borderWidth: 1,
   "borderStyle": "solid",
   "borderColor": "rgba(0, 0, 0, 0.4)",
-  backgroundColor: "rgba(0,0,0,0.6)"
+  backgroundColor: "rgba(0,0,0,0.6)",
+  color: "#EEEEEE"
 }
 let h1: CSSProperties = {
   textAlign: "center",
