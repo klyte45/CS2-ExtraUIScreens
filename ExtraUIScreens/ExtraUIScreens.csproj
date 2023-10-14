@@ -117,6 +117,14 @@
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.InputSystem.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="PDX.SDK">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.AssetPipeline.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="PDX.SDK">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.Mono.Cecil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" Exclude="obj\**\*.cs" />

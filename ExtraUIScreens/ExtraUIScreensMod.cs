@@ -1,6 +1,5 @@
 ﻿using Belzont.Interfaces;
 using Belzont.Utils;
-using Colossal.IO.AssetDatabase;
 using Game;
 using Game.Modding;
 using Game.UI.Menu;
@@ -28,7 +27,6 @@ namespace ExtraUIScreens
 
         public override void DoOnCreateWorld(UpdateSystem updateSystem)
         {
-            LoadExtraScreenFromMods();
         }
 
 
@@ -41,6 +39,7 @@ namespace ExtraUIScreens
 
         public override void DoOnLoad()
         {
+            LoadExtraScreenFromMods();
             new GameObject().AddComponent<EuisScreenManager>();
         }
 
@@ -77,7 +76,7 @@ namespace ExtraUIScreens
         }
         private static void LoadExtraScreenFromMods()
         {
-            string[] allEuisAssemblies = Directory.GetFiles(AssetDatabase.kModsRootPath, "*.euis", SearchOption.AllDirectories);
+            string[] allEuisAssemblies = Directory.GetFiles(Path.Combine(Application.persistentDataPath, "Mods"), "*.euis", SearchOption.AllDirectories);
             LogUtils.DoLog($"EUIS Files found:\n {string.Join("\n", allEuisAssemblies)}");
             foreach (var assemblyPath in allEuisAssemblies)
             {

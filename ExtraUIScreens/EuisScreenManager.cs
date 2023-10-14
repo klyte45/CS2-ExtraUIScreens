@@ -193,9 +193,10 @@ namespace ExtraUIScreens
                 UpdateInputSystem(eventData, thisMonitorId);
                 return Actions.ContinueHandling;
             };
-            GameManager.instance.localizationManager.EventActiveDictionaryChanged += () => modView.View.TriggerEvent("k45::euis.localeChanged");
-            GameManager.instance.OnStageStartLoad += (x) => StartCoroutine(DisableViewOnLoad(modView, displayId != 0 ? cam : null));
-            GameManager.instance.OnStageEndLoad += (x) => { if (displayId != 0) cam.enabled = true; modView.enabled = true; modView.View.Reload(); };
+            GameManager.instance.localizationManager.onActiveDictionaryChanged += () => modView.View.TriggerEvent("k45::euis.localeChanged");
+            GameManager.instance.onGamePreload += (x, y) => StartCoroutine(DisableViewOnLoad(modView, displayId != 0 ? cam : null));
+            GameManager.instance.onGameSaveLoad += (x, y) => StartCoroutine(DisableViewOnLoad(modView, displayId != 0 ? cam : null));
+            GameManager.instance.onGameLoadingComplete += (x, y) => { if (displayId != 0) cam.enabled = true; modView.enabled = true; modView.View.LoadURL(modView.url); };
         }
 
         private IEnumerator DisableViewOnLoad(UIView view, Camera cam)
