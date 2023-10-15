@@ -130,12 +130,6 @@
     <Compile Include="**\*.cs" Exclude="obj\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\K45EUIS_Ext\K45EUIS_Ext.csproj">
-      <Project>{6ce26cdc-206e-4748-aa5f-5cac11ab1ead}</Project>
-      <Name>K45EUIS_Ext</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="i18n\i18n.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
