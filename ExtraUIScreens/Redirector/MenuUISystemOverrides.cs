@@ -1,7 +1,13 @@
 ﻿using Belzont.Utils;
 using cohtml.InputSystem;
+using Colossal.IO.AssetDatabase;
+using Colossal.Serialization.Entities;
 using Colossal.UI;
+using Game;
+using Game.SceneFlow;
 using Game.Settings;
+using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ExtraUIScreens
@@ -51,6 +57,25 @@ namespace ExtraUIScreens
         private static void AfterSetInterfaceStyle()
         {
             EuisScreenManager.Instance.OnInterfaceStyleChanged();
+        }
+    }
+
+    public class GameManagerOverrides : Redirector, IRedirectableWorldless
+    {
+
+        public void Awake()
+        {
+            // private Task<bool> Load(GameMode mode, Purpose purpose, AsyncReadDescriptor descriptor, Guid sessionGuid)
+            AddRedirect(typeof(GameManager).GetMethod("Load", RedirectorUtils.allFlags, null, new[] { typeof(GameMode), typeof(Purpose), typeof(AsyncReadDescriptor), typeof(Guid) }, null),
+                GetType().GetMethod("BeforeSceneLoad", RedirectorUtils.allFlags), GetType().GetMethod("AfterSceneLoad", RedirectorUtils.allFlags));
+        }
+        private static void BeforeSceneLoad()
+        {
+            EuisScreenManager.Instance.RunOnBeforeSceneLoad();
+        }
+        private static void AfterSceneLoad(Task<bool> __result)
+        {
+           // __result.ContinueWith((x) => new Task(() => EuisScreenManager.Instance.RunOnAfterSceneLoad()));
         }
     }
 }
