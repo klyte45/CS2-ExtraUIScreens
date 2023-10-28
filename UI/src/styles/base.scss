@@ -34,7 +34,7 @@
       }
 
       div#taskbar {
-        width: 60px;
+        width: 60rem;
         padding: 0;
         overflow: hidden;
         filter: opacity(0.250000);
@@ -54,17 +54,17 @@
 
 
   div#taskbar {
-    height: 50px;
+    height: 50rem;
     position: fixed;
     background-color: var(--menuPanel1);
     backdrop-filter: var(--menuBlur);
     color: var(--menuText1Normal);
     text-transform: uppercase;
     font-size: var(--fontSizeXL);
-    padding-top: 0.000000px;
+    padding-top: 0.000000rem;
     padding-left: 70.000000rem;
     padding-right: 90.000000rem;
-    padding-bottom: 0.000000px;
+    padding-bottom: 0.000000rem;
     bottom: 0;
     left: 0;
     right: 0;
@@ -73,7 +73,7 @@
 
     %active {
       background-color: rgba(65, 200, 250, 0.300000);
-      background-size: 35px;
+      background-size: 35rem;
     }
 
     .startMenu {
@@ -82,14 +82,14 @@
       backdrop-filter: var(--menuBlur);
       color: var(--menuText1Normal);
       font-size: var(--fontSizeXL);
-      padding-top: 0px;
+      padding-top: 0rem;
       padding-left: 20rem;
       padding-right: 20rem;
-      padding-bottom: 0px;
+      padding-bottom: 0rem;
       bottom: 0;
       left: 0;
       top: 0;
-      width: 60px;
+      width: 60rem;
       display: block;
       background-image: url('../images/euis.png');
       background-repeat: no-repeat;
@@ -98,12 +98,12 @@
       transition-duration: 0.150000s;
       transition-delay: 0.000000s;
       transition-timing-function: ease;
-      background-size: 30px;
+      background-size: 30rem;
 
       &:hover {
         background-color: var(--menuPanel2);
         background-image: url("../images/euis-hover.png");
-        background-size: 35px;
+        background-size: 35rem;
       }
 
       &.active {
@@ -114,12 +114,12 @@
     .rightInfo {
       font-size: var(--fontSizeS);
       position: absolute;
-      bottom: 2px;
+      bottom: 2rem;
       right: 0;
-      top: 2px;
-      width: 80px;
+      top: 2rem;
+      width: 80rem;
       height: 100%;
-      border-left: .5px solid rgba(220, 220, 220, .2);
+      border-left: .5rem solid rgba(220, 220, 220, .2);
 
       .clock {
         position: relative;
@@ -157,7 +157,7 @@
     }
 
     .appButton {
-      width: 50.000000px;
+      width: 50.000000rem;
       height: 100.000000%;
       background-color: rgba(65, 170, 250, 0.100000);
       backdrop-filter: var(--menuBlur);
@@ -166,17 +166,17 @@
       background-repeat: no-repeat;
       background-position: center;
       text-align: center;
-      margin-left: 2.000000px;
+      margin-left: 2.000000rem;
       transition-property: background-color, background-size;
       transition-duration: 0.150000s;
       transition-delay: 0.000000s;
       transition-timing-function: ease;
-      background-size: 30px;
+      background-size: 30rem;
       background-image: var(--appBtnIcon);
 
       &:hover {
         background-color: rgba(65, 170, 250, 0.600000);
-        background-size: 35px;
+        background-size: 35rem;
       }
 
       &.active {
@@ -188,20 +188,20 @@
 
   main {
     position: absolute;
-    bottom: 40px
+    bottom: 40rem
   }
 
   div[id^="single-spa-application:"] {
     background-color: var(--menuPanel1);
     backdrop-filter: var(--menuBlur);
     position: fixed;
-    left: 0.000000px !important;
-    right: 0.000000px !important;
-    top: 0.000000px !important;
-    bottom: 50.000000px !important;
+    left: 0.000000rem !important;
+    right: 0.000000rem !important;
+    top: 0.000000rem !important;
+    bottom: 50.000000rem !important;
     border-bottom-color: rgba(215, 215, 215, 0.600000) !important;
     border-bottom-style: solid !important;
-    border-bottom-width: 2.000000px !important;
+    border-bottom-width: 2.000000rem !important;
     overflow: scroll !important;
   }
 

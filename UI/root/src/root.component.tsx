@@ -6,10 +6,10 @@ import { AppProps } from "single-spa";
 
 let tableStyle: CSSProperties = {
   position: "absolute",
-  top: 160,
-  left: 20,
-  right: 20,
-  bottom: 70,
+  top: "160rem",
+  left: "20rem",
+  right: "20rem",
+  bottom: "70rem",
   borderWidth: 1,
   "borderStyle": "solid",
   "borderColor": "rgba(0, 0, 0, 0.4)",
@@ -23,16 +23,16 @@ let h1: CSSProperties = {
 
 const bottomBar: CSSProperties = {
   position: "fixed",
-  bottom: 20,
-  left: 20,
-  right: 20,
-  height: 35,
+  bottom: "20rem",
+  left: "20rem",
+  right: "20rem",
+  height: "35rem",
   display: 'flex',
   flexDirection: "row-reverse",
 }
 const btnBottomBar: CSSProperties = {
   display: 'flex',
-  height: 35
+  height: "35rem"
 }
 
 export default class Root extends Component<RootProps & AppProps, {}>{

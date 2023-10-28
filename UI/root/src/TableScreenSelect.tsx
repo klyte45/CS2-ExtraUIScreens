@@ -6,28 +6,28 @@ import { ObjectTyped } from "object-typed";
 
 const columnStyle: CSSProperties = {
   marginRight: 0,
-  flex: "0 0 400px",
+  flex: "0 0 400rem",
 }
 const modIconStyle: CSSProperties = {
-  width: 40,
-  height: 40,
-  marginRight: 5
+  width: "40rem",
+  height: "40rem",
+  marginRight: "5rem"
 }
 const modDisplayNameStyle: CSSProperties = {
-  height: 20,
+  height: "20rem",
 }
 const modAppNameStyle: CSSProperties = {
-  height: 20,
+  height: "20rem",
 }
 const columnStyleRight: CSSProperties = {
   marginRight: 0,
   textAlign: "center",
-  flex: "0 0 100px",
+  flex: "0 0 100rem",
 }
 const columnStyleRightCheck: CSSProperties = {
   marginRight: 0,
   textAlign: "center",
-  flex: "0 0 100px",
+  flex: "0 0 100rem",
 }
 const flexSpace: CSSProperties = {
   flex: 1,
