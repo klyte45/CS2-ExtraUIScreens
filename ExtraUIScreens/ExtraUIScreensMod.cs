@@ -3,7 +3,6 @@ using Belzont.Utils;
 using Colossal.IO.AssetDatabase;
 using Game;
 using Game.Modding;
-using Game.UI.Menu;
 using Game.UI.Widgets;
 using K45EUIS_Ext;
 using System;
@@ -15,7 +14,7 @@ using UnityEngine;
 
 namespace ExtraUIScreens
 {
-    public class ExtraUIScreensMod : BasicIMod<EuisModData>, IMod
+    public class ExtraUIScreensMod : BasicIMod, IMod
     {
         public static new ExtraUIScreensMod Instance => (ExtraUIScreensMod)BasicIMod.Instance;
         public override string SimpleName => "Extra UI Screens Mod";
@@ -44,37 +43,6 @@ namespace ExtraUIScreens
             LoadExtraScreenFromMods();
         }
 
-        public override EuisModData CreateNewModData()
-        {
-            return new EuisModData();
-        }
-
-        protected override IEnumerable<OptionsUISystem.Section> GenerateModOptionsSections()
-        {
-            return new[]
-            {
-                new OptionsUISystem.Section
-                {
-                    id = "K45.EUIS.MonitorsData",
-                    items = GetMonitorsMenuOptions()
-                }
-           };
-        }
-
-        private List<IWidget> GetMonitorsMenuOptions()
-        {
-
-            return Display.displays.Select((_, i) =>
-              {
-                  var displayId = i;
-                  return AddBoolField($"K45.EUIS.UseMonitor{displayId + 1}", new Game.Reflection.DelegateAccessor<bool>(() => ModData.IsMonitorActive(displayId), (x) =>
-                  {
-                      ModData.SetMonitorActive(displayId, x);
-                      SaveModData();
-                  }));
-              }).ToList();
-
-        }
         private static void LoadExtraScreenFromMods()
         {
             var allEuisAssemblies = AssetDatabase.global.GetAssets<ExecutableAsset>().SelectMany(x => Directory.GetFiles(Path.GetDirectoryName(x.GetMeta().path), "*.euis", SearchOption.AllDirectories).Select(x => x.Trim())).ToHashSet();
@@ -112,6 +80,13 @@ namespace ExtraUIScreens
                     LogUtils.DoErrorLog("Error loading euis assembly file @ {0}", e, assemblyPath);
                 }
             }
+        }
+
+        public override BasicModData CreateSettingsFile()
+        {
+            var modData = new EuisModData(this);
+
+            return modData;
         }
 
         private class EUISAppRegisterCurrent : IEUISAppRegister

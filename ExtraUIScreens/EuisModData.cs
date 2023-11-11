@@ -1,16 +1,27 @@
 ﻿using Belzont.Interfaces;
+using Colossal.IO.AssetDatabase;
+using Game.Modding;
+using Game.Settings;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Serialization;
+using UnityEngine;
 
 namespace ExtraUIScreens
 {
-    [XmlRoot("EuisData")]
-    public class EuisModData : IBasicModData
+    [FileLocation("K45_EUIS")]
+    [SettingsUITabOrder(kMonitorsTab, kAboutTab)]
+    public class EuisModData : BasicModData
     {
-        [XmlAttribute]
-        public bool DebugMode { get; set; }
-        [XmlAttribute]
+        public const string kMonitorsTab = "MonitorsData";
+
+        public static ExtraUIScreensMod EuisInstance { get; private set; }
+        public static EuisModData EuisDataInstance { get; private set; }
+        public EuisModData(IMod mod) : base(mod)
+        {
+            EuisInstance = mod as ExtraUIScreensMod;
+            EuisDataInstance = this;
+        }
+        [SettingsUIHidden]
         public int InactiveMonitors { get; set; }
         public bool IsMonitorActive(int displayIdx)
         {
@@ -29,11 +40,30 @@ namespace ExtraUIScreens
             }
             EuisScreenManager.Instance.OnMonitorActivityChanged();
         }
-        [XmlElement]
-        public List<string> DisabledAppsByMonitor { get; set; }
 
+        public List<string> DisabledAppsByMonitor { get; set; }
         public string[][] GetDisabledAppsByMonitor() => DisabledAppsByMonitor is null ? (new string[0][]) : (DisabledAppsByMonitor?.Select(x => (x ?? "").Split(',')).ToArray());
         public void SetDisabledAppsByMonitor(string[][] newVal) => DisabledAppsByMonitor = newVal?.Select(x => string.Join(",", x ?? new string[0])).ToList();
+
+        public override void OnSetDefaults() { }
+
+        public bool IsMonitor1Unavailable() => Display.displays.Length < 2;
+        public bool IsMonitor2Unavailable() => Display.displays.Length < 3;
+        public bool IsMonitor3Unavailable() => Display.displays.Length < 4;
+        public bool IsMonitor4Unavailable() => Display.displays.Length < 5;
+        public bool IsMonitor5Unavailable() => Display.displays.Length < 6;
+        public bool IsMonitor6Unavailable() => Display.displays.Length < 7;
+        public bool IsMonitor7Unavailable() => Display.displays.Length < 8;
+
+        [SettingsUISection(kMonitorsTab, null)] public bool UseMonitor1 { get => IsMonitorActive(0); set => SetMonitorActive(0, value); }
+        [SettingsUISection(kMonitorsTab, null)][SettingsUIHideByCondition(typeof(EuisModData), nameof(IsMonitor1Unavailable))] public bool UseMonitor2 { get => IsMonitorActive(1); set => SetMonitorActive(1, value); }
+        [SettingsUISection(kMonitorsTab, null)][SettingsUIHideByCondition(typeof(EuisModData), nameof(IsMonitor2Unavailable))] public bool UseMonitor3 { get => IsMonitorActive(2); set => SetMonitorActive(2, value); }
+        [SettingsUISection(kMonitorsTab, null)][SettingsUIHideByCondition(typeof(EuisModData), nameof(IsMonitor3Unavailable))] public bool UseMonitor4 { get => IsMonitorActive(3); set => SetMonitorActive(3, value); }
+        [SettingsUISection(kMonitorsTab, null)][SettingsUIHideByCondition(typeof(EuisModData), nameof(IsMonitor4Unavailable))] public bool UseMonitor5 { get => IsMonitorActive(4); set => SetMonitorActive(4, value); }
+        [SettingsUISection(kMonitorsTab, null)][SettingsUIHideByCondition(typeof(EuisModData), nameof(IsMonitor5Unavailable))] public bool UseMonitor6 { get => IsMonitorActive(5); set => SetMonitorActive(5, value); }
+        [SettingsUISection(kMonitorsTab, null)][SettingsUIHideByCondition(typeof(EuisModData), nameof(IsMonitor6Unavailable))] public bool UseMonitor7 { get => IsMonitorActive(6); set => SetMonitorActive(6, value); }
+        [SettingsUISection(kMonitorsTab, null)][SettingsUIHideByCondition(typeof(EuisModData), nameof(IsMonitor7Unavailable))] public bool UseMonitor8 { get => IsMonitorActive(7); set => SetMonitorActive(7, value); }
+
     }
 }
 

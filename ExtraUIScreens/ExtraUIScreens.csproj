@@ -127,7 +127,34 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="**\*.cs" Exclude="obj\**\*.cs" />
+    <Compile Include="BelzontCommons\IBelzontBindable.cs" />
+    <Compile Include="BelzontCommons\Serialization\BelzontDeserializeJob.cs" />
+    <Compile Include="BelzontCommons\Serialization\BelzontSerializeJob.cs" />
+    <Compile Include="BelzontCommons\Serialization\IBelzontSerializableSingleton.cs" />
+    <Compile Include="BelzontCommons\Utils\BasicIMod.cs" />
+    <Compile Include="BelzontCommons\Utils\BridgeUtils.cs" />
+    <Compile Include="BelzontCommons\Utils\ColorExtensions.cs" />
+    <Compile Include="BelzontCommons\Utils\BasicModData.cs" />
+    <Compile Include="BelzontCommons\Utils\IEnumerableIndex.cs" />
+    <Compile Include="BelzontCommons\Utils\KFileUtils.cs" />
+    <Compile Include="BelzontCommons\Utils\KResourceLoader.cs" />
+    <Compile Include="BelzontCommons\Utils\LogUtils.cs" />
+    <Compile Include="BelzontCommons\Utils\NameSystemExtensions.cs" />
+    <Compile Include="BelzontCommons\Utils\Redirector.cs" />
+    <Compile Include="BelzontCommons\Utils\ReflectionUtils.cs" />
+    <Compile Include="BelzontCommons\Utils\SimpleEnumerableList.cs" />
+    <Compile Include="BelzontCommons\Utils\SimpleXmlDictionary.cs" />
+    <Compile Include="BelzontCommons\Utils\Tuple.cs" />
+    <Compile Include="BelzontCommons\Utils\Wrapper.cs" />
+    <Compile Include="BelzontCommons\Utils\XmlUtils.cs" />
+    <Compile Include="EuisModData.cs" />
+    <Compile Include="EuisResourceHandler.cs" />
+    <Compile Include="EuisScreenManager.cs" />
+    <Compile Include="ExtraUIScreensMod.cs" />
+    <Compile Include="Ext\IEUISAppRegister.cs" />
+    <Compile Include="Ext\IEUISModRegister.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Redirector\MenuUISystemOverrides.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="i18n\i18n.csv">

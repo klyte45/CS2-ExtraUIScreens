@@ -72,7 +72,7 @@ namespace ExtraUIScreens
 
             for (int i = 0; i < Display.displays.Length; i++)
             {
-                if (ExtraUIScreensMod.Instance.ModData.IsMonitorActive(i))
+                if (EuisModData.EuisDataInstance.IsMonitorActive(i))
                 {
                     InitializeMonitor(i);
                 }
@@ -86,7 +86,7 @@ namespace ExtraUIScreens
 
         public void Update()
         {
-            if (lastMonitorId < 2 && ExtraUIScreensMod.Instance.ModData.IsMonitorActive(0) && Input.GetKeyDown(KeyCode.Tab) && Input.GetKey(KeyCode.LeftControl))
+            if (lastMonitorId < 2 && EuisModData.EuisDataInstance.IsMonitorActive(0) && Input.GetKeyDown(KeyCode.Tab) && Input.GetKey(KeyCode.LeftControl))
             {
                 showMonitor1 = !showMonitor1;
                 uiSystemArray[0].UIViews[0].View.TriggerEvent("k45::euis.toggleMon1", showMonitor1);
@@ -157,12 +157,12 @@ namespace ExtraUIScreens
             {
                 modView.View.BindCall("k45::euis.getMonitorId", new Func<int>(() => thisMonitorId));
                 modView.View.BindCall("k45::euis.getQuantityMonitors", new Func<int>(() => Display.displays.Length));
-                modView.View.BindCall("k45::euis.getDisabledAppsByDisplay", new Func<string[][]>(() => ExtraUIScreensMod.Instance.ModData.GetDisabledAppsByMonitor()));
+                modView.View.BindCall("k45::euis.getDisabledAppsByDisplay", new Func<string[][]>(() => EuisModData.EuisDataInstance.GetDisabledAppsByMonitor()));
                 modView.View.RegisterForEvent("k45::euis.getMonitorEnabledApplcations", new Action<int>((monitorId) => StartCoroutine(GetMonitorEnabledApplcations(monitorId, modView.View))));
                 modView.View.BindCall("k45::euis.saveAppSelectionAsDefault", new Action(() => SaveAppSelectionAsDefault()));
                 modView.View.BindCall("k45::euis.removeAppButton", new Action<string, int>(RemoveAppFromMonitor));
                 modView.View.BindCall("k45::euis.reintroduceAppButton", new Action<string, int>(AddAppToMonitor));
-                modView.View.BindCall("k45::euis.getActiveMonitorMask", new Func<int>(() => ExtraUIScreensMod.Instance.ModData.InactiveMonitors));
+                modView.View.BindCall("k45::euis.getActiveMonitorMask", new Func<int>(() => EuisModData.EuisDataInstance.InactiveMonitors));
                 modView.View.BindCall("k45::euis.frontEndReady", new Action<int>((x) =>
                 {
                     if (!Ready)
@@ -225,18 +225,17 @@ namespace ExtraUIScreens
         {
             yield return 0;
             var result = new string[Display.displays.Length][];
-            if (ExtraUIScreensMod.DebugMode) LogUtils.DoLog($"Registered apps: {string.Join("|", registeredApplications.Select(x => x.GetFullAppName()))}");
+            if (BasicIMod.DebugMode) LogUtils.DoLog($"Registered apps: {string.Join("|", registeredApplications.Select(x => x.GetFullAppName()))}");
             for (int i = 0; i < Display.displays.Length; i++)
             {
                 var wrapper = new Wrapper<string[]>();
                 yield return DoCallToMonitorToGetApplicationsEnabled(i + 1, wrapper);
-                if (ExtraUIScreensMod.DebugMode) LogUtils.DoLog($"Apps enabled in display {i}: {string.Join("|", wrapper.Value ?? new string[0])}");
+                if (BasicIMod.DebugMode) LogUtils.DoLog($"Apps enabled in display {i}: {string.Join("|", wrapper.Value ?? new string[0])}");
                 result[i] = wrapper.Value != null
                     ? registeredApplications.Select(x => x.GetFullAppName()).Where(x => !wrapper.Value.Contains(x)).ToArray()
                     : new string[0];
             }
-            ExtraUIScreensMod.Instance.ModData.SetDisabledAppsByMonitor(result);
-            ExtraUIScreensMod.Instance.SaveModData();
+            EuisModData.EuisDataInstance.SetDisabledAppsByMonitor(result);
             RunningAppSelectionDefaultSave = null;
         }
 
@@ -576,7 +575,7 @@ namespace ExtraUIScreens
                 {
                     if (uiSys.UIViews[0].View.IsReadyForBindings())
                     {
-                        uiSys.UIViews[0].View.TriggerEvent("k45::euis.activeMonitorMaskChange->", ExtraUIScreensMod.Instance.ModData.InactiveMonitors);
+                        uiSys.UIViews[0].View.TriggerEvent("k45::euis.activeMonitorMaskChange->", EuisModData.EuisDataInstance.InactiveMonitors);
                     }
                 }
             }
