@@ -1,41 +1,51 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <LangVersion>10.0</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B21E28C6-1DA0-42B8-BF55-6F6A199301CD}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ExtraUIScreens</RootNamespace>
-    <AssemblyName>ExtraUIScreens</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net480</TargetFramework>
+		<RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+		<Configurations>Steam;Editor</Configurations>
+   	<UnityVersion>2022.3.7f1</UnityVersion>
+		<EntityVersion>1.0.16</EntityVersion>
+		<InstallationPath>C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II</InstallationPath>
+		<DataPath>$(LOCALAPPDATA)\..\LocalLow\Colossal Order\Cities Skylines II</DataPath>
+    <Version>0.0.7.0</Version>
+		<UnityModProjectPath Condition="'$(Configuration)'=='Editor'">$(ProjectDir)..\..\UnityModsProject</UnityModProjectPath>
+		<UnityModProjectPath Condition="'$(Configuration)'=='Steam'">$(DataPath)\~Tooling~\UnityModsProject</UnityModProjectPath>
+
+		<ModPostProcessorPath Condition="'$(Configuration)'=='Editor'">$(ProjectDir)..\..\..\..\BeverlyHills\Assets\StreamingAssets\~Tooling~\ModPostProcessor\ModPostProcessor.exe</ModPostProcessorPath>
+		<ModPostProcessorPath Condition="'$(Configuration)'=='Steam'">$(InstallationPath)\Cities2_Data\StreamingAssets\~Tooling~\ModPostProcessor\ModPostProcessor.exe</ModPostProcessorPath>
+		
+		<ManagedDLLPathEditor>..\..\..\..\BeverlyHills\Library\ScriptAssemblies</ManagedDLLPathEditor>
+		<ManagedDLLPathSteam>$(K45_CS2_ALLROOT)\_Managed DLLs</ManagedDLLPathSteam>
+		<UnityEnginePath>C:\Program Files\Unity\Hub\Editor\$(UnityVersion)\Editor\Data\Managed\UnityEngine</UnityEnginePath>
+		
+		<AssemblySearchPaths Condition="'$(Configuration)'=='Editor'">
+			$(AssemblySearchPaths);
+			$(ManagedDLLPathEditor);
+			$(UnityEnginePath);
+		</AssemblySearchPaths>
+		<AssemblySearchPaths Condition="'$(Configuration)'=='Steam'">
+			$(AssemblySearchPaths);
+			$(ManagedDLLPathSteam);
+		</AssemblySearchPaths>
+		<LangVersion>10.0</LangVersion>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="Logs\**" />
+		<EmbeddedResource Remove="Logs\**" />
+		<None Remove="Logs\**" />
+	</ItemGroup>
+  
+	<ItemGroup>
+	
     <Reference Include="0Harmony">
       <HintPath>$(K45_CS2_ALLROOT)\_commonDeps\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule.dll">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\UnityEngine.ImageConversionModule.dll.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="cohtml.Net">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\cohtml.Net.dll</HintPath>
@@ -43,6 +53,10 @@
     </Reference>
     <Reference Include="Cohtml.Runtime">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Cohtml.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Colossal.Collections">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.Collections.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Colossal.Core">
@@ -59,6 +73,10 @@
     </Reference>
     <Reference Include="Colossal.Logging">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.Logging.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Colossal.Mathematics">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.Mathematics.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Colossal.OdinSerializer">
@@ -93,8 +111,16 @@
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\System.Xml.Linq.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Unity.Collections">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.Collections.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.Entities">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.Entities.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Mathematics">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.Mathematics.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.RenderPipelines.HighDefinition.Runtime">
@@ -113,11 +139,15 @@
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.InputSystem">
-      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.InputSystem.dll</HintPath>
+    <Reference Include="Unity.Burst">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.Burst.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Colossal.AssetPipelin">
+    <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\UnityEngine.UnityWebRequestModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Colossal.AssetPipeline">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.AssetPipeline.dll</HintPath>
       <Private>False</Private>
     </Reference>
@@ -125,54 +155,91 @@
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.Mono.Cecil.dll</HintPath>
       <Private>False</Private>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="BelzontCommons\IBelzontBindable.cs" />
-    <Compile Include="BelzontCommons\Serialization\BelzontDeserializeJob.cs" />
-    <Compile Include="BelzontCommons\Serialization\BelzontSerializeJob.cs" />
-    <Compile Include="BelzontCommons\Serialization\IBelzontSerializableSingleton.cs" />
-    <Compile Include="BelzontCommons\Utils\BasicIMod.cs" />
-    <Compile Include="BelzontCommons\Utils\BridgeUtils.cs" />
-    <Compile Include="BelzontCommons\Utils\ColorExtensions.cs" />
-    <Compile Include="BelzontCommons\Utils\BasicModData.cs" />
-    <Compile Include="BelzontCommons\Utils\IEnumerableIndex.cs" />
-    <Compile Include="BelzontCommons\Utils\KFileUtils.cs" />
-    <Compile Include="BelzontCommons\Utils\KResourceLoader.cs" />
-    <Compile Include="BelzontCommons\Utils\LogUtils.cs" />
-    <Compile Include="BelzontCommons\Utils\NameSystemExtensions.cs" />
-    <Compile Include="BelzontCommons\Utils\Redirector.cs" />
-    <Compile Include="BelzontCommons\Utils\ReflectionUtils.cs" />
-    <Compile Include="BelzontCommons\Utils\SimpleEnumerableList.cs" />
-    <Compile Include="BelzontCommons\Utils\SimpleXmlDictionary.cs" />
-    <Compile Include="BelzontCommons\Utils\Tuple.cs" />
-    <Compile Include="BelzontCommons\Utils\Wrapper.cs" />
-    <Compile Include="BelzontCommons\Utils\XmlUtils.cs" />
-    <Compile Include="EuisModData.cs" />
-    <Compile Include="EuisResourceHandler.cs" />
-    <Compile Include="EuisScreenManager.cs" />
-    <Compile Include="ExtraUIScreensMod.cs" />
-    <Compile Include="Ext\IEUISAppRegister.cs" />
-    <Compile Include="Ext\IEUISModRegister.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Redirector\MenuUISystemOverrides.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="i18n\i18n.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>set "ModDir=$(SolutionDir)..\_appdataMods\$(SolutionName)\"
-rmdir /s /q "%25ModDir%25"
+		
+	</ItemGroup>
 
-mkdir "%25ModDir%25"
-xcopy /y /e "$(TargetDir)*" "%25ModDir%25"
-del "%25ModDir%25*.pdb"
+  
+	<ItemGroup>
+		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.SystemAPI.dll" />
+		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.dll" />
+		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.SystemAPI.QueryBuilder.dll" />
+		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.Analyzer.dll" />
+		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.LambdaJobs.dll" />
+		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.Common.dll" />
+		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.SystemAPI.Query.dll" />
+		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.Analyzer.CodeFixes.dll" />
+		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.AspectGenerator.dll" />
+		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.Common.dll" />
+		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.EntityQueryBulkOperations.dll" />
+		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.JobEntityGenerator.dll" />
+	</ItemGroup>
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+		<RemoveDir Directories="$(OutDir)" /> 
+	</Target>
+	<Target Name="PostBuild" AfterTargets="AfterBuild">
 
-mkdir "%25ModDir%25UI\"
-xcopy /y /e "$(SolutionDir)UI\dist\*" "%25ModDir%25UI\"
-date /T
-time /T</PostBuildEvent>
-  </PropertyGroup>
+
+        <ItemGroup>
+          <FilesToCopy Include="$(OutDir)\**\*.*" Exclude="*.pdb" />
+          <DeployDir Include="$(K45_CS2_ALLROOT)\_appdataMods\$(SolutionName)" />
+        </ItemGroup>
+    
+        <!--<Message Condition="Exists('$(ModPostProcessorPath)')" Text="Run post processor: $(ModPostProcessorPath) $(TargetPath) $(ProjectPath) $(UnityModProjectPath)" Importance="high" />
+		    <Message Condition="!Exists('$(ModPostProcessorPath)')" Text="Post processor was not found, please check the path: $(ModPostProcessorPath)" Importance="high" />
+		    <Exec Condition="Exists('$(ModPostProcessorPath)')" Command="&quot;$(ModPostProcessorPath)&quot; PostProcess &quot;$(TargetPath)&quot; -p &quot;$(ProjectPath)&quot; -r &quot;$(UnityModProjectPath)&quot; -t Windows -t macOS -t Linux -b $(Configuration) -d -v"></Exec>-->
+    
+		<Message Text="Copy output to deploy dir @(DeployDir)" Importance="high" />
+		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="@(DeployDir)" />
+	</Target>
+	<ItemGroup>
+	  <None Update="i18n\i18n.csv">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Update="System">
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Update="System.Core">
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Update="System.Data">
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Update="System.Drawing">
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Update="System.IO.Compression.FileSystem">
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Update="System.Numerics">
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Update="System.Runtime.Serialization">
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Update="System.Xml">
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Update="System.Xml.Linq">
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+
 </Project>

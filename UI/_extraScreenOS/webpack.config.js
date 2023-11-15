@@ -30,9 +30,7 @@ module.exports = (webpackConfigEnv, argv) => {
       }),
       new CopyPlugin({
         patterns: [
-          "src/images/*.png",
           "dependencies/*",
-          { from: "root/dist/*.js", to() { return "[name][ext]"; } }
         ],
       }),
     ],
@@ -42,10 +40,13 @@ module.exports = (webpackConfigEnv, argv) => {
           test: /\.(s[ac]|c)ss$/i,
           use: [
             MiniCssExtractPlugin.loader,
-            "css-loader",
+            {
+              loader: "css-loader",              
+            },
             "sass-loader",
           ],
-        }
+        },
+
       ],
     },
   });

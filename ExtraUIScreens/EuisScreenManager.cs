@@ -147,7 +147,7 @@ namespace ExtraUIScreens
                 cam = defView.RenderingCamera;
                 settings.enableBackdropFilter = false;
             }
-            var baseUri = new UriBuilder() { Scheme = "coui", Host = BasicIMod.Instance.CouiHost, Path = @"UI/index.html" }.Uri.AbsoluteUri;
+            var baseUri = new UriBuilder() { Scheme = "coui", Host = BasicIMod.Instance.CouiHost, Path = @"UI/esos/index.html" }.Uri.AbsoluteUri;
             //var baseUri = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8400, Path = "index.html" }.Uri.AbsoluteUri;
             yield return 0;
 

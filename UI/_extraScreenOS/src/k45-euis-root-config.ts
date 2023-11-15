@@ -1,5 +1,5 @@
 ///<reference path="cohtml.d.ts" />
-///<reference path="../root/src/euis.d.ts" />
+///<reference path="../../root/src/euis.d.ts" />
 import { LifeCycles, getAppNames, registerApplication, start, unregisterApplication } from "single-spa";
 import prefixer from 'postcss-prefix-selector';
 import postcss from "postcss";
@@ -126,7 +126,7 @@ function applicationRegistering() {
     displayName: "EUIS Settings",
     iconUrl: "./euis.png",
     cssUrl: null,
-    jsUrl: "coui://euis.k45/UI/k45-euis-root.js"//"http://localhost:8500/k45-euis-root.js"
+    jsUrl: "coui://euis.k45/UI/esos/k45-euis-root.js"//"http://localhost:8500/k45-euis-root.js"
   }
 
   registerApplicationCommons(rootAppData,
