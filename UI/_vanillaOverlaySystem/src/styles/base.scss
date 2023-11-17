@@ -1,3 +1,6 @@
+[class^='pause-menu_'],[class^='menu-ui_']{
+  z-index: 100;
+}
 #EUIS_Container {
   height: 100%;
   width: 100%;
@@ -47,137 +50,70 @@
 
 
   div#taskbar {
-    height: 50rem;
+    min-height: 50rem;
     position: fixed;
     background-color: var(--menuPanel1);
     backdrop-filter: var(--menuBlur);
     color: var(--menuText1Normal);
     text-transform: uppercase;
     font-size: var(--fontSizeXL);
-    padding-top: 0.000000rem;
-    padding-left: 70.000000rem;
-    padding-right: 90.000000rem;
-    padding-bottom: 0.000000rem;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    padding-top: 3.000000rem;
+    padding-bottom: 3.000000rem;
+    padding-left: 3.000000rem;
+    padding-right: 3.000000rem;
+    top: 0;
+    left: 50%;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    min-width: 60rem;    
+    max-width: 15.000000vw;    
+    transform: translateX(-50.000000%);
 
     %active {
       background-color: rgba(65, 200, 250, 0.300000);
-      background-size: 35rem;
-    }
-
-    .startMenu {
-      position: absolute;
-      background-color: var(--menuPanel1);
-      backdrop-filter: var(--menuBlur);
-      color: var(--menuText1Normal);
-      font-size: var(--fontSizeXL);
-      padding-top: 0rem;
-      padding-left: 20rem;
-      padding-right: 20rem;
-      padding-bottom: 0rem;
-      bottom: 0;
-      left: 0;
-      top: 0;
-      width: 60rem;
-      display: block;
-      background-image: url('../images/euis.svg');
-      background-repeat: no-repeat;
-      background-position: center;
-      transition-property: background-color, background-size;
-      transition-duration: 0.150000s;
-      transition-delay: 0.000000s;
-      transition-timing-function: ease;
       background-size: 30rem;
-
-      &:hover {
-        background-color: var(--menuPanel2);
-        background-image: url("../images/euis.svg");
-        background-size: 35rem;
-        filter: brightness(120%);
-      }
-
-      &.active {
-        @extend %active
-      }
     }
 
-    .rightInfo {
-      font-size: var(--fontSizeS);
-      position: absolute;
-      bottom: 2rem;
-      right: 0;
-      top: 2rem;
-      width: 80rem;
-      height: 100%;
-      border-left: .5rem solid rgba(220, 220, 220, .2);
-
-      .clock {
-        position: relative;
-        top: 50%;
-        right: 50%;
-        left: 50%;
-        margin-left: -100%;
-        line-height: 0;
-        height: 0;
-        text-align: center;
-      }
-
-      .date {
-        position: relative;
-        right: 50%;
-        top: 80%;
-        left: 50%;
-        margin-left: -100%;
-        line-height: 0;
-        height: 0;
-        text-align: center;
-      }
-
-      .monitorNum {
-        position: relative;
-        right: 50%;
-        top: 15%;
-        left: 50%;
-        margin-left: -100%;
-        line-height: 0;
-        height: 0;
-        text-align: center;
-        font-weight: bold;
-      }
-    }
-
-    .appButton {
-      width: 50.000000rem;
-      height: 100.000000%;
-      background-color: rgba(65, 170, 250, 0.100000);
-      backdrop-filter: var(--menuBlur);
-      display: flex;
-      flex-direction: column;
-      background-repeat: no-repeat;
-      background-position: center;
+    #title {
       text-align: center;
-      margin-left: 2.000000rem;
-      transition-property: background-color, background-size;
-      transition-duration: 0.150000s;
-      transition-delay: 0.000000s;
-      transition-timing-function: ease;
-      background-size: 30rem;
-      background-image: var(--appBtnIcon);
-
-      &:hover {
-        background-color: rgba(65, 170, 250, 0.600000);
-        background-size: 35rem;
-      }
-
-      &.active {
-        @extend %active
-      }
+      flex: 1;
     }
 
+    #buttons {
+
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      flex-wrap: wrap;
+
+
+      .appButton {
+        width: 30.000000rem;
+        height: 30.000000rem;
+        background-color: rgba(65, 170, 250, 0.100000);
+        backdrop-filter: var(--menuBlur);
+        display: flex;
+        flex-direction: column;
+        background-repeat: no-repeat;
+        background-position: center;
+        text-align: center;
+        transition-property: background-color, background-size;
+        transition-duration: 0.150000s;
+        transition-delay: 0.000000s;
+        transition-timing-function: ease;
+        background-size: 25rem;
+        background-image: var(--appBtnIcon); 
+
+        &:hover {
+          background-color: rgba(65, 170, 250, 0.600000);
+          background-size: 30rem;
+        }
+
+        &.active {
+          @extend %active
+        }
+      }
+    }
   }
 
   main {

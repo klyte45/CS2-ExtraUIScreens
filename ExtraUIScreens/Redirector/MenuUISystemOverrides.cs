@@ -38,7 +38,7 @@ namespace ExtraUIScreens
             EuisScreenManager.Instance.OnInterfaceStyleChanged();
         }
     }
-
+     
     public class GameManagerOverrides : Redirector, IRedirectableWorldless
     {
 

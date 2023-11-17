@@ -48,7 +48,8 @@
     "mini-css-extract-plugin": "^2.7.6",
     "postcss": "^8.4.24",
     "postcss-prefix-selector": "^1.16.0",
-    "single-spa": "^5.9.3"
+    "single-spa": "^5.9.3",
+    "systemjs-webpack-interop": "file:./_replacements/systemjs-webpack-interop-2.3.7-euis.tgz"
   },
   "types": "dist/k45-euis-vos-config.d.ts"
 }

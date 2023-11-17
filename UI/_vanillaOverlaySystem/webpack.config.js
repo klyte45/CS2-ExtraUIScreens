@@ -23,6 +23,7 @@ module.exports = (webpackConfigEnv, argv) => {
       new CopyPlugin({
         patterns: [
           "dependencies/*",
+          "*.html",
         ],
       }),
     ],
