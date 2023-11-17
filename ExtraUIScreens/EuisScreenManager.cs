@@ -23,6 +23,106 @@ using UISystem = Colossal.UI.UISystem;
 
 namespace ExtraUIScreens
 {
+    public class EuisVanillaOverlayManager : MonoBehaviour
+    {
+        public static EuisVanillaOverlayManager Instance { get; private set; }
+        public static string kBaseUrlVos = new UriBuilder() { Scheme = "coui", Host = BasicIMod.Instance.CouiHost, Path = @"UI/vos" }.Uri.AbsoluteUri;
+
+        public void Awake()
+        {
+            if (Instance != null)
+            {
+                Destroy(this);
+                return;
+            }
+            Instance = this;
+            DontDestroyOnLoad(this);
+        }
+
+        public void Start()
+        {
+            ResetVanillaOverlay();
+            var defView = GameManager.instance.userInterface.view;
+            defView.Listener.FinishLoad += (x) =>
+            {
+                LogUtils.DoInfoLog($"RELOAD URL: {x}");
+                if (x?.StartsWith("coui://GameUI/index.html") ?? false)
+                {
+                    ResetVanillaOverlay();
+                }
+            };
+
+        }
+
+        public void ResetVanillaOverlay()
+        {
+            GameManager.instance.userInterface.view.View.ExecuteScript(
+$@"
+let createEuisContainer = function(){{
+    const k = document.createElement(""div"");
+    k.id = ""EUIS_Container"";
+    k.insertAdjacentHTML('afterbegin', `  
+      <main></main>  
+      <script>
+        System.import('@k45-euis/vos-config');
+      </script>
+      <div id=""taskbar"">
+        <div class=""rightInfo"">
+          <div class=""monitorNum"" data-bind-value=""{{__euis_main.monitorIdentifierText}}""></div>
+          <div class=""clock"" data-bind-value=""{{__euis_main.currentTime}}"">16:15</div>
+          <div class=""date"" data-bind-value=""{{__euis_main.currentDate}}"">10/03/2015</div>
+        </div>
+      </div>
+    `)
+    return document.body.appendChild(k);
+}}
+
+
+let oldContainer = document.getElementById(""EUIS_Container"");
+
+if(oldContainer) {{
+    oldContainer.parentNode.removeChild(oldContainer);
+    createEuisContainer();
+}}else{{
+
+    const css = document.createElement('link');
+    css.href=""{kBaseUrlVos}/base.css"";
+    css.rel = ""stylesheet""
+    const script = document.createElement('script');
+    script.src = ""{kBaseUrlVos}/dependencies/system.min.js"";
+    const script2 = document.createElement('script');
+    script2.src = ""{kBaseUrlVos}/dependencies/single-spa.min.js"";
+    const script3 = document.createElement('script');
+    script3.src = ""{kBaseUrlVos}/dependencies/import-map-overrides.js"";
+    const script4 = document.createElement('script');
+    script4.src = ""{kBaseUrlVos}/dependencies/amd.min.js"";
+    const script5 = document.createElement('script');
+    script5.type=""systemjs-importmap""
+    script5.insertAdjacentText('afterbegin', `
+        {{
+          ""imports"": {{
+            ""single-spa"": ""{kBaseUrlVos}/dependencies/single-spa.min.js"",
+            ""react"": ""{kBaseUrlVos}/dependencies/react.production.min.js"",
+            ""react-dom"": ""{kBaseUrlVos}/dependencies/react-dom.production.min.js"",
+            ""@k45-euis/vos-config"": ""{kBaseUrlVos}/k45-euis-vos-config.js""
+          }}
+        }}`);
+
+
+    script.onload = function ()  {{console.log( document.head.appendChild(script2))}}
+    script2.onload = function () {{console.log( document.head.appendChild(script3))}}
+    script3.onload = function () {{console.log( document.head.appendChild(script4))}}
+    script4.onload = function () {{console.log( document.head.appendChild(script5));console.log( createEuisContainer())}}
+   console.log( document.head.appendChild(script))
+   console.log( document.head.appendChild(css))
+
+}}
+
+");
+        }
+
+    }
+
     public class EuisScreenManager : MonoBehaviour
     {
         public static EuisScreenManager Instance { get; private set; }

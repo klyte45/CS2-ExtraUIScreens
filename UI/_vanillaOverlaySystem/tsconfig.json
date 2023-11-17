@@ -1,0 +1,15 @@
+{
+  "extends": "ts-config-single-spa",
+  "files": ["src/k45-euis-vos-config.ts"],
+  "compilerOptions": {
+    "baseUrl": "./",
+    "declarationDir": "dist",
+    "paths": { 
+      "#styles/*": [
+        "src/styles/*"
+      ],
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.test*"]
+}

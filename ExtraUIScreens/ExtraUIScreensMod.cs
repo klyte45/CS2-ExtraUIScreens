@@ -3,10 +3,8 @@ using Belzont.Utils;
 using Colossal.IO.AssetDatabase;
 using Game;
 using Game.Modding;
-using Game.UI.Widgets;
 using K45EUIS_Ext;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,19 +25,22 @@ namespace ExtraUIScreens
 
         public override void DoOnCreateWorld(UpdateSystem updateSystem)
         {
+            euisGO.AddComponent<EuisVanillaOverlayManager>();
         }
 
 
 
         public override void OnDispose()
         {
-            GameObject.Destroy(EuisScreenManager.Instance);
+            GameObject.Destroy(euisGO);
         }
 
+        GameObject euisGO;
 
         public override void DoOnLoad()
         {
-            new GameObject().AddComponent<EuisScreenManager>();
+            euisGO = new GameObject("EUIS");
+            euisGO.AddComponent<EuisScreenManager>();
             LoadExtraScreenFromMods();
         }
 
