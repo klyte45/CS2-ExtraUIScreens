@@ -145,7 +145,7 @@ namespace ExtraUIScreens
                 cam = defView.RenderingCamera;
                 settings.enableBackdropFilter = false;
             }
-            var baseUri = new UriBuilder() { Scheme = "coui", Host = BasicIMod.Instance.CouiHost, Path = @"UI/esos/index.html" }.Uri.AbsoluteUri;
+            var baseUri = new UriBuilder() { Scheme = "coui", Host = IBasicIMod.Instance.CouiHost, Path = @"UI/esos/index.html" }.Uri.AbsoluteUri;
             //var baseUri = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8400, Path = "index.html" }.Uri.AbsoluteUri;
             yield return 0;
 
@@ -223,12 +223,12 @@ namespace ExtraUIScreens
         {
             yield return 0;
             var result = new string[Display.displays.Length][];
-            if (BasicIMod.DebugMode) LogUtils.DoLog($"Registered apps: {string.Join("|", registeredApplications.Select(x => x.GetFullAppName()))}");
+            if (IBasicIMod.DebugMode) LogUtils.DoLog($"Registered apps: {string.Join("|", registeredApplications.Select(x => x.GetFullAppName()))}");
             for (int i = 0; i < Display.displays.Length; i++)
             {
                 var wrapper = new Wrapper<string[]>();
                 yield return DoCallToMonitorToGetApplicationsEnabled(i + 1, wrapper);
-                if (BasicIMod.DebugMode) LogUtils.DoLog($"Apps enabled in display {i}: {string.Join("|", wrapper.Value ?? new string[0])}");
+                if (IBasicIMod.DebugMode) LogUtils.DoLog($"Apps enabled in display {i}: {string.Join("|", wrapper.Value ?? new string[0])}");
                 result[i] = wrapper.Value != null
                     ? registeredApplications.Select(x => x.GetFullAppName()).Where(x => !wrapper.Value.Contains(x)).ToArray()
                     : new string[0];

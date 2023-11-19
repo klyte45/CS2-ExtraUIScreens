@@ -8,7 +8,7 @@ namespace ExtraUIScreens
     public class EuisVanillaOverlayManager : MonoBehaviour
     {
         public static EuisVanillaOverlayManager Instance { get; private set; }
-        //public static string kBaseUrlVos = new UriBuilder() { Scheme = "coui", Host = BasicIMod.Instance.CouiHost, Path = @"UI/vos" }.Uri.AbsoluteUri;
+        //public static string kBaseUrlVos = new UriBuilder() { Scheme = "coui", Host = IBasicIMod.Instance.CouiHost, Path = @"UI/vos" }.Uri.AbsoluteUri;
         public static string kBaseUrlVos = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8450, Path = @"" }.Uri.AbsoluteUri[..^1];
 
         public void Awake()

@@ -1,43 +1,100 @@
 ﻿using Belzont.Interfaces;
 using Belzont.Utils;
-using Colossal.IO.AssetDatabase;
 using Game;
-using Game.Modding;
 using K45EUIS_Ext;
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+#if THUNDERSTORE
+using Game.UI.Menu;
+using Game.UI.Widgets;
+using BepInEx;
+#else
+using System.IO;
+using Colossal.IO.AssetDatabase;
+using Game.Modding;
+#endif
 
 namespace ExtraUIScreens
 {
+#if THUNDERSTORE
+    [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+    public class ExtraUIScreensMod : BaseUnityPlugin, IBasicIMod<EuisModData>
+    {
+        protected UpdateSystem UpdateSystem { get; set; }
+        public string IconName { get; } = "ModIcon";
+        public string GitHubRepoPath { get; } = "";
+        public string[] AssetExtraDirectoryNames { get; } = new string[0];
+        public string[] AssetExtraFileNames { get; } = new string[] { };
+        public Dictionary<string, Coroutine> TasksRunningOnController { get; } = new Dictionary<string, Coroutine>();
+        IEnumerable<OptionsUISystem.Section> IBasicIMod.GenerateModOptionsSections() => GenerateModOptionsSections();
+        public EuisModData CreateNewModData() => new(Instance);
+        UpdateSystem IBasicIMod.UpdateSystem { get; set; }
+
+#else
     public class ExtraUIScreensMod : BasicIMod, IMod
     {
-        public static new ExtraUIScreensMod Instance => (ExtraUIScreensMod)BasicIMod.Instance;
-        public override string SimpleName => "Extra UI Screens Mod";
+#endif
+        public static
+#if !THUNDERSTORE 
+            new
+#endif 
+            ExtraUIScreensMod Instance => (ExtraUIScreensMod)IBasicIMod.Instance;
 
-        public override string SafeName => "ExtraScreens";
+        public
+#if !THUNDERSTORE
+            override
+#endif
+            string SimpleName => "Extra UI Screens Mod";
 
-        public override string Acronym => "EUIS";
+        public
+#if !THUNDERSTORE
+            override
+#endif
+            string SafeName => "ExtraScreens";
 
-        public override string Description => "Adds extra screens!";
+        public
+#if !THUNDERSTORE
+            override
+#endif
+             string Acronym => "EUIS";
 
-        public override void DoOnCreateWorld(UpdateSystem updateSystem)
+        public
+#if !THUNDERSTORE
+            override
+#endif
+             string Description => "Adds extra screens!";
+
+
+        public
+#if !THUNDERSTORE
+            override
+#endif
+            void DoOnCreateWorld(UpdateSystem updateSystem)
         {
             euisGO.AddComponent<EuisVanillaOverlayManager>();
         }
 
 
 
-        public override void OnDispose()
+        public
+#if !THUNDERSTORE
+            override
+#endif
+             void OnDispose()
         {
             GameObject.Destroy(euisGO);
         }
 
         GameObject euisGO;
 
-        public override void DoOnLoad()
+        public
+#if !THUNDERSTORE
+            override
+#endif
+            void DoOnLoad()
         {
             euisGO = new GameObject("EUIS");
             euisGO.AddComponent<EuisScreenManager>();
@@ -46,8 +103,12 @@ namespace ExtraUIScreens
 
         private static void LoadExtraScreenFromMods()
         {
-            var allEuisAssemblies = AssetDatabase.global.GetAssets<ExecutableAsset>().SelectMany(x => Directory.GetFiles(Path.GetDirectoryName(x.GetMeta().path), "*.euis", SearchOption.AllDirectories).Select(x => x.Trim())).ToHashSet();
-
+            HashSet<string> allEuisAssemblies;
+#if THUNDERSTORE
+            allEuisAssemblies = new HashSet<string>();
+#else
+            allEuisAssemblies = AssetDatabase.global.GetAssets<ExecutableAsset>().SelectMany(x => Directory.GetFiles(Path.GetDirectoryName(x.GetMeta().path), "*.euis", SearchOption.AllDirectories).Select(x => x.Trim())).ToHashSet();
+#endif
             LogUtils.DoLog($"EUIS Files found:\n {string.Join("\n", allEuisAssemblies)}");
             foreach (var assemblyPath in allEuisAssemblies)
             {
@@ -60,7 +121,7 @@ namespace ExtraUIScreens
                     EuisScreenManager.Instance.DoWhenReady(() =>
                     {
                         var apps = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISAppRegister, IEUISAppRegister>(() => new EUISAppRegisterCurrent(), assembly);
-                        if (BasicIMod.DebugMode) LogUtils.DoLog($"Apps to load from '{{0}}':\n {string.Join("\n", apps.Select(x => x.DisplayName))}", assemblyPath);
+                        if (IBasicIMod.DebugMode) LogUtils.DoLog($"Apps to load from '{{0}}':\n {string.Join("\n", apps.Select(x => x.DisplayName))}", assemblyPath);
                         foreach (var app in apps)
                         {
                             EuisScreenManager.Instance.RegisterApplication(app);
@@ -69,7 +130,7 @@ namespace ExtraUIScreens
                     EuisScreenManager.Instance.DoOnceWhenReady((x) =>
                     {
                         var mods = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISModRegister, IEUISModRegister>(() => new EUISModRegisterCurrent(), assembly);
-                        if (BasicIMod.DebugMode) LogUtils.DoLog($"Apps to load from '{{0}}':\n {string.Join("\n", mods.Select(x => x.ModAcronym))}", assemblyPath);
+                        if (IBasicIMod.DebugMode) LogUtils.DoLog($"Apps to load from '{{0}}':\n {string.Join("\n", mods.Select(x => x.ModAcronym))}", assemblyPath);
                         foreach (var mod in mods)
                         {
                             EuisScreenManager.Instance.RegisterModActions(mod, x);
@@ -83,7 +144,11 @@ namespace ExtraUIScreens
             }
         }
 
-        public override BasicModData CreateSettingsFile()
+        public
+#if !THUNDERSTORE
+            override
+#endif
+            BasicModData CreateSettingsFile()
         {
             var modData = new EuisModData(this);
 
@@ -118,5 +183,34 @@ namespace ExtraUIScreens
 
             public string ModAcronym { get; set; }
         }
+
+
+#if THUNDERSTORE
+        protected IEnumerable<OptionsUISystem.Section> GenerateModOptionsSections()
+        {
+            return new[]
+            {
+                new OptionsUISystem.Section
+                {
+                    id = "K45.EUIS.MonitorsData",
+                    items = GetMonitorsMenuOptions()
+                }
+           };
+        }
+        private List<IWidget> GetMonitorsMenuOptions()
+        {
+
+            return Display.displays.Select((_, i) =>
+            {
+                var displayId = i;
+                return this.AddBoolField($"K45.EUIS.UseMonitor{displayId + 1}", new Game.Reflection.DelegateAccessor<bool>(() => IBasicIMod<EuisModData>.ModData.IsMonitorActive(displayId), (x) =>
+                {
+                    IBasicIMod<EuisModData>.ModData.SetMonitorActive(displayId, x);
+                    (this as IBasicIMod<EuisModData>).SaveModData();
+                }));
+            }).ToList();
+
+        }
+#endif
     }
 }
