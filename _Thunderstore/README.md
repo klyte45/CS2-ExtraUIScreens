@@ -1,5 +1,5 @@
 # Extra UI Screens Mod
-## Use additional monitors
+## _Use additional monitors_
 
 This mod is designed to allow use any screen available in current PC to show other mods information. It also allows creating a new overlay over the game screen, both integrated with game and as a new separated layer (as it was an extra screen).
 
@@ -16,3 +16,13 @@ Soon will be available a base project for creating mods windows over the vanilla
 Also there will have a way to add simple buttons to toggle tools in the vanilla UI in a dock group - like Unified UI (UUI) used to do in CS1. The mod window over vanilla UI explained above also will generate a button there.
 
 Detailed tutorials soon!
+
+### Notice!
+Cities Skylines 2 uses Coherent UI to emulate a simplified version of Chromium to render the game UI, so not all common web features are available to use in game UI. For more information check the [Coherent UI documentation](https://docs.coherent-labs.com/unity-gameface/)
+
+## Experimental mod warning!
+Since it's a very complex mod, it may cause issues in the game due their early stage of development. However, by the nature of this mod it's very unlikely it to break after game updates - but watch out the mods that may be using this mod as UI platform because they may be sensible to game updates.
+
+## Known bugs
+- The game always will startup on current resolution of monitor, despite the option selected up in game settings. If you use a different resolution in the game you will need to set up again every game session.
+- When enabling a screen, you shall restart the game or the main game UI will not accept inputs.

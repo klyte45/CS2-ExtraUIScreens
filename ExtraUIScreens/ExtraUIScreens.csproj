@@ -36,7 +36,7 @@
 		<LangVersion>10.0</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
-<Target Name="ClearReferenceCopyLocalPaths" AfterTargets="ResolveAssemblyReferences"  Condition="'$(Configuration)'=='Thunderstore'">
+<Target Name="ClearReferenceCopyLocalPaths" AfterTargets="ResolveAssemblyReferences" Condition="'$(Configuration)'=='Thunderstore'">
     <ItemGroup>
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" />
     </ItemGroup>
@@ -310,7 +310,7 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup  Condition="'$(Configuration)'=='Thunderstore'">
+  <ItemGroup Condition="'$(Configuration)'=='Thunderstore'">
     <Reference Update="Mono.Cecil*">
       <Private>false</Private>
     </Reference>

@@ -35,7 +35,7 @@ namespace ExtraUIScreens
         }
         private static void AfterSetInterfaceStyle()
         {
-            EuisScreenManager.Instance.OnInterfaceStyleChanged();
+            EuisScreenManager.Instance?.OnInterfaceStyleChanged();
         }
     }
      
