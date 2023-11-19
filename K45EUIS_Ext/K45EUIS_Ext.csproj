@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+   <PropertyGroup>
+   	<TargetFramework>net480</TargetFramework>
+   	<Configurations>Editor;Steam;Thunderstore</Configurations>
+   </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="AfterBuild">
+		<ItemGroup>
+      <DeployDir Include="$(K45_CS2_ALLROOT)\_appdataMods\$(SolutionName)" Condition="'$(Configuration)'!='Thunderstore'" />
+      <DeployDir Include="$(K45_CS2_ALLROOT)\_ThunderstoreOutput\Klyte45-$(SolutionName)" Condition="'$(Configuration)'=='Thunderstore'" />
+		</ItemGroup>    
+        <ItemGroup>
+          <FilesToCopy Include="$(OutDir)\**\*.*" Exclude="*.pdb" />
+        </ItemGroup> 
+		<Message Text="Copy output to deploy dir @(DeployDir)" Importance="high" />
+		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="@(DeployDir)" />
+	</Target>
+  <Target Name="ClearReferenceCopyLocalPaths" AfterTargets="ResolveAssemblyReferences" Condition="'$(Configuration)'=='Thunderstore'">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" />
+    </ItemGroup>
+  </Target>
+  <ItemGroup>
+    <Reference Include="Colossal.UI.Binding">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.UI.Binding.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>  
+</Project> 
