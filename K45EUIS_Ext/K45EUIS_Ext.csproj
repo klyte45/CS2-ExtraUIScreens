@@ -10,20 +10,15 @@
       <DeployDir Include="$(K45_CS2_ALLROOT)\_ThunderstoreOutput\Klyte45-$(SolutionName)" Condition="'$(Configuration)'=='Thunderstore'" />
 		</ItemGroup>    
         <ItemGroup>
-          <FilesToCopy Include="$(OutDir)\**\*.*" Exclude="*.pdb" />
+          <FilesToCopy Include="$(OutDir)\**\*.*" Exclude="$(OutDir)\**\*.pdb" />
         </ItemGroup> 
 		<Message Text="Copy output to deploy dir @(DeployDir)" Importance="high" />
 		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="@(DeployDir)" />
 	</Target>
-  <Target Name="ClearReferenceCopyLocalPaths" AfterTargets="ResolveAssemblyReferences" Condition="'$(Configuration)'=='Thunderstore'">
-    <ItemGroup>
-      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" />
-    </ItemGroup>
-  </Target>
   <ItemGroup>
     <Reference Include="Colossal.UI.Binding">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.UI.Binding.dll</HintPath>
-      <Private>true</Private>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>  
 </Project> 

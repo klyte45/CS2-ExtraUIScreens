@@ -13,7 +13,6 @@
     <PdxModsVersion>0.0.7.1</PdxModsVersion>
     <Version Condition="'$(Configuration)'=='Thunderstore'">$(ThunderstoreVersion).65534</Version>
     <Version Condition="'$(Configuration)'!='Thunderstore'">$(PdxModsVersion)</Version>
-    <PublishTrimmed>True</PublishTrimmed>
     <ThunderstoreDesc>Add support to more monitors for UI in the game, also add tools to add UI applications.</ThunderstoreDesc>
 		<UnityModProjectPath Condition="'$(Configuration)'=='Editor'">$(ProjectDir)..\..\UnityModsProject</UnityModProjectPath>
 		<UnityModProjectPath Condition="'$(Configuration)'=='Steam'">$(DataPath)\~Tooling~\UnityModsProject</UnityModProjectPath>
@@ -38,7 +37,13 @@
 		<LangVersion>10.0</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
-<Target Name="ClearReferenceCopyLocalPaths" AfterTargets="ResolveAssemblyReferences" Condition="'$(Configuration)'=='Thunderstore'">
+  <ItemGroup>
+    <AssemblyAttribute Include="Belzont.AssemblyUtility.KlyteModCanonVersionAttribute">
+      <_Parameter1>$(PdxModsVersion)</_Parameter1>
+      <_Parameter2>$(ThunderstoreVersion)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+  <Target Name="ClearReferenceCopyLocalPaths" AfterTargets="ResolveAssemblyReferences" Condition="'$(Configuration)'=='Thunderstore'">
     <ItemGroup>
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" />
     </ItemGroup>
@@ -234,7 +239,7 @@
 
 
         <ItemGroup>
-          <FilesToCopy Include="$(OutDir)\**\*.*" Exclude="*.pdb" />
+          <FilesToCopy Include="$(OutDir)\**\*.*" Exclude="$(OutDir)\**\*.pdb" />
         </ItemGroup> 
     
         <!--<Message Condition="Exists('$(ModPostProcessorPath)')" Text="Run post processor: $(ModPostProcessorPath) $(TargetPath) $(ProjectPath) $(UnityModProjectPath)" Importance="high" />
@@ -268,6 +273,9 @@
 
     <WriteLinesToFile File="$(ManifestLocation)" Overwrite="true" Lines="$(ManifestContent)" />
   </Target>
+  <ItemGroup>
+    <ProjectReference Include="..\K45EUIS_Ext\K45EUIS_Ext.csproj" />
+  </ItemGroup>
 	<ItemGroup>
 	  <None Update="i18n\i18n.csv">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>

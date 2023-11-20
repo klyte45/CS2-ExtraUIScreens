@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using System.IO;
+using Game.Modding;
 #if THUNDERSTORE
 using Game.UI.Menu;
 using Game.UI.Widgets;
@@ -34,7 +35,7 @@ namespace ExtraUIScreens
         }
     }
 
-    public class ExtraUIScreensMod : BasicIMod<EuisModData>
+    public class ExtraUIScreensMod : BasicIMod<EuisModData>, IMod
     {
 #else
     public class ExtraUIScreensMod : BasicIMod, IMod
