@@ -9,8 +9,10 @@
     <RootNamespace>ExtraUIScreens</RootNamespace>
 		<InstallationPath>C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II</InstallationPath>
 		<DataPath>$(LOCALAPPDATA)\..\LocalLow\Colossal Order\Cities Skylines II</DataPath>
-    <Version>0.0.7.1</Version>
-    <ThunderstoreVersion>0.0.7</ThunderstoreVersion> 
+    <ThunderstoreVersion>0.0.7</ThunderstoreVersion>
+    <PdxModsVersion>0.0.7.1</PdxModsVersion>
+    <Version Condition="'$(Configuration)'=='Thunderstore'">$(ThunderstoreVersion).65534</Version>
+    <Version Condition="'$(Configuration)'!='Thunderstore'">$(PdxModsVersion)</Version>
     <PublishTrimmed>True</PublishTrimmed>
     <ThunderstoreDesc>Add support to more monitors for UI in the game, also add tools to add UI applications.</ThunderstoreDesc>
 		<UnityModProjectPath Condition="'$(Configuration)'=='Editor'">$(ProjectDir)..\..\UnityModsProject</UnityModProjectPath>
