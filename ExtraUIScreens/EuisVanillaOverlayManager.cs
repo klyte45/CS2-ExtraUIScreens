@@ -1,4 +1,5 @@
-﻿using Belzont.Utils;
+﻿#if !THUNDERSTORE
+using Belzont.Utils;
 using Game.SceneFlow;
 using System;
 using UnityEngine;
@@ -108,3 +109,4 @@ if(document.getElementById(""EUIS_Container"")) {{
 
     }
 }
+#endif

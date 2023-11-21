@@ -114,16 +114,14 @@ namespace ExtraUIScreens
             }
         }
 
+#if !THUNDERSTORE
         public override BasicModData CreateSettingsFile()
         {
-#if THUNDERSTORE
-            var modData = new EuisModData();
-#else
             var modData = new EuisModData(this);
-#endif
-
             return modData;
         }
+#endif
+
 
         private class EUISAppRegisterCurrent : IEUISAppRegister
         {

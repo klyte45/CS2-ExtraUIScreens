@@ -9,8 +9,8 @@
     <RootNamespace>ExtraUIScreens</RootNamespace>
 		<InstallationPath>C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II</InstallationPath>
 		<DataPath>$(LOCALAPPDATA)\..\LocalLow\Colossal Order\Cities Skylines II</DataPath>
-    <ThunderstoreVersion>0.0.7</ThunderstoreVersion>
-    <PdxModsVersion>0.0.7.1</PdxModsVersion>
+    <ThunderstoreVersion>0.0.0</ThunderstoreVersion>
+    <PdxModsVersion>0.0.7.2</PdxModsVersion>
     <Version Condition="'$(Configuration)'=='Thunderstore'">$(ThunderstoreVersion).65534</Version>
     <Version Condition="'$(Configuration)'!='Thunderstore'">$(PdxModsVersion)</Version>
     <ThunderstoreDesc>Add support to more monitors for UI in the game, also add tools to add UI applications.</ThunderstoreDesc>
@@ -228,9 +228,6 @@
 		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.EntityQueryBulkOperations.dll" />
 		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.JobEntityGenerator.dll" />
 	</ItemGroup>
-	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-		<RemoveDir Directories="$(OutDir)" />
-	</Target>
   <ItemGroup>
     <DeployDir Include="$(K45_CS2_ALLROOT)\_appdataMods\$(SolutionName)" Condition="'$(Configuration)'!='Thunderstore'" />
     <DeployDir Include="$(K45_CS2_ALLROOT)\_ThunderstoreOutput\Klyte45-$(SolutionName)" Condition="'$(Configuration)'=='Thunderstore'" />
