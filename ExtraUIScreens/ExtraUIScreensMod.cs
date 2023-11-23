@@ -14,9 +14,7 @@ using Game.UI.Menu;
 using Game.UI.Widgets;
 using BepInEx;
 #else
-using System.IO;
 using Colossal.IO.AssetDatabase;
-using Game.Modding;
 #endif
 
 namespace ExtraUIScreens
@@ -54,7 +52,9 @@ namespace ExtraUIScreens
 
         public override void DoOnCreateWorld(UpdateSystem updateSystem)
         {
-            //  euisGO.AddComponent<EuisVanillaOverlayManager>();
+#if !THUNDERSTORE
+            euisGO.AddComponent<EuisVanillaOverlayManager>();
+#endif
         }
 
         public override void OnDispose()

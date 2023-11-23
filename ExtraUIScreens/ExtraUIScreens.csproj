@@ -1,42 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net480</TargetFramework>
-		<RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
-		<Configurations>Steam;Editor;Thunderstore</Configurations>
-   	<UnityVersion>2022.3.7f1</UnityVersion>
-		<EntityVersion>1.0.16</EntityVersion>
+  <PropertyGroup>
+    <TargetFramework>net480</TargetFramework>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <Configurations>Steam;Editor;Thunderstore</Configurations>
+    <UnityVersion>2022.3.7f1</UnityVersion>
+    <EntityVersion>1.0.16</EntityVersion>
     <RootNamespace>ExtraUIScreens</RootNamespace>
-		<InstallationPath>C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II</InstallationPath>
-		<DataPath>$(LOCALAPPDATA)\..\LocalLow\Colossal Order\Cities Skylines II</DataPath>
-    <ThunderstoreVersion>0.0.0</ThunderstoreVersion>
-    <PdxModsVersion>0.0.7.2</PdxModsVersion>
+    <InstallationPath>C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II</InstallationPath>
+    <DataPath>$(LOCALAPPDATA)\..\LocalLow\Colossal Order\Cities Skylines II</DataPath>
+    <ThunderstoreVersion>0.0.1</ThunderstoreVersion>
+    <PdxModsVersion>0.0.7.3</PdxModsVersion>
     <Version Condition="'$(Configuration)'=='Thunderstore'">$(ThunderstoreVersion).65534</Version>
     <Version Condition="'$(Configuration)'!='Thunderstore'">$(PdxModsVersion)</Version>
+    <PublishTrimmed>True</PublishTrimmed>
     <ThunderstoreDesc>Add support to more monitors for UI in the game, also add tools to add UI applications.</ThunderstoreDesc>
-		<UnityModProjectPath Condition="'$(Configuration)'=='Editor'">$(ProjectDir)..\..\UnityModsProject</UnityModProjectPath>
-		<UnityModProjectPath Condition="'$(Configuration)'=='Steam'">$(DataPath)\~Tooling~\UnityModsProject</UnityModProjectPath>
+    <UnityModProjectPath Condition="'$(Configuration)'=='Editor'">$(ProjectDir)..\..\UnityModsProject</UnityModProjectPath>
+    <UnityModProjectPath Condition="'$(Configuration)'=='Steam'">$(DataPath)\~Tooling~\UnityModsProject</UnityModProjectPath>
 
-		<ModPostProcessorPath Condition="'$(Configuration)'=='Editor'">$(ProjectDir)..\..\..\..\BeverlyHills\Assets\StreamingAssets\~Tooling~\ModPostProcessor\ModPostProcessor.exe</ModPostProcessorPath>
-		<ModPostProcessorPath Condition="'$(Configuration)'=='Steam'">$(InstallationPath)\Cities2_Data\StreamingAssets\~Tooling~\ModPostProcessor\ModPostProcessor.exe</ModPostProcessorPath>
-    
-    
-		<ManagedDLLPathEditor>..\..\..\..\BeverlyHills\Library\ScriptAssemblies</ManagedDLLPathEditor>
-		<ManagedDLLPathSteam>$(K45_CS2_ALLROOT)\_Managed DLLs</ManagedDLLPathSteam>
-		<UnityEnginePath>C:\Program Files\Unity\Hub\Editor\$(UnityVersion)\Editor\Data\Managed\UnityEngine</UnityEnginePath>
-	
-		<AssemblySearchPaths Condition="'$(Configuration)'=='Editor'">
-			$(AssemblySearchPaths);
-			$(ManagedDLLPathEditor);
-			$(UnityEnginePath);
-		</AssemblySearchPaths>
+    <ModPostProcessorPath Condition="'$(Configuration)'=='Editor'">$(ProjectDir)..\..\..\..\BeverlyHills\Assets\StreamingAssets\~Tooling~\ModPostProcessor\ModPostProcessor.exe</ModPostProcessorPath>
+    <ModPostProcessorPath Condition="'$(Configuration)'=='Steam'">$(InstallationPath)\Cities2_Data\StreamingAssets\~Tooling~\ModPostProcessor\ModPostProcessor.exe</ModPostProcessorPath>
+
+
+    <ManagedDLLPathEditor>..\..\..\..\BeverlyHills\Library\ScriptAssemblies</ManagedDLLPathEditor>
+    <ManagedDLLPathSteam>$(K45_CS2_ALLROOT)\_Managed DLLs</ManagedDLLPathSteam>
+    <UnityEnginePath>C:\Program Files\Unity\Hub\Editor\$(UnityVersion)\Editor\Data\Managed\UnityEngine</UnityEnginePath>
+
+    <AssemblySearchPaths Condition="'$(Configuration)'=='Editor'">
+      $(AssemblySearchPaths);
+      $(ManagedDLLPathEditor);
+      $(UnityEnginePath);
+    </AssemblySearchPaths>
     <AssemblySearchPaths Condition="'$(Configuration)'=='Steam'">
       $(AssemblySearchPaths);
       $(ManagedDLLPathSteam);
     </AssemblySearchPaths>
-		<LangVersion>10.0</LangVersion>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
+    <LangVersion>10.0</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
   <ItemGroup>
     <AssemblyAttribute Include="Belzont.AssemblyUtility.KlyteModCanonVersionAttribute">
       <_Parameter1>$(PdxModsVersion)</_Parameter1>
@@ -48,13 +49,13 @@
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" />
     </ItemGroup>
   </Target>
-  
 
-	<ItemGroup>
-		<Compile Remove="Logs\**" />
-		<EmbeddedResource Remove="Logs\**" />
-		<None Remove="Logs\**" />
-	</ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Logs\**" />
+    <EmbeddedResource Remove="Logs\**" />
+    <None Remove="Logs\**" />
+  </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Thunderstore'">
     <RestoreAdditionalProjectSources>
       https://api.nuget.org/v3/index.json;
@@ -68,33 +69,27 @@
       $(ManagedDLLPathSteam);
     </AssemblySearchPaths>
   </PropertyGroup>
- 
+
 
   <ItemGroup Condition="'$(Configuration)'=='Thunderstore'">
-    <PackageReference Include="BepInEx.Analyzers" Version="1.*">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="HarmonyX" Version="2.10.2" PrivateAssets="all">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>    
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" PrivateAssets="all" />
+    <PackageReference Include="HarmonyX" Version="2.10.2" PrivateAssets="all" />
   </ItemGroup>
 
 
-  <ItemGroup Condition="'$(BepInExVersion)' == '6' AND '$(Configuration)'=='Thunderstore'"> 
+  <ItemGroup Condition="'$(BepInExVersion)' == '6' AND '$(Configuration)'=='Thunderstore'">
     <PackageReference Include="BepInEx.Unity.Mono" Version="6.0.0-be.*" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(BepInExVersion)' == '5' AND '$(Configuration)'=='Thunderstore'">
-    <PackageReference Include="BepInEx.Core" Version="5.*" IncludeAssets="compile" />
+    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(BepInExVersion)' == '6' AND '$(Configuration)'=='Thunderstore'">
     <DefineConstants>$(DefineConstants);BEPINEX_V6</DefineConstants>
   </PropertyGroup>
-	<ItemGroup>
+  <ItemGroup>
     <Reference Include="0Harmony" Condition="'$(Configuration)'!='Thunderstore'">
       <HintPath>$(K45_CS2_ALLROOT)\_commonDeps\0Harmony.dll</HintPath>
     </Reference>
@@ -210,49 +205,52 @@
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.Mono.Cecil.dll</HintPath>
       <Private>False</Private>
     </Reference>
-		
-	</ItemGroup>
 
-  
-	<ItemGroup Condition="'$(Configuration)'!='Thunderstore'">
-		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.SystemAPI.dll" />
-		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.dll" />
-		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.SystemAPI.QueryBuilder.dll" />
-		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.Analyzer.dll" />
-		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.LambdaJobs.dll" />
-		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.Common.dll" />
-		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.SystemAPI.Query.dll" />
-		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.Analyzer.CodeFixes.dll" />
-		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.AspectGenerator.dll" />
-		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.Common.dll" />
-		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.EntityQueryBulkOperations.dll" />
-		<Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.JobEntityGenerator.dll" />
-	</ItemGroup>
+  </ItemGroup>
+
+
+  <ItemGroup Condition="'$(Configuration)'!='Thunderstore' and False">
+    <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.SystemAPI.dll" />
+    <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.dll" />
+    <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.SystemAPI.QueryBuilder.dll" />
+    <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.Analyzer.dll" />
+    <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.LambdaJobs.dll" />
+    <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.Common.dll" />
+    <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.SystemAPI.Query.dll" />
+    <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.Analyzer.CodeFixes.dll" />
+    <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.AspectGenerator.dll" />
+    <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.Common.dll" />
+    <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.EntityQueryBulkOperations.dll" />
+    <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.JobEntityGenerator.dll" />
+  </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <RemoveDir Directories="$(OutDir)" />
+  </Target>
   <ItemGroup>
     <DeployDir Include="$(K45_CS2_ALLROOT)\_appdataMods\$(SolutionName)" Condition="'$(Configuration)'!='Thunderstore'" />
-    <DeployDir Include="$(K45_CS2_ALLROOT)\_ThunderstoreOutput\Klyte45-$(SolutionName)" Condition="'$(Configuration)'=='Thunderstore'" />
+    <DeployDir Include="$(K45_CS2_ALLROOT)\_ThunderstoreOutput\Klyte45-$(SolutionName);$(K45_CS2_ALLROOT)\_ThunderstoreDist\Klyte45-$(SolutionName)" Condition="'$(Configuration)'=='Thunderstore'" />
   </ItemGroup>
-	<Target Name="PostBuild" AfterTargets="AfterBuild">
+  <Target Name="PostBuild" AfterTargets="AfterBuild">
 
 
-        <ItemGroup>
-          <FilesToCopy Include="$(OutDir)\**\*.*" Exclude="$(OutDir)\**\*.pdb" />
-        </ItemGroup> 
-    
-        <!--<Message Condition="Exists('$(ModPostProcessorPath)')" Text="Run post processor: $(ModPostProcessorPath) $(TargetPath) $(ProjectPath) $(UnityModProjectPath)" Importance="high" />
+    <ItemGroup>
+      <FilesToCopy Include="$(OutDir)\**\*.*" Exclude="$(OutDir)\**\*.pdb" />
+    </ItemGroup>
+
+    <!--<Message Condition="Exists('$(ModPostProcessorPath)')" Text="Run post processor: $(ModPostProcessorPath) $(TargetPath) $(ProjectPath) $(UnityModProjectPath)" Importance="high" />
 		    <Message Condition="!Exists('$(ModPostProcessorPath)')" Text="Post processor was not found, please check the path: $(ModPostProcessorPath)" Importance="high" />
 		    <Exec Condition="Exists('$(ModPostProcessorPath)')" Command="&quot;$(ModPostProcessorPath)&quot; PostProcess &quot;$(TargetPath)&quot; -p &quot;$(ProjectPath)&quot; -r &quot;$(UnityModProjectPath)&quot; -t Windows -t macOS -t Linux -b $(Configuration) -d -v"></Exec>-->
-    
-		<Message Text="Copy output to deploy dir @(DeployDir)" Importance="high" />
-		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="@(DeployDir)" />
-	</Target>
+
+    <Message Text="Copy output to deploy dir %(DeployDir.Identity)" Importance="high" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="%(DeployDir.Identity)" />
+  </Target>
   <Target Name="Tunderstore" AfterTargets="PostBuild" Condition="'$(Configuration)'=='Thunderstore'">
 
     <ItemGroup>
       <BasicFileTunderstoreLocation Include="$(SolutionDir)\_Thunderstore\*.*" />
     </ItemGroup>
     <Message Text="Copy Thunderstorm files to deploy dir @(DeployDir)" Importance="high" />
-    <Copy SourceFiles="@(BasicFileTunderstoreLocation)" DestinationFolder="@(DeployDir)" />
+    <Copy SourceFiles="@(BasicFileTunderstoreLocation)" DestinationFolder="%(DeployDir.Identity)" />
 
     <PropertyGroup>
       <ManifestContent>
@@ -264,7 +262,8 @@
         "dependencies": [
         "BepInEx-BepInExPack-5.4.2100"
         ]
-        }</ManifestContent>
+        }
+      </ManifestContent>
       <ManifestLocation>$([System.IO.Path]::GetDirectoryName('%(BasicFileTunderstoreLocation.Identity)'))\manifest.json</ManifestLocation>
     </PropertyGroup>
 
@@ -273,51 +272,51 @@
   <ItemGroup>
     <ProjectReference Include="..\K45EUIS_Ext\K45EUIS_Ext.csproj" />
   </ItemGroup>
-	<ItemGroup>
-	  <None Update="i18n\i18n.csv">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Update="System">
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Update="System.Core">
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Update="System.Data">
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Update="System.Drawing">
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Update="System.IO.Compression.FileSystem">
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Update="System.Numerics">
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Update="System.Runtime.Serialization">
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Update="System.Xml">
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
+  <ItemGroup>
+    <None Update="i18n\i18n.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Core">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Data">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Drawing">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.IO.Compression.FileSystem">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Numerics">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Runtime.Serialization">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Xml">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
     <Reference Update="System.Xml.Linq">
       <Private>false</Private>
