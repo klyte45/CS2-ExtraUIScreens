@@ -125,8 +125,10 @@ function applicationRegistering() {
     appName: ROOT_APP_NAME,
     displayName: "EUIS Settings",
     iconUrl: "./euis.png",
-    cssUrl: null,
-    jsUrl: "coui://euis.k45/UI/esos/k45-euis-root.js"//"http://localhost:8500/k45-euis-root.js"
+    cssUrl: "http://localhost:8400/k45-euis-root.css",
+    jsUrl: "http://localhost:8400/k45-euis-root.js",
+    //cssUrl: "coui://euis.k45/UI/esos/k45-euis-root.css",
+    //jsUrl: "coui://euis.k45/UI/esos/k45-euis-root.js"
   }
 
   registerApplicationCommons(rootAppData,
@@ -136,6 +138,7 @@ function applicationRegistering() {
       removeAppButton,
       reintroduceAppButton,
       listActiveAppsInMonitor,
+      listActiveVosApps,
       getQuantityMonitors
     });
   const taskbar = document.getElementById("taskbar")
@@ -157,7 +160,7 @@ const getApplicationScreenPositionOrdinal = (location: Location, appname: string
 let appsDisabledByDefault: string[];
 async function getAppsDisabledByDefault() {
   const disabledByDisplay: string[][] = await engine.call("k45::euis.getDisabledAppsByDisplay")
-  appsDisabledByDefault = disabledByDisplay?.[__euis_main.monitorNumber - 1] ?? [];
+  appsDisabledByDefault = disabledByDisplay?.[__euis_main.monitorNumber] ?? [];
 }
 
 async function fullRegisterApp(appData: ApplicationInjectionData) {
@@ -324,6 +327,16 @@ async function listActiveAppsInMonitor(monitor: number) {
       res(result);
     })
     engine.trigger("k45::euis.getMonitorEnabledApplcations", monitor)
+    setTimeout(() => rej("TIMEOUT!"), 3000)
+  })
+}
+async function listActiveVosApps() {
+  return new Promise<string[]>((res, rej) => {
+    engine.on("k45::euis.getVosEnabledApplcations->", (result: string[]) => {
+      engine.off("k45::euis.getVosEnabledApplcations->")
+      res(result);
+    })
+    engine.trigger("k45::euis.getVosEnabledApplcations")
     setTimeout(() => rej("TIMEOUT!"), 3000)
   })
 }

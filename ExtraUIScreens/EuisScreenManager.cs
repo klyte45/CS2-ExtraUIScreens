@@ -145,8 +145,8 @@ namespace ExtraUIScreens
                 cam = defView.RenderingCamera;
                 settings.enableBackdropFilter = false;
             }
-            var baseUri = new UriBuilder() { Scheme = "coui", Host = BasicIMod.Instance.CouiHost, Path = @"UI/esos/index.html" }.Uri.AbsoluteUri;
-            //var baseUri = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8400, Path = "index.html" }.Uri.AbsoluteUri;
+            //var baseUri = new UriBuilder() { Scheme = "coui", Host = BasicIMod.Instance.CouiHost, Path = @"UI/esos/index.html" }.Uri.AbsoluteUri;
+            var baseUri = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8425, Path = "index.html" }.Uri.AbsoluteUri;
             yield return 0;
 
             var modView = uiSystemArray[displayId].CreateView(baseUri, settings, cam);
@@ -157,6 +157,7 @@ namespace ExtraUIScreens
                 modView.View.BindCall("k45::euis.getQuantityMonitors", new Func<int>(() => Display.displays.Length));
                 modView.View.BindCall("k45::euis.getDisabledAppsByDisplay", new Func<string[][]>(() => EuisModData.EuisDataInstance.GetDisabledAppsByMonitor()));
                 modView.View.RegisterForEvent("k45::euis.getMonitorEnabledApplcations", new Action<int>((monitorId) => StartCoroutine(GetMonitorEnabledApplcations(monitorId, modView.View))));
+                modView.View.RegisterForEvent("k45::euis.getVosEnabledApplcations", new Action<int>((monitorId) => StartCoroutine(GetVosEnabledApplcations(modView.View))));
                 modView.View.BindCall("k45::euis.saveAppSelectionAsDefault", new Action(() => SaveAppSelectionAsDefault()));
                 modView.View.BindCall("k45::euis.removeAppButton", new Action<string, int>(RemoveAppFromMonitor));
                 modView.View.BindCall("k45::euis.reintroduceAppButton", new Action<string, int>(AddAppToMonitor));
@@ -222,13 +223,13 @@ namespace ExtraUIScreens
         private IEnumerator SaveAppSelectionAsDefault_impl()
         {
             yield return 0;
-            var result = new string[Display.displays.Length][];
+            var result = new string[Display.displays.Length + 1][];
             if (BasicIMod.DebugMode) LogUtils.DoLog($"Registered apps: {string.Join("|", registeredApplications.Select(x => x.GetFullAppName()))}");
-            for (int i = 0; i < Display.displays.Length; i++)
+            for (int i = 0; i <= Display.displays.Length; i++)
             {
                 var wrapper = new Wrapper<string[]>();
-                yield return DoCallToMonitorToGetApplicationsEnabled(i + 1, wrapper);
-                if (BasicIMod.DebugMode) LogUtils.DoLog($"Apps enabled in display {i}: {string.Join("|", wrapper.Value ?? new string[0])}");
+                yield return DoCallToMonitorToGetApplicationsEnabled(i, wrapper);
+                if (BasicIMod.DebugMode) LogUtils.DoLog($"Apps enabled in display {i - 1}: {string.Join("|", wrapper.Value ?? new string[0])}");
                 result[i] = wrapper.Value != null
                     ? registeredApplications.Select(x => x.GetFullAppName()).Where(x => !wrapper.Value.Contains(x)).ToArray()
                     : new string[0];
@@ -286,10 +287,18 @@ namespace ExtraUIScreens
             yield return DoCallToMonitorToGetApplicationsEnabled(monitorId, wrapper);
             callerView.TriggerEvent("k45::euis.getMonitorEnabledApplcations->" + monitorId, wrapper.Value);
         }
+        private IEnumerator GetVosEnabledApplcations(View callerView)
+        {
+            yield return 0;
+            var wrapper = new Wrapper<string[]>();
+            yield return DoCallToMonitorToGetApplicationsEnabled(0, wrapper);
+            callerView.TriggerEvent("k45::euis.getVosEnabledApplcations->", wrapper.Value);
+        }
+
 
         private IEnumerator DoCallToMonitorToGetApplicationsEnabled(int monitorId, Wrapper<string[]> appList)
         {
-            if (monitorId <= 0 || monitorId > uiSystemArray.Length || uiSystemArray[monitorId - 1] is null)
+            if (monitorId < 0 || monitorId > uiSystemArray.Length || uiSystemArray[monitorId - 1] is null)
             {
                 appList.Value = new string[0];
                 yield break;
@@ -298,7 +307,7 @@ namespace ExtraUIScreens
             {
                 yield return new WaitForSeconds(0.2f);
             }
-            var targetView = uiSystemArray[monitorId - 1].UIViews[0].View;
+            var targetView = monitorId < 0 ? GameManager.instance.userInterface.view.View : uiSystemArray[monitorId - 1].UIViews[0].View;
             while (!targetView.IsReadyForBindings())
             {
                 yield return new WaitForSeconds(0.2f);
@@ -518,7 +527,7 @@ namespace ExtraUIScreens
             }
             return true;
         }
-        private bool ValidateModRegister(IEUISModRegister appRegisterData)
+        internal static bool ValidateModRegister(IEUISModRegister appRegisterData)
         {
             if (!Regex.IsMatch(appRegisterData.ModderIdentifier, "^[a-z0-9\\-]{3,10}$"))
             {

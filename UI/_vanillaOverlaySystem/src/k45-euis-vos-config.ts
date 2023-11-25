@@ -37,7 +37,7 @@ engine.whenReady.then(() => {
   engine.on("k45::euis.reintroduceVosApp->", (appName: string) => {
    reintroduceAppButton_impl(appName);
   })
-  engine.on("k45::euis.listActiveAppsInVos", () => {
+  engine.on("k45::euis.listActiveAppsInMonitor", () => {
     engine.trigger("k45::euis.listActiveAppsInMonitor->", Object.entries(appDatabase).filter(x => x[1].button).map(x => x[0]))
   })
 
@@ -49,7 +49,7 @@ engine.whenReady.then(() => {
     fullUnregisterApp(appName);
   });
 
-  //getVosAppsDisabledByDefault().then(() => engine.call("k45::euis.vosFrontEndReady"))
+  getVosAppsDisabledByDefault().then(() => engine.call("k45::euis.vosFrontEndReady"))
 
 
   try {
@@ -80,8 +80,8 @@ function getCurrentDate() {
 
 let appsDisabledByDefault: string[];
 async function getVosAppsDisabledByDefault() {
-  const disabledByDisplay: string[][] = []//await engine.call("k45::euis.getVosAppsDisabledByDefault")
-  appsDisabledByDefault = disabledByDisplay?.[__euis_main.monitorNumber - 1] ?? [];
+  const disabledByDisplay: string[][] = await engine.call("k45::euis.getDisabledAppsByDisplay")
+  appsDisabledByDefault = disabledByDisplay?.[0] ?? [];
 }
 
 async function fullRegisterApp(appData: ApplicationInjectionData) {
@@ -233,7 +233,6 @@ function reintroduceAppButton_impl(appName: string) {
     registerDockButtonForApplication(appDatabase[appName]);
   }
 }
-
 async function fullUnregisterApp(appName: string) {
   removeAppButton_impl(appName)
   await unregisterApplication(appName)

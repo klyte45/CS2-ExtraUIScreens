@@ -1,7 +1,7 @@
 {
   "name": "@k45-euis/root",
   "scripts": {
-    "start": "webpack serve",
+    "start": "webpack serve --port 8400",
     "start:standalone": "webpack serve --env standalone",
     "build": "concurrently npm:build:*",
     "build:webpack": "webpack --mode=production",
@@ -13,7 +13,7 @@
     "watch-tests": "cross-env BABEL_ENV=test jest --watch",
     "prepare": "husky install",
     "coverage": "cross-env BABEL_ENV=test jest --coverage",
-    "build:types": "tsc"    
+    "build:types": "tsc"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
@@ -39,6 +39,8 @@
     "jest-cli": "^27.0.6",
     "prettier": "^2.3.2",
     "pretty-quick": "^3.1.1",
+    "sass": "^1.69.5",
+    "sass-loader": "^13.3.2",
     "ts-config-single-spa": "^3.0.0",
     "typescript": "^4.3.5",
     "webpack": "^5.75.0",
@@ -55,6 +57,8 @@
     "@types/react-dom": "^17.0.9",
     "@types/systemjs": "^6.1.1",
     "@types/webpack-env": "^1.16.2",
+    "coherent-gameface-scrollable-container": "^3.1.0",
+    "mini-css-extract-plugin": "^2.7.6",
     "object-typed": "^1.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

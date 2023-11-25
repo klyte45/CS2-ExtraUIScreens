@@ -50,16 +50,7 @@
       <!-- Add your organization's prod import map URL to this script's src  -->
       <!-- <script type="systemjs-importmap" src="/importmap.json"></script> -->
 
-      <% if (isLocal) { %>
-        <script type="systemjs-importmap">
-    {
-      "imports": {
-        "@k45-euis/root-config": "//localhost:8400/k45-euis-root-config.js"
-      }
-    }
-  </script>
-        <% } %>
-
+  
           <!--
     If you need to support Angular applications, uncomment the script tag below to ensure only one instance of ZoneJS is loaded
     Learn more about why at https://single-spa.js.org/docs/ecosystem-angular/#zonejs
@@ -67,17 +58,11 @@
           <!-- <script src="https://cdn.jsdelivr.net/npm/zone.js@0.11.3/dist/zone.min.js"></script> -->
 
           <script src="dependencies/import-map-overrides.js"></script>
-          <% if (isLocal) { %>
-            <script src="dependencies/system.min.js"></script>
-            <script src="dependencies/amd.min.js"></script>
-            <link href="coui://gameui/index.css" rel="stylesheet">
-            <% } else { %>
-              <script src="dependencies/system.min.js"></script>
-              <script src="dependencies/amd.min.js"></script>
-              <link href="coui://gameui/index.css" rel="stylesheet">
-              <% } %>
-                <link href="base.css" rel="stylesheet">
-                <script src="dependencies/cohtml.js"></script>
+          <script src="dependencies/system.min.js"></script>
+          <script src="dependencies/amd.min.js"></script>
+          <link href="coui://gameui/index.css" rel="stylesheet">
+          <link href="base.css" rel="stylesheet">
+          <script src="dependencies/cohtml.js"></script>
 </head>
 
 <body class="transparent">
