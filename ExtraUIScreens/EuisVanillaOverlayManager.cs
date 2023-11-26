@@ -1,6 +1,5 @@
 ﻿#if !THUNDERSTORE
 using Belzont.Utils;
-using cohtml.Net;
 using Game.SceneFlow;
 using K45EUIS_Ext;
 using System;
@@ -20,7 +19,9 @@ namespace ExtraUIScreens
         public static string kBaseUrlVos = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8450, Path = @"" }.Uri.AbsoluteUri[..^1];
         private readonly HashSet<IEUISOverlayRegister> registeredApplications = new();
         private event Action OnReady;
-        private event Action<int> OnceOnReady;
+        private event Action OnceOnReady;
+        private bool Ready;
+        private bool HasBeenReadyOnce;
 
         public void Awake()
         {
@@ -41,15 +42,16 @@ namespace ExtraUIScreens
             {
                 if (x?.StartsWith("coui://GameUI/index.html") ?? false)
                 {
+                    Ready = false;
                     ResetVanillaOverlay();
                 }
             };
-            GameManager.instance.onGameLoadingComplete += (x, y) => ResetVanillaOverlay(y);
+            GameManager.instance.onGameLoadingComplete += (x, y) => StartCoroutine(ResetVanillaOverlay(y));
         }
 
         public void ResetVanillaOverlay()
         {
-            ResetVanillaOverlay(GameManager.instance.gameMode);
+            StartCoroutine(ResetVanillaOverlay(GameManager.instance.gameMode));
         }
 
         internal void RegisterApplication(IEUISOverlayRegister appRegisterData)
@@ -158,22 +160,32 @@ namespace ExtraUIScreens
                 defView.Listener.ReadyForBindings += registerCall;
             }
         }
-        public void InitializeVOS() => StartCoroutine(InitializeVOS_Impl());
         private IEnumerator InitializeVOS_Impl()
         {
             yield return 0;
             var defView = GameManager.instance.userInterface.view;
             defView.enabled = true;
-            defView.Listener.ReadyForBindings += () =>
+            var onReadyForBindings = () =>
             {
-                defView.View.BindCall("k45::euis.getDisabledAppsByDisplay", new Func<string[][]>(() => EuisModData.EuisDataInstance.GetDisabledAppsByMonitor()));
-                defView.View.BindCall("k45::euis.getActiveMonitorMask", new Func<int>(() => EuisModData.EuisDataInstance.InactiveMonitors));
-                defView.View.BindCall("k45::euis.frontEndReady", new Action<int>((x) =>
+                LogUtils.DoLog("[VOS] Registering calls");
+                defView.View.BindCall("k45::euis.getDisabledAppsByDisplay", new Func<string[][]>(() =>
+                {
+                    LogUtils.DoLog("[VOS] k45::euis.getDisabledAppsByDisplay");
+                    return EuisModData.EuisDataInstance.GetDisabledAppsByMonitor();
+                }));
+                defView.View.BindCall("k45::euis.vosFrontEndReady", new Action(() =>
                 {
                     OnReady?.Invoke();
-                    OnceOnReady?.Invoke(x);
+                    OnceOnReady?.Invoke();
                 }));
+                InjectScript();
             };
+
+            defView.Listener.ReadyForBindings += onReadyForBindings;
+            if (defView.View.IsReadyForBindings())
+            {
+                onReadyForBindings();
+            }
             GameManager.instance.localizationManager.onActiveDictionaryChanged += () => defView.View.TriggerEvent("k45::euis.localeChanged");
             GameManager.instance.onGameLoadingComplete += (x, y) => { defView.View.TriggerEvent("k45::euis.deselectAll"); };
         }
@@ -188,72 +200,39 @@ namespace ExtraUIScreens
                 modRegisterData.OnGetEventsBinder((string eventName, Delegate action) => RegisterEvent(modRegisterData, eventName, action));
             }
         }
+        public void DoWhenReady(Action action)
+        {
+            OnReady += action;
+            if (Ready)
+            {
+                action();
+            }
+        }
+        public void DoOnceWhenReady(Action action)
+        {
+            OnceOnReady += action;
+        }
 
-        public void ResetVanillaOverlay(Game.GameMode mode)
+        public IEnumerator ResetVanillaOverlay(Game.GameMode mode)
         {
             LogUtils.DoWarnLog($"mode = {mode}");
-            if (mode == Game.GameMode.Game || mode == Game.GameMode.Editor)
+            if (!Ready && (mode == Game.GameMode.Game || mode == Game.GameMode.Editor))
             {
-
-                GameManager.instance.userInterface.view.View.ExecuteScript(
-    $@"(function() {{ 
-let createEuisContainer = function(){{
-    const k = document.createElement(""div"");
-    k.id = ""EUIS_Container"";
-    function onComplete () {{
-        k.insertAdjacentHTML('afterbegin',this.responseText )
-        document.body.appendChild(k);
-    }}
-
-    var oReq = new XMLHttpRequest();
-    oReq.addEventListener(""load"", onComplete);
-    oReq.open(""GET"", ""{kBaseUrlVos}/include.html"");
-    oReq.send();
-}}
-
-if(document.getElementById(""EUIS_Container"")) {{ 
-   return
-}}else{{
-
-    const css = document.createElement('link');
-    css.href=""{kBaseUrlVos}/base.css"";
-    css.rel = ""stylesheet""
-    const script = document.createElement('script');
-    script.src = ""{kBaseUrlVos}/dependencies/system.min.js"";
-    const script2 = document.createElement('script');
-    script2.src = ""{kBaseUrlVos}/dependencies/single-spa.min.js"";
-    const script3 = document.createElement('script');
-    script3.src = ""{kBaseUrlVos}/dependencies/import-map-overrides.js"";
-    const script4 = document.createElement('script');
-    script4.src = ""{kBaseUrlVos}/dependencies/amd.min.js"";
-    const script5 = document.createElement('script');
-    script5.type=""systemjs-importmap""
-    script5.insertAdjacentText('afterbegin', `
-        {{
-          ""imports"": {{
-            ""single-spa"": ""{kBaseUrlVos}/dependencies/single-spa.min.js"",
-            ""react"": ""{kBaseUrlVos}/dependencies/react.production.min.js"",
-            ""react-dom"": ""{kBaseUrlVos}/dependencies/react-dom.production.min.js"",
-            ""@k45-euis/vos-config"": ""{kBaseUrlVos}/k45-euis-vos-config.js""
-          }}
-        }}`);
-
-
-    script.onload = function ()  {{console.log( document.head.appendChild(script2))}}
-    script2.onload = function () {{console.log( document.head.appendChild(script3))}}
-    script3.onload = function () {{console.log( document.head.appendChild(script4))}}
-    script4.onload = function () {{console.log( document.head.appendChild(script5));console.log( createEuisContainer())}}
-   console.log( document.head.appendChild(script))
-   console.log( document.head.appendChild(css))
-
-}}
-}})()
-
-");
+                if (!HasBeenReadyOnce)
+                {
+                    yield return InitializeVOS_Impl();
+                    HasBeenReadyOnce = true;
+                    yield break;
+                }
             }
 
         }
 
+        private static void InjectScript()
+        {
+            GameManager.instance.userInterface.view.View.ExecuteScript($@"(function() {{ const scriptX = document.createElement('script'); scriptX.src = ""{kBaseUrlVos}/vos-loader.js""; document.head.appendChild(scriptX)}})()");
+
+        }
     }
 }
 #endif

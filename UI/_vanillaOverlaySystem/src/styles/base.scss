@@ -1,11 +1,18 @@
-[class^='pause-menu_'],[class^='menu-ui_'],[class^='dropdown-popup_']{
+[class^='pause-menu_'],
+[class^='menu-ui_'],
+[class^='dropdown-popup_'] {
   z-index: 100;
 }
-#EUIS_Container {
-  height: 100%;
-  width: 100%;
-  z-index: 99;
+
+#EUIS_Container,
+div[data-safe-name] {
   position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 120.000000rem;
+  pointer-events: none;
+  z-index: 99;
   font-family: var(--fontFamily);
   background-image: none;
   pointer-events: none;
@@ -49,7 +56,7 @@
 
 
 
-  div#taskbar {
+  div#toolbox {
     min-height: 50rem;
     position: fixed;
     background-color: var(--menuPanel1);
@@ -62,11 +69,11 @@
     padding-left: 3.000000rem;
     padding-right: 3.000000rem;
     top: 0;
-    left: 50%;
+    left: 50vw;
     display: flex;
     flex-direction: column;
-    min-width: 60rem;    
-    max-width: 15.000000vw;    
+    min-width: 60rem;
+    max-width: 15.000000vw;
     transform: translateX(-50.000000%);
 
     %active {
@@ -102,7 +109,7 @@
         transition-delay: 0.000000s;
         transition-timing-function: ease;
         background-size: 25rem;
-        background-image: var(--appBtnIcon); 
+        background-image: var(--appBtnIcon);
 
         &:hover {
           background-color: rgba(65, 170, 250, 0.600000);

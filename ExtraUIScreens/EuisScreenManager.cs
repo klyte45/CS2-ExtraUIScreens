@@ -229,7 +229,7 @@ namespace ExtraUIScreens
             {
                 var wrapper = new Wrapper<string[]>();
                 yield return DoCallToMonitorToGetApplicationsEnabled(i, wrapper);
-                if (BasicIMod.DebugMode) LogUtils.DoLog($"Apps enabled in display {i - 1}: {string.Join("|", wrapper.Value ?? new string[0])}");
+                if (BasicIMod.DebugMode) LogUtils.DoLog($"Apps enabled in display {i}: {string.Join("|", wrapper.Value ?? new string[0])}");
                 result[i] = wrapper.Value != null
                     ? registeredApplications.Select(x => x.GetFullAppName()).Where(x => !wrapper.Value.Contains(x)).ToArray()
                     : new string[0];
@@ -298,16 +298,19 @@ namespace ExtraUIScreens
 
         private IEnumerator DoCallToMonitorToGetApplicationsEnabled(int monitorId, Wrapper<string[]> appList)
         {
-            if (monitorId < 0 || monitorId > uiSystemArray.Length || uiSystemArray[monitorId - 1] is null)
+            if (monitorId != 0)
             {
-                appList.Value = new string[0];
-                yield break;
+                if (monitorId < 0 || monitorId >= uiSystemArray.Length || uiSystemArray[monitorId - 1] is null)
+                {
+                    appList.Value = new string[0];
+                    yield break;
+                }
+                while (uiSystemArray[monitorId - 1].UIViews.Count < 1)
+                {
+                    yield return new WaitForSeconds(0.2f);
+                }
             }
-            while (uiSystemArray[monitorId - 1].UIViews.Count < 1)
-            {
-                yield return new WaitForSeconds(0.2f);
-            }
-            var targetView = monitorId < 0 ? GameManager.instance.userInterface.view.View : uiSystemArray[monitorId - 1].UIViews[0].View;
+            var targetView = monitorId == 0 ? GameManager.instance.userInterface.view.View : uiSystemArray[monitorId - 1].UIViews[0].View;
             while (!targetView.IsReadyForBindings())
             {
                 yield return new WaitForSeconds(0.2f);
@@ -359,23 +362,58 @@ namespace ExtraUIScreens
 
         private void SendEventToApp(string modderId, string appName, string eventName, params object[] args)
         {
-            var eventNameFull = $"{modderId}::{appName}.{eventName}";
-            LogUtils.DoLog("Calling event: {0}", eventNameFull);
-            foreach (var uiSys in uiSystemArray)
+            if (eventName.StartsWith("^"))
             {
-                if (uiSys != null && uiSys.UIViews[0].enabled && uiSys.UIViews[0].View.IsReadyForBindings())
+                var appNameFull = $"@{modderId}/{appName}";
+                switch (eventName)
                 {
-                    switch (args is null ? 0 : args.Length)
+                    case EUISSpecialEventEmitters.kOpenModAppScreen:
+                        View targetMonitor;
+                        if (args.Length >= 1 && args[0] is int monitorNum)
+                        {
+                            if (monitorNum < uiSystemArray.Length && monitorNum > 0 && uiSystemArray[monitorNum] is UISystem sys && sys.UIViews[0].enabled)
+                            {
+                                targetMonitor = sys.UIViews[0].View;
+                            }
+                            else
+                            {
+                                throw new Exception($"Invalid monitor index! It's out of bounds (1 to {uiSystemArray.Length - 1}) or it's not activated. Check the mod code! Value: {monitorNum}");
+                            }
+
+                        }
+                        else
+                        {
+                            var inactiveAppsMonitor = EuisModData.EuisDataInstance.GetDisabledAppsByMonitor();
+                            targetMonitor = uiSystemArray.Select((x, i) => (x, i)).FirstOrDefault((x) => x.i > 0 && (x.x?.UIViews[0].enabled ?? false) && (inactiveAppsMonitor is null || !inactiveAppsMonitor[x.i].Contains(appNameFull))).x?.UIViews[0].View;
+                            if (targetMonitor is null)
+                            {
+                                throw new Exception($"The app {appName} is not active in any EUIS extra screen or there's no active EUIS extra screen! Check the mod code.");
+                            }
+                        }
+                        break;
+
+                }
+            }
+            else
+            {
+                var eventNameFull = $"{modderId}::{appName}.{eventName}";
+                LogUtils.DoLog("Calling event: {0}", eventNameFull);
+                foreach (var uiSys in uiSystemArray)
+                {
+                    if (uiSys != null && uiSys.UIViews[0].enabled && uiSys.UIViews[0].View.IsReadyForBindings())
                     {
-                        case 0: uiSys.UIViews[0].View.TriggerEvent(eventNameFull); break;
-                        case 1: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0]); break;
-                        case 2: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1]); break;
-                        case 3: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2]); break;
-                        case 4: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3]); break;
-                        case 5: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4]); break;
-                        case 6: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5]); break;
-                        case 7: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
-                        default: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
+                        switch (args is null ? 0 : args.Length)
+                        {
+                            case 0: uiSys.UIViews[0].View.TriggerEvent(eventNameFull); break;
+                            case 1: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0]); break;
+                            case 2: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1]); break;
+                            case 3: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2]); break;
+                            case 4: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3]); break;
+                            case 5: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4]); break;
+                            case 6: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5]); break;
+                            case 7: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
+                            default: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
+                        }
                     }
                 }
             }

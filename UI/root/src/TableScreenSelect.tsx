@@ -99,7 +99,10 @@ export class TableScreenSelect extends Component<{ rootProps: RootProps }, {
           {new Array(this.state.quantityMonitors).fill(null).map((_, i) => {
             if (this.checkMonitorActive(i + 1))
               return <div key={i} className="label__DGc7_" style={columnStyleRightCheck}>
-                <CheckboxTitleless isChecked={() => { return thisComponent.state.appsByMonitor[i + 1]?.includes(x); }} onClick={(k) => {
+                <CheckboxTitleless isChecked={() => {
+                  console.log(thisComponent.state.appsByMonitor);
+
+                  return thisComponent.state.appsByMonitor[i + 1]?.includes(x); }} onClick={(k) => {
                   (k ? rootProps.reintroduceAppButton(x, i + 1) : rootProps.removeAppButton(x, i + 1));
                 }}>
                 </CheckboxTitleless>

@@ -3,6 +3,7 @@
    <PropertyGroup>
    	<TargetFramework>net480</TargetFramework>
    	<Configurations>Editor;Steam;Thunderstore</Configurations>
+     <LangVersion>10.0</LangVersion>
    </PropertyGroup>
 		<ItemGroup>
       <DeployDir Include="$(K45_CS2_ALLROOT)\_appdataMods\$(SolutionName)" Condition="'$(Configuration)'!='Thunderstore'" />

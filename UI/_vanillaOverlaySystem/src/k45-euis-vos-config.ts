@@ -1,10 +1,11 @@
 ///<reference path="cohtml.d.ts" />
 ///<reference path="../../root/src/euis.d.ts" />
-import { LifeCycles, getAppNames, registerApplication, start, unregisterApplication } from "single-spa";
+import { LifeCycles, getAppNames, registerApplication, start, unregisterApplication, triggerAppChange } from "single-spa";
 import prefixer from 'postcss-prefix-selector';
 import postcss from "postcss";
 import '/src/styles/base.scss'
 import '/src/styles/tooltip.scss'
+import 'regenerator-runtime/runtime'
 
 type ApplicationInjectionData = {
   appName: string,
@@ -18,42 +19,39 @@ let __euis_main: EuisMainModel = {
   currentTime: getCurrentTime(),
   currentDate: getCurrentDate(),
   monitorIdentifierText: "Vanilla!",
-  monitorNumber: -1
+  monitorNumber: -1,
 }
-let _currentApp = null;
+var _currentApp: string = null;
 
 engine.whenReady.then(() => {
-    engine.createJSModel('__euis_main', __euis_main);
-    engine.synchronizeModels();
-    updateCurrentTime();
-    engine.updateWholeModel(__euis_main);
-    engine.synchronizeModels();
-    initiateTooltip();
+  engine.createJSModel('__euis_main', __euis_main);
+  engine.synchronizeModels();
+  updateCurrentTime();
+  engine.updateWholeModel(__euis_main);
+  engine.synchronizeModels();
+  initiateTooltip();
 })
 
-  engine.on("k45::euis.removeVosApp->", ( appName: string) => {
-    removeAppButton_impl(appName);
-  })
-  engine.on("k45::euis.reintroduceVosApp->", (appName: string) => {
-   reintroduceAppButton_impl(appName);
-  })
-  engine.on("k45::euis.listActiveAppsInMonitor", () => {
-    engine.trigger("k45::euis.listActiveAppsInMonitor->", Object.entries(appDatabase).filter(x => x[1].button).map(x => x[0]))
-  })
+engine.on("k45::euis.removeVosApp->", (appName: string) => {
+  removeAppButton_impl(appName);
+})
+engine.on("k45::euis.reintroduceVosApp->", (appName: string) => {
+  reintroduceAppButton_impl(appName);
+})
+engine.on("k45::euis.listActiveAppsInMonitor", () => {
+  engine.trigger("k45::euis.listActiveAppsInMonitor->", Object.entries(appDatabase).filter(x => x[1].button).map(x => x[0]))
+})
 
-  engine.on("k45::euis.registerVosApplication", (appName: string, displayName: string, jsUrl: string, cssUrl: string, iconUrl: string) => {
-    fullRegisterApp({ appName, displayName, iconUrl, jsUrl, cssUrl })
-  });
+engine.on("k45::euis.registerVosApplication", (appName: string, displayName: string, jsUrl: string, cssUrl: string, iconUrl: string) => {
+  fullRegisterApp({ appName, displayName, iconUrl, jsUrl, cssUrl })
+});
 
-  engine.on("k45::euis.unregisterVosApplication", (appName: string) => {
-    fullUnregisterApp(appName);
-  });
+engine.on("k45::euis.unregisterVosApplication", (appName: string) => {
+  fullUnregisterApp(appName);
+});
 
-  getVosAppsDisabledByDefault().then(() => engine.call("k45::euis.vosFrontEndReady"))
+getVosAppsDisabledByDefault().then(() => engine.call("k45::euis.vosFrontEndReady"))
 
-
-  try {
-  } catch (e) { console.log(e) }
 
 let appDatabase: Record<string, ApplicationInjectionData & { button?: HTMLDivElement }> = {}
 
@@ -141,7 +139,7 @@ function registerApplicationCommons(appData: ApplicationInjectionData, customPro
                 rootEl.setAttribute("data-safe-name", safeName);
                 const cssContent = await load(appData.cssUrl);
                 const parsedContent = postcss().use(prefixer({
-                  prefix: `#EUIS_Container div[data-safe-name=${safeName}]`,
+                  prefix: `div[data-safe-name=${safeName}]`,
                   transform(prefix, selector, prefixedSelector) {
                     if (selector.match(/^(html|body)/)) {
                       return selector.replace(/^([^\s]*)/, `$1 ${prefix}`);
@@ -185,7 +183,10 @@ function registerApplicationCommons(appData: ApplicationInjectionData, customPro
       } as LifeCycles
     },
     () => _currentApp == appName,
-    customProps);
+    Object.assign({
+      selfSelect: () => _currentApp != appName ? toggleNavigationToApp(appName, true) : null,
+      selfUnselect: () => _currentApp == appName ? toggleNavigationToApp(null, true) : null,
+    }, customProps ?? {}));
 }
 
 function removeCssElement(cssEl: Element) {
@@ -204,16 +205,16 @@ function removeCssElement(cssEl: Element) {
 
 function registerDockButtonForApplication(appData: ApplicationInjectionData) {
   const appName = appData.appName;
-  const taskbar = document.getElementById("taskbar")
+  const toolbox = document.querySelector("div#toolbox #buttons")
   const appBtn = document.createElement("div");
   appBtn.setAttribute('id', 'appButton:' + appName);
   appBtn.setAttribute("data-tooltip", appData.displayName);
-  appBtn.setAttribute("data-tootip-position", "top left");
+  appBtn.setAttribute("data-tootip-position", "bottom left");
   appBtn.setAttribute('class', 'appButton');
   appBtn.setAttribute('style', `--appBtnIcon: url(${appData.iconUrl})`)
   appBtn.setAttribute('title', engine.translate(`k45-euis.applicationName.${appName}`))
   appBtn.onclick = () => toggleNavigationToApp(appName)
-  taskbar.appendChild(appBtn);
+  toolbox.appendChild(appBtn);
   appDatabase[appName].button = appBtn;
 }
 
@@ -240,12 +241,21 @@ async function fullUnregisterApp(appName: string) {
 }
 
 
-function toggleNavigationToApp(appname: string) {
-  if (!getAppNames().includes(appname)) {
-    console.log("INVALID APP: " + appname)
-    return;
+function toggleNavigationToApp(appname: string, force: boolean = false) {
+  if (appname == null) {
+    _currentApp = null;
+  } else {
+    if (!getAppNames().includes(appname)) {
+      console.warn("INVALID APP: " + appname)
+      return;
+    }
+    if (appname == _currentApp && !force) {
+      _currentApp = null;
+    } else {
+      _currentApp = appname;
+    }
   }
-  _currentApp = appname
+  triggerAppChange()
 }
 
 function initiateTooltip() {
@@ -398,4 +408,6 @@ function initiateTooltip() {
   }
 }
 
-start({});
+start({
+  urlRerouteOnly: true
+});

@@ -1,6 +1,6 @@
+const TerserPlugin = require('terser-webpack-plugin');
 const { merge } = require("webpack-merge");
 const singleSpaDefaults = require("webpack-config-single-spa-ts");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
@@ -14,7 +14,7 @@ module.exports = (webpackConfigEnv, argv) => {
     disableHtmlGeneration: true,
   });
 
-  return merge(defaultConfig, {
+  return [merge(defaultConfig, {
     // modify the webpack config however you'd like to by adding to this object
     plugins: [
       new MiniCssExtractPlugin({
@@ -23,7 +23,7 @@ module.exports = (webpackConfigEnv, argv) => {
       new CopyPlugin({
         patterns: [
           "dependencies/*",
-          "*.html",
+          "*.html"
         ],
       }),
     ],
@@ -34,7 +34,7 @@ module.exports = (webpackConfigEnv, argv) => {
           use: [
             MiniCssExtractPlugin.loader,
             {
-              loader: "css-loader",              
+              loader: "css-loader",
             },
             "sass-loader",
           ],
@@ -42,5 +42,14 @@ module.exports = (webpackConfigEnv, argv) => {
 
       ],
     },
-  });
+  }),{
+    entry: {
+        "vos-loader": "./vos-loader.js"
+    },
+    optimization: {
+        minimize: true,
+        minimizer: [new TerserPlugin()]
+    },
+    mode: "development"
+}];
 };
