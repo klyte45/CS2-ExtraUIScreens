@@ -1,3 +1,5 @@
+*Updated for version: 1.0.15f1*
+
 # Extra UI Screens Mod
 ## _Use additional monitors_
 
@@ -34,6 +36,6 @@ Cities Skylines 2 uses Coherent UI to emulate a simplified version of Chromium t
 ## Experimental mod warning!
 Since it's a very complex mod, it may cause issues in the game due their early stage of development. However, by the nature of this mod it's very unlikely it to break after game updates - but watch out the mods that may be using this mod as UI platform because they may be sensible to game updates.
 
-## Known bugs
-- The game always will startup on current resolution of monitor, despite the option selected up in game settings. If you use a different resolution in the game you will need to set up again every game session.
-- When enabling a screen, you shall restart the game or the main game UI will not accept inputs.
+## Support
+
+The most up to date information about installation and known issues and bugs is at the [EUIS Support Topic](https://discord.com/channels/1024242828114673724/1180514249265643593) inside of [Cities Skylines Modding Discord Server](https://discord.gg/GCH8A2DD9B).

@@ -9,8 +9,8 @@
     <RootNamespace>ExtraUIScreens</RootNamespace>
     <InstallationPath>C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II</InstallationPath>
     <DataPath>$(LOCALAPPDATA)\..\LocalLow\Colossal Order\Cities Skylines II</DataPath>
-    <ThunderstoreVersion>0.0.1</ThunderstoreVersion>
-    <PdxModsVersion>0.0.7.3</PdxModsVersion>
+    <ThunderstoreVersion>0.0.2</ThunderstoreVersion>
+    <PdxModsVersion>0.0.7.4</PdxModsVersion>
     <Version Condition="'$(Configuration)'=='Thunderstore'">$(ThunderstoreVersion).65534</Version>
     <Version Condition="'$(Configuration)'!='Thunderstore'">$(PdxModsVersion)</Version>
     <PublishTrimmed>True</PublishTrimmed>
@@ -92,6 +92,7 @@
   <ItemGroup>
     <Reference Include="0Harmony" Condition="'$(Configuration)'!='Thunderstore'">
       <HintPath>$(K45_CS2_ALLROOT)\_commonDeps\0Harmony.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule.dll">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\UnityEngine.ImageConversionModule.dll.dll</HintPath>
@@ -223,9 +224,6 @@
     <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.SystemGenerator.EntityQueryBulkOperations.dll" />
     <Analyzer Include="$(UnityModProjectPath)\Library\PackageCache\com.unity.entities@$(EntityVersion)\Unity.Entities\SourceGenerators\Unity.Entities.SourceGen.JobEntityGenerator.dll" />
   </ItemGroup>
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <RemoveDir Directories="$(OutDir)" />
-  </Target>
   <ItemGroup>
     <DeployDir Include="$(K45_CS2_ALLROOT)\_appdataMods\$(SolutionName)" Condition="'$(Configuration)'!='Thunderstore'" />
     <DeployDir Include="$(K45_CS2_ALLROOT)\_ThunderstoreOutput\Klyte45-$(SolutionName);$(K45_CS2_ALLROOT)\_ThunderstoreDist\Klyte45-$(SolutionName)" Condition="'$(Configuration)'=='Thunderstore'" />
@@ -234,7 +232,7 @@
 
 
     <ItemGroup>
-      <FilesToCopy Include="$(OutDir)\**\*.*" Exclude="$(OutDir)\**\*.pdb" />
+      <FilesToCopy Include="$(OutDir)\**\*.*" Exclude="$(OutDir)\**\*.pdb" /> 
     </ItemGroup>
 
     <!--<Message Condition="Exists('$(ModPostProcessorPath)')" Text="Run post processor: $(ModPostProcessorPath) $(TargetPath) $(ProjectPath) $(UnityModProjectPath)" Importance="high" />

@@ -10,8 +10,6 @@ using UnityEngine;
 using System.IO;
 using Game.Modding;
 #if THUNDERSTORE
-using Game.UI.Menu;
-using Game.UI.Widgets;
 using BepInEx;
 #else
 using Colossal.IO.AssetDatabase;
@@ -33,12 +31,9 @@ namespace ExtraUIScreens
         }
     }
 
-    public class ExtraUIScreensMod : BasicIMod<EuisModData>, IMod
-    {
-#else
+#endif
     public class ExtraUIScreensMod : BasicIMod, IMod
     {
-#endif
         public static new ExtraUIScreensMod Instance => (ExtraUIScreensMod)BasicIMod.Instance;
 
         public override string SimpleName => "Extra UI Screens Mod";
@@ -106,6 +101,8 @@ namespace ExtraUIScreens
                             EuisScreenManager.Instance.RegisterModActions(mod, x);
                         }
                     });
+
+#if !THUNDERSTORE
                     EuisVanillaOverlayManager.Instance.DoWhenReady(() =>
                     {
                         var apps = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISOverlayRegister, IEUISOverlayRegister>(() => new EUISOverlayRegisterCurrent(), assembly);
@@ -124,6 +121,7 @@ namespace ExtraUIScreens
                             EuisVanillaOverlayManager.Instance.RegisterModActions(mod);
                         }
                     });
+#endif
                 }
                 catch (Exception e)
                 {
@@ -132,13 +130,11 @@ namespace ExtraUIScreens
             }
         }
 
-#if !THUNDERSTORE
         public override BasicModData CreateSettingsFile()
         {
             var modData = new EuisModData(this);
             return modData;
         }
-#endif
 
 
         private class EUISAppRegisterCurrent : IEUISAppRegister
@@ -185,36 +181,5 @@ namespace ExtraUIScreens
             public string ModAcronym { get; set; }
         }
 
-
-#if THUNDERSTORE
-        protected override IEnumerable<OptionsUISystem.Section> GenerateModOptionsSections()
-        {
-            return new[]
-            {
-                new OptionsUISystem.Section
-                {
-                    id = ModData.GetPathForAggroupator("MonitorsData"),
-                    items = GetMonitorsMenuOptions()
-                }
-           };
-        }
-        private List<IWidget> GetMonitorsMenuOptions()
-        {
-
-            return Display.displays.Select((_, i) =>
-            {
-                var displayId = i;
-                return this.AddBoolField(ModData.GetPathForOption($"UseMonitor{displayId + 1}"), new Game.Reflection.DelegateAccessor<bool>(() => BasicIMod<EuisModData>.ModData.IsMonitorActive(displayId), (x) =>
-                {
-                    BasicIMod<EuisModData>.ModData.SetMonitorActive(displayId, x);
-                    (this as BasicIMod<EuisModData>).SaveModData();
-                }));
-            }).ToList();
-
-        }
-
-        public override EuisModData CreateNewModData() => new();
-
-#endif
     }
 }
