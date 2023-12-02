@@ -30,6 +30,15 @@ engine.whenReady.then(() => {
   engine.updateWholeModel(__euis_main);
   engine.synchronizeModels();
   initiateTooltip();
+  const toolbox = document.querySelector<HTMLDivElement>("div#toolbox");
+  const toolboxToggleBtn = document.querySelector<HTMLButtonElement>("div#toolbox .toggleToolbox");
+  toolboxToggleBtn.onclick = () => {
+    if (toolbox.classList.contains("closed")) {
+      toolbox.classList.remove("closed");
+    } else {
+      toolbox.classList.add("closed");
+    }
+  }
 })
 
 engine.on("k45::euis.removeVosApp->", (appName: string) => {

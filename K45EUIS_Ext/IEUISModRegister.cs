@@ -1,5 +1,4 @@
-﻿using Colossal.UI.Binding;
-using System;
+﻿using System;
 
 namespace K45EUIS_Ext
 {
@@ -10,5 +9,10 @@ namespace K45EUIS_Ext
         Action<Action<string, object[]>> OnGetEventEmitter { get; }
         Action<Action<string, Delegate>> OnGetEventsBinder { get; }
         Action<Action<string, Delegate>> OnGetCallsBinder { get; }
+    }
+
+    public static class EUISSpecialEventEmitters
+    {
+        public const string kOpenModAppCmd = "^openApp";
     }
 }

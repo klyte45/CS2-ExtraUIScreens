@@ -125,10 +125,10 @@ function applicationRegistering() {
     appName: ROOT_APP_NAME,
     displayName: "EUIS Settings",
     iconUrl: "./euis.png",
-    cssUrl: "http://localhost:8400/k45-euis-root.css",
-    jsUrl: "http://localhost:8400/k45-euis-root.js",
-    //cssUrl: "coui://euis.k45/UI/esos/k45-euis-root.css",
-    //jsUrl: "coui://euis.k45/UI/esos/k45-euis-root.js"
+    // cssUrl: "http://localhost:8400/k45-euis-root.css",
+    // jsUrl: "http://localhost:8400/k45-euis-root.js",
+    cssUrl: "coui://euis.k45/UI/esos/k45-euis-root.css",
+    jsUrl: "coui://euis.k45/UI/esos/k45-euis-root.js"
   }
 
   registerApplicationCommons(rootAppData,

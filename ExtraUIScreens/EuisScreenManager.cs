@@ -145,8 +145,8 @@ namespace ExtraUIScreens
                 cam = defView.RenderingCamera;
                 settings.enableBackdropFilter = false;
             }
-            //var baseUri = new UriBuilder() { Scheme = "coui", Host = BasicIMod.Instance.CouiHost, Path = @"UI/esos/index.html" }.Uri.AbsoluteUri;
-            var baseUri = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8425, Path = "index.html" }.Uri.AbsoluteUri;
+            var baseUri = new UriBuilder() { Scheme = "coui", Host = BasicIMod.Instance.CouiHost, Path = @"UI/esos/index.html" }.Uri.AbsoluteUri;
+            //var baseUri = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8425, Path = "index.html" }.Uri.AbsoluteUri;
             yield return 0;
 
             var modView = uiSystemArray[displayId].CreateView(baseUri, settings, cam);
@@ -367,19 +367,14 @@ namespace ExtraUIScreens
                 var appNameFull = $"@{modderId}/{appName}";
                 switch (eventName)
                 {
-                    case EUISSpecialEventEmitters.kOpenModAppScreen:
+                    case EUISSpecialEventEmitters.kOpenModAppCmd:
+
                         View targetMonitor;
                         if (args.Length >= 1 && args[0] is int monitorNum)
                         {
-                            if (monitorNum < uiSystemArray.Length && monitorNum > 0 && uiSystemArray[monitorNum] is UISystem sys && sys.UIViews[0].enabled)
-                            {
-                                targetMonitor = sys.UIViews[0].View;
-                            }
-                            else
-                            {
-                                throw new Exception($"Invalid monitor index! It's out of bounds (1 to {uiSystemArray.Length - 1}) or it's not activated. Check the mod code! Value: {monitorNum}");
-                            }
-
+                            targetMonitor = monitorNum < uiSystemArray.Length && monitorNum > 0 && uiSystemArray[monitorNum] is UISystem sys && sys.UIViews[0].enabled
+                                ? sys.UIViews[0].View
+                                : throw new Exception($"Invalid monitor index! It's out of bounds (1 to {uiSystemArray.Length - 1}) or it's not activated. Check the mod code! Value: {monitorNum}");
                         }
                         else
                         {
@@ -390,8 +385,8 @@ namespace ExtraUIScreens
                                 throw new Exception($"The app {appName} is not active in any EUIS extra screen or there's no active EUIS extra screen! Check the mod code.");
                             }
                         }
+                        targetMonitor.TriggerEvent("k45::euis.switchToApp", appNameFull);
                         break;
-
                 }
             }
             else
@@ -402,20 +397,26 @@ namespace ExtraUIScreens
                 {
                     if (uiSys != null && uiSys.UIViews[0].enabled && uiSys.UIViews[0].View.IsReadyForBindings())
                     {
-                        switch (args is null ? 0 : args.Length)
-                        {
-                            case 0: uiSys.UIViews[0].View.TriggerEvent(eventNameFull); break;
-                            case 1: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0]); break;
-                            case 2: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1]); break;
-                            case 3: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2]); break;
-                            case 4: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3]); break;
-                            case 5: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4]); break;
-                            case 6: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5]); break;
-                            case 7: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
-                            default: uiSys.UIViews[0].View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
-                        }
+                        var targetView = uiSys.UIViews[0].View;
+                        SendTriggerToView(args, eventNameFull, targetView);
                     }
                 }
+            }
+        }
+
+        private static void SendTriggerToView(object[] args, string eventNameFull, View targetView)
+        {
+            switch (args is null ? 0 : args.Length)
+            {
+                case 0: targetView.TriggerEvent(eventNameFull); break;
+                case 1: targetView.TriggerEvent(eventNameFull, args[0]); break;
+                case 2: targetView.TriggerEvent(eventNameFull, args[0], args[1]); break;
+                case 3: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2]); break;
+                case 4: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3]); break;
+                case 5: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4]); break;
+                case 6: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5]); break;
+                case 7: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
+                default: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
             }
         }
 

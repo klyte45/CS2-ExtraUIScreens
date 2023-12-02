@@ -81,13 +81,45 @@ div[data-safe-name] {
       background-size: 30rem;
     }
 
-    #title {
-      text-align: center;
-      flex: 1;
+    &.closed {
+      min-height: 0;
+      height: 0;
+      padding: 0;
+
+      > * {
+        display: none !important;
+      }
+
+      .toggleToolbox {
+        display: block !important;   
+        width: 40rem;
+        background-size: inherit;
+      }
+    }
+
+    .toggleToolbox {
+      position: absolute;
+      top: 0rem;
+      left: 50%;
+      transform: translateX(-50%)translateX(3rem);
+      border-bottom-left-radius: 3rem;
+      border-bottom-right-radius: 3rem; 
+      width: 80.000000rem;
+      background-size: contain;
+      height: 20rem;
+      background-image: url(../images/euis_hor.svg);
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-color: rgba(65, 200, 250, 0.200000);
+
+      &:hover {
+        background-color: rgba(65, 200, 250, 0.400000);
+      }
     }
 
     #buttons {
-
+      min-width: 100.000000rem;
+      margin-top: 20rem;
       display: flex;
       flex-direction: row;
       justify-content: space-around;

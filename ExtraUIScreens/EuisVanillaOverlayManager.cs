@@ -1,4 +1,5 @@
 ﻿#if !THUNDERSTORE
+using Belzont.Interfaces;
 using Belzont.Utils;
 using Game.SceneFlow;
 using K45EUIS_Ext;
@@ -15,8 +16,8 @@ namespace ExtraUIScreens
         public static bool DebugMode { get; set; } = true;
 
         public static EuisVanillaOverlayManager Instance { get; private set; }
-        //public static string kBaseUrlVos = new UriBuilder() { Scheme = "coui", Host = IBasicIMod.Instance.CouiHost, Path = @"UI/vos" }.Uri.AbsoluteUri;
-        public static string kBaseUrlVos = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8450, Path = @"" }.Uri.AbsoluteUri[..^1];
+        public static string kBaseUrlVos = new UriBuilder() { Scheme = "coui", Host = BasicIMod.Instance.CouiHost, Path = @"UI/vos" }.Uri.AbsoluteUri;
+        // public static string kBaseUrlVos = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8450, Path = @"" }.Uri.AbsoluteUri[..^1];
         private readonly HashSet<IEUISOverlayRegister> registeredApplications = new();
         private event Action OnReady;
         private event Action OnceOnReady;
@@ -102,25 +103,41 @@ namespace ExtraUIScreens
 
         internal void SendEventToApp(string modderId, string appName, string eventName, params object[] args)
         {
-            var eventNameFull = $"{modderId}::{appName}.{eventName}";
-            LogUtils.DoLog("Calling event VOS: {0}", eventNameFull);
             var defView = GameManager.instance.userInterface.view;
+            if (eventName.StartsWith("^"))
             {
-                switch (args is null ? 0 : args.Length)
+                var appNameFull = $"@{modderId}/{appName}";
+                switch (eventName)
                 {
-                    case 0: defView.View.TriggerEvent(eventNameFull); break;
-                    case 1: defView.View.TriggerEvent(eventNameFull, args[0]); break;
-                    case 2: defView.View.TriggerEvent(eventNameFull, args[0], args[1]); break;
-                    case 3: defView.View.TriggerEvent(eventNameFull, args[0], args[1], args[2]); break;
-                    case 4: defView.View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3]); break;
-                    case 5: defView.View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4]); break;
-                    case 6: defView.View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5]); break;
-                    case 7: defView.View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
-                    default: defView.View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
+                    case EUISSpecialEventEmitters.kOpenModAppCmd:
+                        {
+                            defView.View.TriggerEvent("k45::euis.switchToApp", appNameFull);
+                            break;
+                        }
                 }
+            }
+            else
+            {
+                var eventNameFull = $"{modderId}::{appName}.{eventName}";
+                LogUtils.DoLog("Calling event VOS: {0}", eventNameFull);
+                {
+                    switch (args is null ? 0 : args.Length)
+                    {
+                        case 0: defView.View.TriggerEvent(eventNameFull); break;
+                        case 1: defView.View.TriggerEvent(eventNameFull, args[0]); break;
+                        case 2: defView.View.TriggerEvent(eventNameFull, args[0], args[1]); break;
+                        case 3: defView.View.TriggerEvent(eventNameFull, args[0], args[1], args[2]); break;
+                        case 4: defView.View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3]); break;
+                        case 5: defView.View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4]); break;
+                        case 6: defView.View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5]); break;
+                        case 7: defView.View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
+                        default: defView.View.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
+                    }
 
+                }
             }
         }
+
         internal void RegisterCall(IEUISModRegister appRegisterData, string callName, Delegate action)
         {
             var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{callName}";
