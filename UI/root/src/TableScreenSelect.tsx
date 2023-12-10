@@ -1,9 +1,9 @@
 ///<reference path="cohtml.d.ts" />
 ///<reference path="euis.d.ts" />
 import { CSSProperties, Component } from "react";
-import { CheckboxTitleless } from "./components/checkbox";
+import { Cs2Checkbox } from "@klyte45/euis-components";
 import { ObjectTyped } from "object-typed";
-import { GameScrollComponent } from "./components/GameScrollComponent";
+import { GameScrollComponent } from "@klyte45/euis-components";
 
 
 const columnStyle: CSSProperties = {
@@ -99,13 +99,13 @@ export class TableScreenSelect extends Component<{ rootProps: RootProps }, {
           {new Array(this.state.quantityMonitors).fill(null).map((_, i) => {
             if (this.checkMonitorActive(i + 1))
               return <div key={i} className="label__DGc7_" style={columnStyleRightCheck}>
-                <CheckboxTitleless isChecked={() => {
+                <Cs2Checkbox isChecked={() => {
                   console.log(thisComponent.state.appsByMonitor);
 
-                  return thisComponent.state.appsByMonitor[i + 1]?.includes(x); }} onClick={(k) => {
+                  return thisComponent.state.appsByMonitor[i + 1]?.includes(x); }} onValueToggle={(k) => {
                   (k ? rootProps.reintroduceAppButton(x, i + 1) : rootProps.removeAppButton(x, i + 1));
                 }}>
-                </CheckboxTitleless>
+                </Cs2Checkbox>
               </div>;
           })}
         </div>

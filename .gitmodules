@@ -1,3 +1,6 @@
 [submodule "ExtraUIScreens/BelzontCommons"]
 	path = ExtraUIScreens/BelzontCommons
 	url = ../BelzontCommons
+[submodule "UI/_replacements"]
+	path = UI/_replacements
+	url = ../Cs2UIUtility

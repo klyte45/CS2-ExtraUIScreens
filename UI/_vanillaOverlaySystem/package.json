@@ -50,7 +50,7 @@
     "postcss-prefix-selector": "^1.16.0",
     "regenerator-runtime": "^0.14.0",
     "single-spa": "^5.9.3",
-    "systemjs-webpack-interop": "file:./_replacements/systemjs-webpack-interop-2.3.7-euis.tgz"
+    "systemjs-webpack-interop": "file:../_replacements/systemjs-webpack-interop-2.3.7-euis.tgz"
   },
   "types": "dist/k45-euis-vos-config.d.ts"
 }
