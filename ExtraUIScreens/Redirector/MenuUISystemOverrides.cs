@@ -38,7 +38,7 @@ namespace ExtraUIScreens
             EuisScreenManager.Instance?.OnInterfaceStyleChanged();
         }
     }
-     
+
     public class GameManagerOverrides : Redirector, IRedirectableWorldless
     {
 
@@ -54,7 +54,35 @@ namespace ExtraUIScreens
         }
         private static void AfterSceneLoad(Task<bool> __result)
         {
-           // __result.ContinueWith((x) => new Task(() => EuisScreenManager.Instance.RunOnAfterSceneLoad()));
+            // __result.ContinueWith((x) => new Task(() => EuisScreenManager.Instance.RunOnAfterSceneLoad()));
+        }
+    }
+
+    public class ScreenshotOverride : Redirector, IRedirectableWorldless
+    {
+        public void Awake()
+        {
+            var overrideMethod = GetType().GetMethod("TakeScreenShot", RedirectorUtils.allFlags);
+            AddRedirect(typeof(ScreenCapture).GetMethod("CaptureScreenshotAsTexture", RedirectorUtils.allFlags, null, new Type[] { }, null), overrideMethod);
+            AddRedirect(typeof(ScreenCapture).GetMethod("CaptureScreenshotAsTexture", RedirectorUtils.allFlags, null, new[] { typeof(int) }, null), overrideMethod);
+            AddRedirect(typeof(ScreenCapture).GetMethod("CaptureScreenshotAsTexture", RedirectorUtils.allFlags, null, new[] { typeof(ScreenCapture.StereoScreenCaptureMode) }, null), overrideMethod);
+        }
+        public static bool TakeScreenShot(ref Texture2D __result)
+        {
+            int photoWidth = Display.displays[0].renderingWidth;
+            int photoHeight = Display.displays[0].renderingHeight;
+            RenderTexture rt = new RenderTexture(photoWidth, photoHeight, 24);
+            Camera.main.targetTexture = rt;
+            RenderTexture.active = rt;
+            Camera.main.Render();
+            __result = new Texture2D(photoWidth, photoHeight, TextureFormat.RGB24, false);
+            __result.ReadPixels(new Rect(0, 0, photoWidth, photoHeight), 0, 0);
+            __result.Apply();
+            Camera.main.targetTexture = null;
+            Camera.main.targetTexture = null;
+            RenderTexture.active = null;
+            GameObject.Destroy(rt);
+            return false;
         }
     }
 }

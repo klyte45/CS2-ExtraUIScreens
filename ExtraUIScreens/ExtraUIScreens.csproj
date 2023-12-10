@@ -9,8 +9,8 @@
     <RootNamespace>ExtraUIScreens</RootNamespace>
     <InstallationPath>C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II</InstallationPath>
     <DataPath>$(LOCALAPPDATA)\..\LocalLow\Colossal Order\Cities Skylines II</DataPath>
-    <ThunderstoreVersion>0.0.2</ThunderstoreVersion>
-    <PdxModsVersion>0.0.7.4</PdxModsVersion>
+    <ThunderstoreVersion>0.0.X</ThunderstoreVersion>
+    <PdxModsVersion>0.0.7.5</PdxModsVersion>
     <Version Condition="'$(Configuration)'=='Thunderstore'">$(ThunderstoreVersion).65534</Version>
     <Version Condition="'$(Configuration)'!='Thunderstore'">$(PdxModsVersion)</Version>
     <PublishTrimmed>True</PublishTrimmed>
@@ -193,6 +193,9 @@
     <Reference Include="Unity.Burst">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.Burst.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ScreenCaptureModule">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II\Cities2_Data\Managed\UnityEngine.ScreenCaptureModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestModule">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\UnityEngine.UnityWebRequestModule.dll</HintPath>
