@@ -9,7 +9,7 @@ using System.Reflection;
 using UnityEngine;
 using System.IO;
 using Game.Modding;
-#if THUNDERSTORE
+#if BEPINEX_CS2
 using BepInEx;
 #else
 using Colossal.IO.AssetDatabase;
@@ -17,7 +17,7 @@ using Colossal.IO.AssetDatabase;
 
 namespace ExtraUIScreens
 {
-#if THUNDERSTORE
+#if BEPINEX_CS2
 
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     public class EUIBepinexPlugin : BaseUnityPlugin
@@ -47,7 +47,7 @@ namespace ExtraUIScreens
 
         public override void DoOnCreateWorld(UpdateSystem updateSystem)
         {
-#if !THUNDERSTORE
+#if !BEPINEX_CS2
             euisGO.AddComponent<EuisVanillaOverlayManager>();
 #endif
             LoadExtraScreenFromMods();
@@ -69,7 +69,7 @@ namespace ExtraUIScreens
         private static void LoadExtraScreenFromMods()
         {
             HashSet<string> allEuisAssemblies;
-#if THUNDERSTORE
+#if BEPINEX_CS2
             allEuisAssemblies = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(ModInstallFolder), ".."), "*.euis", SearchOption.AllDirectories).Select(x => x.Trim()).ToHashSet();
 #else
             allEuisAssemblies = AssetDatabase.global.GetAssets<ExecutableAsset>().SelectMany(x => Directory.GetFiles(Path.GetDirectoryName(x.GetMeta().path), "*.euis", SearchOption.AllDirectories).Select(x => x.Trim())).ToHashSet();
@@ -102,7 +102,7 @@ namespace ExtraUIScreens
                         }
                     });
 
-#if !THUNDERSTORE
+#if !BEPINEX_CS2
                     EuisVanillaOverlayManager.Instance.DoWhenReady(() =>
                     {
                         var apps = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISOverlayRegister, IEUISOverlayRegister>(() => new EUISOverlayRegisterCurrent(), assembly);

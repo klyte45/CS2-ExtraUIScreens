@@ -1,4 +1,4 @@
-﻿#if !THUNDERSTORE
+﻿#if !BEPINEX_CS2
 using Belzont.Interfaces;
 using Belzont.Utils;
 using Game.SceneFlow;
