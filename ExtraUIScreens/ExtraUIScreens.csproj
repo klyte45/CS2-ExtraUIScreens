@@ -5,6 +5,7 @@
     <TargetFramework>net472</TargetFramework>
     <Configurations>Debug;Release</Configurations>
     <LangVersion>10.0</LangVersion>
+    
     <!--The folder where Cities2.exe is located. Set it only if the game is not installed in the default location, otherwise keep it empty-->
     <CustomInstallationPath></CustomInstallationPath>
 
@@ -13,7 +14,7 @@
     <!--The file should contain 2 lines:-->
     <!--Your.PDX@Account.login-->
     <!--Your-PDX-Account-Pa$$word-->
-    <PDXAccountDataPath>$(K45_CS2_OFFICIALROOT)\pdx_account.txt</PDXAccountDataPath>
+    <PDXAccountDataPath>$(K45_CS2_ALLROOT)\pdx_account.txt</PDXAccountDataPath>
 
     <!--The file where mod information which is required for publishing mod on PDX mods are stored-->
     <PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
@@ -22,44 +23,111 @@
   <!--Imports must be after PropertyGroup block-->
   <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
   <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
-
   <Target Name="RunModPostProcessor" AfterTargets="AfterBuild" Condition="false" />
   
+  <!--Mod data-->
+  <PropertyGroup>
+    <ModId></ModId>
+    <Version>0.1.0.0</Version>
+    <GameVersion>1.0.*</GameVersion>
+    <ThumbnailPath>Properties/Thumbnail.png</ThumbnailPath>
+    <DisplayName>Extra UI Screens</DisplayName>
+    <ShortDescription>Add extra screens!</ShortDescription>
+    <ForumLink></ForumLink>
+  </PropertyGroup>
+
+  <!--Mod multíple value data-->
+  <ItemGroup>
+    <ModTag Include="Mod" />
+    <Screenshots Include="Screenshots/*.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="Belzont.AssemblyUtility.KlyteModDescriptionAttribute">
+      <_Parameter1>$(ModId)</_Parameter1>
+      <_Parameter2>$(DisplayName)</_Parameter2>
+      <_Parameter3>$(ShortDescription)</_Parameter3>
+    </AssemblyAttribute>
+  </ItemGroup>
+  <!--Publishing generation files-->
+  <Target Name="SetupAttributes" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <PublishContent>
+        <ModId Value="" />
+        <DisplayName Value="$(DisplayName)" />
+        <ShortDescription Value="$(ShortDescription)" />
+        <LongDescription />
+        <Thumbnail Value="$(ThumbnailPath)" />
+        <ForumLink Value="" />
+        <ModVersion Value="$(Version)" />
+        <GameVersion Value="$(GameVersion)" />
+        <ChangeLog />
+      </PublishContent>
+      <PublishContent>$(PublishContent)@(ModTag->'&lt;Tag Value="%(Identity)" /&gt;','%0a%0d')</PublishContent>
+      <PublishContent>$(PublishContent)@(Screenshots->'&lt;Screenshot Value="%(Identity)" /&gt;','%0a%0d')</PublishContent>
+    </PropertyGroup>
+    <XmlPoke  XmlInputPath="$(PublishConfigurationPath)" Value="$(PublishContent)" Query="//Publish" />
+    
+    <ReadLinesFromFile File="$(ProjectDir)longDescription.md">
+      <Output TaskParameter="Lines" ItemName="LongDescription" />
+    </ReadLinesFromFile>
+    <XmlPoke  XmlInputPath="$(PublishConfigurationPath)" Value="@(LongDescription->'%(Identity)','%0a%0d')" Query="//LongDescription" />
+
+    <ReadLinesFromFile File="$(ProjectDir)changelog.md">
+      <Output TaskParameter="Lines" ItemName="ChangeLog" />
+    </ReadLinesFromFile>
+    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Value="@(ChangeLog->'%(Identity)','%0a%0d')" Query="//ChangeLog" />
+   
+  </Target>    
+
+
   <ItemGroup>
     <Reference Include="Game">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Game.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Colossal.Core">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Colossal.Logging">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.Logging.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Colossal.UI">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.UI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Colossal.UI.Binding">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.UI.Binding.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Colossal.Localization">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.Localization.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Colossal.IO.AssetDatabase">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.IO.AssetDatabase.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Unity.Burst">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.Burst.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Unity.Collections">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.Collections.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Unity.Entities">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.Entities.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Unity.Mathematics">
+      <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Unity.Mathematics.dll</HintPath>
       <Private>false</Private>
     </Reference>  
     <Reference Include="cohtml.Net">
@@ -130,9 +198,12 @@
     <Content Include="..\_Frontends\bin\$(Configuration)\$(TargetFramework)\*\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory> 
     </Content>
+    <None Remove="longDescription.md" />
     <None Update="i18n\i18n.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Resource Include="*.md" />
+      
   </ItemGroup>
 
 </Project>

@@ -27,6 +27,7 @@ namespace ExtraUIScreens
     public class EuisScreenManager : MonoBehaviour
     {
         public static EuisScreenManager Instance { get; private set; }
+        private static PropertyInfo HostLocationsMap = typeof(DefaultResourceHandler).GetProperty("HostLocationsMap", ReflectionUtils.allFlags);
 
         public static bool DebugMode { get; set; } = true;
         private int ReadyCount { get; set; }
@@ -107,9 +108,8 @@ namespace ExtraUIScreens
             {
                 defaultResourceHandlerDisplays = new EuisResourceHandler();
                 var defaultRH = defView.uiSystem.resourceHandler as DefaultResourceHandler;
-                var currentHosts = BasicIMod.HostLocationsMap.GetValue(defaultRH) as IDictionary<string, HashSet<string>>;
-                LogUtils.DoInfoLog($"Hosts:\n{string.Join("\n", currentHosts.Select(x => $"- {x.Key} => {string.Join(" | ", x.Value)}"))}");
-                BasicIMod.HostLocationsMap.SetValue(defaultResourceHandlerDisplays, currentHosts);
+                var currentHosts = HostLocationsMap.GetValue(defaultRH) as IDictionary<string, HashSet<string>>;
+                HostLocationsMap.SetValue(defaultResourceHandlerDisplays, currentHosts);
                 defaultResourceHandlerDisplays.coroutineHost = defaultRH.coroutineHost;
                 defaultResourceHandlerDisplays.userImagesManager = defaultRH.userImagesManager;
                 defaultResourceHandlerDisplays.System = CohtmlUISystem.GetDefaultUISystem();

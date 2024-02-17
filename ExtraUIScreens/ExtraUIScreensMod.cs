@@ -21,15 +21,7 @@ namespace ExtraUIScreens
     {
         public static new ExtraUIScreensMod Instance => (ExtraUIScreensMod)BasicIMod.Instance;
 
-        public override string SimpleName => "Extra UI Screens Mod";
-
-        public override string SafeName => "ExtraScreens";
-
         public override string Acronym => "EUIS";
-
-        public override string Description => "Adds extra screens!";
-
-
         public override void DoOnCreateWorld(UpdateSystem updateSystem)
         {
             LoadExtraScreenFromMods();
