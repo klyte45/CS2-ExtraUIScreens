@@ -17,21 +17,6 @@ using Colossal.IO.AssetDatabase;
 
 namespace ExtraUIScreens
 {
-#if BEPINEX_CS2
-
-    [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-    public class EUIBepinexPlugin : BaseUnityPlugin
-    {
-        public void Awake()
-        {
-            LogUtils.LogsEnabled = false;
-            LogUtils.Logger = Logger;
-            LogUtils.DoInfoLog($"STARTING MOD!");
-            Redirector.PatchAll();
-        }
-    }
-
-#endif
     public class ExtraUIScreensMod : BasicIMod, IMod
     {
         public static new ExtraUIScreensMod Instance => (ExtraUIScreensMod)BasicIMod.Instance;
@@ -47,9 +32,6 @@ namespace ExtraUIScreens
 
         public override void DoOnCreateWorld(UpdateSystem updateSystem)
         {
-#if !BEPINEX_CS2
-            euisGO.AddComponent<EuisVanillaOverlayManager>();
-#endif
             LoadExtraScreenFromMods();
         }
 
@@ -69,11 +51,7 @@ namespace ExtraUIScreens
         private static void LoadExtraScreenFromMods()
         {
             HashSet<string> allEuisAssemblies;
-#if BEPINEX_CS2
-            allEuisAssemblies = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(ModInstallFolder), ".."), "*.euis", SearchOption.AllDirectories).Select(x => x.Trim()).ToHashSet();
-#else
             allEuisAssemblies = AssetDatabase.global.GetAssets<ExecutableAsset>().SelectMany(x => Directory.GetFiles(Path.GetDirectoryName(x.GetMeta().path), "*.euis", SearchOption.AllDirectories).Select(x => x.Trim())).ToHashSet();
-#endif
             LogUtils.DoLog($"EUIS Files found:\n {string.Join("\n", allEuisAssemblies)}");
             foreach (var assemblyPath in allEuisAssemblies)
             {
@@ -101,27 +79,6 @@ namespace ExtraUIScreens
                             EuisScreenManager.Instance.RegisterModActions(mod, x);
                         }
                     });
-
-#if !BEPINEX_CS2
-                    EuisVanillaOverlayManager.Instance.DoWhenReady(() =>
-                    {
-                        var apps = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISOverlayRegister, IEUISOverlayRegister>(() => new EUISOverlayRegisterCurrent(), assembly);
-                        if (BasicIMod.DebugMode) LogUtils.DoLog($"[VOS] Apps to load from '{{0}}':\n {string.Join("\n", apps.Select(x => x.DisplayName))}", assemblyPath);
-                        foreach (var app in apps)
-                        {
-                            EuisVanillaOverlayManager.Instance.RegisterApplication(app);
-                        }
-                    });
-                    EuisVanillaOverlayManager.Instance.DoOnceWhenReady(() =>
-                    {
-                        var mods = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISModRegister, IEUISModRegister>(() => new EUISModRegisterCurrent(), assembly);
-                        if (BasicIMod.DebugMode) LogUtils.DoLog($"[VOS] Mods to load from '{{0}}':\n {string.Join("\n", mods.Select(x => x.ModAcronym))}", assemblyPath);
-                        foreach (var mod in mods)
-                        {
-                            EuisVanillaOverlayManager.Instance.RegisterModActions(mod);
-                        }
-                    });
-#endif
                 }
                 catch (Exception e)
                 {

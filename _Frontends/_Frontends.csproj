@@ -1,14 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net480</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
 
     <SourceBaseFolder>$(SolutionDir)UI</SourceBaseFolder>
-    <Configurations>Editor;Steam;BepInExCs2</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
   <ItemGroup>
-    <DeployBaseFolders Condition="'$(Configuration)'!='BepInExCs2'" Include="$(K45_CS2_ALLROOT)\_appdataMods\$(SolutionName)\UI" />
-    <DeployBaseFolders Condition="'$(Configuration)'=='BepInExCs2'" Include="$(K45_CS2_ALLROOT)\_ThunderstoreOutput\Klyte45-$(SolutionName)\UI;$(K45_CS2_ALLROOT)\_ThunderstoreDist\Klyte45-$(SolutionName)\plugins\UI" />
+    <DeployBaseFolders Condition="'$(Configuration)'!='BepInExCs2'" Include="$(OutputPath)\UI" />
     <Frontend Include="$(SourceBaseFolder)\*\package.json">
       <Project>$(MSBuildProjectFullPath)</Project>
     </Frontend>

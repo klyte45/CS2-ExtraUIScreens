@@ -107,7 +107,9 @@ namespace ExtraUIScreens
             {
                 defaultResourceHandlerDisplays = new EuisResourceHandler();
                 var defaultRH = defView.uiSystem.resourceHandler as DefaultResourceHandler;
-                defaultResourceHandlerDisplays.HostLocationsMap = defaultRH.HostLocationsMap;
+                var currentHosts = BasicIMod.HostLocationsMap.GetValue(defaultRH) as IDictionary<string, HashSet<string>>;
+                LogUtils.DoInfoLog($"Hosts:\n{string.Join("\n", currentHosts.Select(x => $"- {x.Key} => {string.Join(" | ", x.Value)}"))}");
+                BasicIMod.HostLocationsMap.SetValue(defaultResourceHandlerDisplays, currentHosts);
                 defaultResourceHandlerDisplays.coroutineHost = defaultRH.coroutineHost;
                 defaultResourceHandlerDisplays.userImagesManager = defaultRH.userImagesManager;
                 defaultResourceHandlerDisplays.System = CohtmlUISystem.GetDefaultUISystem();
@@ -120,6 +122,7 @@ namespace ExtraUIScreens
                 localizationManager = new UILocalizationManager(GameManager.instance.localizationManager),
                 resourceHandler = defaultResourceHandlerDisplays
             });
+
             var thisMonitorId = displayId + 1;
             var inputSys = inputSystemArray[thisMonitorId] = new UIInputSystem(uiSystemArray[displayId]);
             yield return 0;
