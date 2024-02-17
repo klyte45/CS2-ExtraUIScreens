@@ -4,12 +4,9 @@
    	<TargetFramework>net472</TargetFramework>
    	<Configurations>Debug;Release</Configurations>
      <LangVersion>10.0</LangVersion>
-   </PropertyGroup>
-		<ItemGroup>
-      <DeployDir Include="$(K45_CS2_ALLROOT)\_appdataMods\$(SolutionName)" Condition="'$(Configuration)'!='BepInExCs2'" />
-      <DeployDir Include="$(K45_CS2_ALLROOT)\_ThunderstoreOutput\Klyte45-$(SolutionName);$(K45_CS2_ALLROOT)\_ThunderstoreDist\Klyte45-$(SolutionName)" Condition="'$(Configuration)'=='BepInExCs2'" />
-		</ItemGroup>
-  
+     <DebugType Condition="'$(Configuration)'=='Release'">None</DebugType>
+     <DebugSymbols Condition="'$(Configuration)'=='Release'">False</DebugSymbols>
+   </PropertyGroup>  
   <ItemGroup>
     <Reference Include="Colossal.UI.Binding">
       <HintPath>$(K45_CS2_ALLROOT)\_Managed DLLs\Colossal.UI.Binding.dll</HintPath>

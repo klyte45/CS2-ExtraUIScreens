@@ -5,7 +5,8 @@
     <TargetFramework>net472</TargetFramework>
     <Configurations>Debug;Release</Configurations>
     <LangVersion>10.0</LangVersion>
-    
+    <DebugType Condition="'$(Configuration)'=='Release'">None</DebugType>
+    <DebugSymbols Condition="'$(Configuration)'=='Release'">False</DebugSymbols>
     <!--The folder where Cities2.exe is located. Set it only if the game is not installed in the default location, otherwise keep it empty-->
     <CustomInstallationPath></CustomInstallationPath>
 
@@ -27,7 +28,7 @@
   
   <!--Mod data-->
   <PropertyGroup>
-    <ModId></ModId>
+    <ModId>74151</ModId>
     <Version>0.1.0.0</Version>
     <GameVersion>1.0.*</GameVersion>
     <ThumbnailPath>Properties/Thumbnail.png</ThumbnailPath>
@@ -38,7 +39,7 @@
 
   <!--Mod multíple value data-->
   <ItemGroup>
-    <ModTag Include="Mod" />
+    <ModTag Include="Code Mod" />
     <Screenshots Include="Screenshots/*.jpg" />
   </ItemGroup>
 
