@@ -3,6 +3,7 @@ using Belzont.Utils;
 using cohtml;
 using cohtml.InputSystem;
 using cohtml.Net;
+using Colossal.Logging;
 using Colossal.UI;
 using Colossal.UI.Binding;
 using Game.Input;
@@ -28,8 +29,6 @@ namespace ExtraUIScreens
     {
         public static EuisScreenManager Instance { get; private set; }
         private static PropertyInfo HostLocationsMap = typeof(DefaultResourceHandler).GetProperty("HostLocationsMap", ReflectionUtils.allFlags);
-
-        public static bool DebugMode { get; set; } = true;
         private int ReadyCount { get; set; }
         private int ReadyCountTarget { get; set; } = -1;
         private bool Ready { get; set; }
@@ -118,7 +117,7 @@ namespace ExtraUIScreens
             uiSystemArray[displayId] = UIManager.instance.CreateUISystem(new UISystem.Settings
             {
                 debuggerPort = 9450 + displayId,
-                enableDebugger = DebugMode,
+                enableDebugger = LogUtils.IsLogLevelEnabled(Level.Debug),
                 localizationManager = new UILocalizationManager(GameManager.instance.localizationManager),
                 resourceHandler = defaultResourceHandlerDisplays
             });
@@ -227,12 +226,12 @@ namespace ExtraUIScreens
         {
             yield return 0;
             var result = new string[Display.displays.Length + 1][];
-            if (BasicIMod.DebugMode) LogUtils.DoLog($"Registered apps: {string.Join("|", registeredApplications.Select(x => x.GetFullAppName()))}");
+            if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Registered apps: {string.Join("|", registeredApplications.Select(x => x.GetFullAppName()))}");
             for (int i = 0; i <= Display.displays.Length; i++)
             {
                 var wrapper = new Wrapper<string[]>();
                 yield return DoCallToMonitorToGetApplicationsEnabled(i, wrapper);
-                if (BasicIMod.DebugMode) LogUtils.DoLog($"Apps enabled in display {i}: {string.Join("|", wrapper.Value ?? new string[0])}");
+                if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Apps enabled in display {i}: {string.Join("|", wrapper.Value ?? new string[0])}");
                 result[i] = wrapper.Value != null
                     ? registeredApplications.Select(x => x.GetFullAppName()).Where(x => !wrapper.Value.Contains(x)).ToArray()
                     : new string[0];
@@ -256,7 +255,7 @@ namespace ExtraUIScreens
         {
             var relativePos = Display.RelativeMouseAt(Input.mousePosition);
             var targetIdx = Mathf.RoundToInt(relativePos.z); ;
-            //if (ExtraUIScreensMod.DebugMode)  LogUtils.DoLog("inputPos: {0} relPos: {1} mouseCurrent: {2}", Input.mousePosition, relativePos, Mouse.current?.position.ReadValue());
+            if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("inputPos: {0} relPos: {1} mouseCurrent: ??", Input.mousePosition, relativePos);
             if (targetIdx != 0 || showMonitor1) { targetIdx++; }
             if (targetIdx > 0) InputManager.instance.mouseOverUI = true;
             if (targetIdx != lastMonitorId)
@@ -395,7 +394,7 @@ namespace ExtraUIScreens
             else
             {
                 var eventNameFull = $"{modderId}::{appName}.{eventName}";
-                LogUtils.DoLog("Calling event: {0}", eventNameFull);
+                if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("Calling event: {0}", eventNameFull);
                 foreach (var uiSys in uiSystemArray)
                 {
                     if (uiSys != null && uiSys.UIViews[0].enabled && uiSys.UIViews[0].View.IsReadyForBindings())
@@ -434,7 +433,7 @@ namespace ExtraUIScreens
                     {
                         if (uiSys.UIViews[0].View.IsReadyForBindings())
                         {
-                            if (DebugMode) LogUtils.DoLog($"Sending app for monitor {i + 1}: {appRegisterData.GetFullAppName()}");
+                            if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Sending app for monitor {i + 1}: {appRegisterData.GetFullAppName()}");
                             uiSys.UIViews[0].View.TriggerEvent("k45::euis.registerApplication", appRegisterData.GetFullAppName(), appRegisterData.DisplayName, appRegisterData.UrlJs, appRegisterData.UrlCss, appRegisterData.UrlIcon);
                             registeredApplications.Add(appRegisterData);
                         }
@@ -478,11 +477,11 @@ namespace ExtraUIScreens
             {
                 var monitorId = displayId + 1;
                 var callAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{callName}";
-                LogUtils.DoLog("Sending call '{0}' for register @ Monitor #'{1}'", callAddress, monitorId);
+                if (BasicIMod.TraceMode) LogUtils.DoTraceLog("Sending call '{0}' for register @ Monitor #'{1}'", callAddress, monitorId);
                 void registerCall()
                 {
                     uiSys.UIViews[0].View.BindCall(callAddress, action);
-                    LogUtils.DoLog("Registered call '{0}' @ Monitor #'{1}'", callAddress, monitorId);
+                    if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("Registered call '{0}' @ Monitor #'{1}'", callAddress, monitorId);
                 }
                 if (uiSys.UIViews[0].View.IsReadyForBindings())
                 {
@@ -517,11 +516,11 @@ namespace ExtraUIScreens
             {
                 var monitorId = displayId + 1;
                 var eventAddress = $"{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}.{eventName}";
-                LogUtils.DoLog("Sending event '{0}' for register @ Monitor #'{1}'", eventAddress, monitorId);
+                if (BasicIMod.TraceMode) LogUtils.DoTraceLog("Sending event '{0}' for register @ Monitor #'{1}'", eventAddress, monitorId);
                 void registerCall()
                 {
                     uiSys.UIViews[0].View.RegisterForEvent(eventAddress, action);
-                    LogUtils.DoLog("Registered for event '{0}' @ Monitor #'{1}'", eventAddress, monitorId);
+                    if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("Registered for event '{0}' @ Monitor #'{1}'", eventAddress, monitorId);
                 }
                 if (uiSys.UIViews[0].View.IsReadyForBindings())
                 {
@@ -608,7 +607,7 @@ namespace ExtraUIScreens
                 {
                     if (uiSys.UIViews[0].View.IsReadyForBindings())
                     {
-                        if (DebugMode) LogUtils.DoLog($"Removing app from monitor {i + 1}: {appName}");
+                        if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Removing app from monitor {i + 1}: {appName}");
                         uiSys.UIViews[0].View.TriggerEvent("k45::euis.unregisterApplication", appName);
                     }
                 }

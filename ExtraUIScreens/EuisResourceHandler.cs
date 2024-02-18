@@ -1,4 +1,5 @@
-﻿using Belzont.Utils;
+﻿using Belzont.Interfaces;
+using Belzont.Utils;
 using cohtml;
 using cohtml.Net;
 using System.Collections;
@@ -14,7 +15,7 @@ namespace ExtraUIScreens
         public string liveViewData => $"[{string.Join(",", (typeof(UserImagesManager).GetField("m_LiveViews", ReflectionUtils.allFlags).GetValue(System.UserImagesManager) as Dictionary<string, CohtmlLiveView>)?.Keys)}]";
         public override void OnResourceRequest(IResourceRequest request, IResourceResponse response)
         {
-            LogUtils.DoLog("EuisResourceHandler.OnResourceRequest {0} - LiveViews = {1}", request.GetURL(), liveViewData);
+            if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("EuisResourceHandler.OnResourceRequest {0} - LiveViews = {1}", request.GetURL(), liveViewData);
             if (IsLiveViewRequest(request.GetURL()))
             {
                 ResourceRequestData requestData = new(request.GetId(), request.GetURL(), response);

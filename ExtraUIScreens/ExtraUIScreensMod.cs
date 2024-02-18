@@ -44,19 +44,19 @@ namespace ExtraUIScreens
         {
             HashSet<string> allEuisAssemblies;
             allEuisAssemblies = AssetDatabase.global.GetAssets<ExecutableAsset>().SelectMany(x => Directory.GetFiles(Path.GetDirectoryName(x.GetMeta().path), "*.euis", SearchOption.AllDirectories).Select(x => x.Trim())).ToHashSet();
-            LogUtils.DoLog($"EUIS Files found:\n {string.Join("\n", allEuisAssemblies)}");
+            if (BasicIMod.DebugMode) LogUtils.DoLog($"EUIS Files found:\n {string.Join("\n", allEuisAssemblies)}");
             foreach (var assemblyPath in allEuisAssemblies)
             {
                 try
                 {
-                    LogUtils.DoLog($"Loading assemblyPath: {assemblyPath}");
+                    if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Loading assemblyPath: {assemblyPath}");
                     var assembly = Assembly.LoadFile(assemblyPath);
-                    LogUtils.DoLog($"Loaded assemblyPath: {assembly}");
-                    LogUtils.DoLog($"Instance = {EuisScreenManager.Instance}");
+                    if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Loaded assemblyPath: {assembly}");
+                    if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog($"Instance = {EuisScreenManager.Instance}");
                     EuisScreenManager.Instance.DoWhenReady(() =>
                     {
                         var apps = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISAppRegister, IEUISAppRegister>(() => new EUISAppRegisterCurrent(), assembly);
-                        if (BasicIMod.DebugMode) LogUtils.DoLog($"[ESOS] Apps to load from '{{0}}':\n {string.Join("\n", apps.Select(x => x.DisplayName))}", assemblyPath);
+                        if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"[ESOS] Apps to load from '{{0}}':\n {string.Join("\n", apps.Select(x => x.DisplayName))}", assemblyPath);
                         foreach (var app in apps)
                         {
                             EuisScreenManager.Instance.RegisterApplication(app);
@@ -65,7 +65,7 @@ namespace ExtraUIScreens
                     EuisScreenManager.Instance.DoOnceWhenReady((x) =>
                     {
                         var mods = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISModRegister, IEUISModRegister>(() => new EUISModRegisterCurrent(), assembly);
-                        if (BasicIMod.DebugMode) LogUtils.DoLog($"[ESOS] Apps to load from '{{0}}':\n {string.Join("\n", mods.Select(x => x.ModAcronym))}", assemblyPath);
+                        if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"[ESOS] Apps to load from '{{0}}':\n {string.Join("\n", mods.Select(x => x.ModAcronym))}", assemblyPath);
                         foreach (var mod in mods)
                         {
                             EuisScreenManager.Instance.RegisterModActions(mod, x);
