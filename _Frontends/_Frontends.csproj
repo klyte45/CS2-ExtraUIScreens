@@ -1,4 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(K45_CS2_ALLROOT)\_commonCsproj\Frontend.targets" />
+  <Import Project="..\ExtraUIScreens\BelzontCommons\AssemblyUtility\Frontend.targets" />
 </Project>

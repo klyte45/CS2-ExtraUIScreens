@@ -38,7 +38,19 @@ namespace ExtraUIScreens
             EuisScreenManager.Instance?.OnInterfaceStyleChanged();
         }
     }
+    public class GameManagerOverrides : Redirector, IRedirectableWorldless
+    {
 
+        public void Awake()
+        {
+            AddRedirect(typeof(GameManager).GetMethod("Load", RedirectorUtils.allFlags, null, new[] { typeof(GameMode), typeof(Purpose), typeof(AsyncReadDescriptor), typeof(Guid) }, null),
+                GetType().GetMethod("BeforeSceneLoad", RedirectorUtils.allFlags), GetType().GetMethod("AfterSceneLoad", RedirectorUtils.allFlags));
+        }
+        private static void BeforeSceneLoad()
+        {
+            EuisScreenManager.Instance.RunOnBeforeSceneLoad();
+        }
+    }
 
     public class ScreenshotOverride : Redirector, IRedirectableWorldless
     {
