@@ -55,7 +55,7 @@ Since it's a very complex mod, it may cause issues in the game due their early s
 The most up to date information about installation and known issues and bugs is at the mod topic.</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <ForumLink Value="" />
-  <ModVersion Value="0.1.0.0" />
+  <ModVersion Value="0.1.0.1" />
   <GameVersion Value="1.0.*" />
   <ChangeLog>## v0.1.0 r0 (17-FEB-24)
 - Update to most recent mod project structure</ChangeLog>

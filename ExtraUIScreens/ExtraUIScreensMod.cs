@@ -102,22 +102,6 @@ namespace ExtraUIScreens
             public string ModAcronym { get; set; }
             public string ModAppIdentifier { get; set; }
         }
-        private class EUISOverlayRegisterCurrent : IEUISOverlayRegister
-        {
-            public string AppName { get; set; }
-
-            public string DisplayName { get; set; }
-
-            public string UrlJs { get; set; }
-
-            public string UrlCss { get; set; }
-
-            public string UrlIcon { get; set; }
-
-            public string ModderIdentifier { get; set; }
-            public string ModAcronym { get; set; }
-            public string ModAppIdentifier { get; set; }
-        }
         private class EUISModRegisterCurrent : IEUISModRegister
         {
             public Action<Action<string, object[]>> OnGetEventEmitter { get; set; }
