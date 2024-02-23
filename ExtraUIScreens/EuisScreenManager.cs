@@ -159,7 +159,6 @@ namespace ExtraUIScreens
                 modView.View.BindCall("k45::euis.getQuantityMonitors", new Func<int>(() => Display.displays.Length));
                 modView.View.BindCall("k45::euis.getDisabledAppsByDisplay", new Func<string[][]>(() => EuisModData.EuisDataInstance.GetDisabledAppsByMonitor()));
                 modView.View.RegisterForEvent("k45::euis.getMonitorEnabledApplcations", new Action<int>((monitorId) => StartCoroutine(GetMonitorEnabledApplcations(monitorId, modView.View))));
-                modView.View.RegisterForEvent("k45::euis.getVosEnabledApplcations", new Action<int>((monitorId) => StartCoroutine(GetVosEnabledApplcations(modView.View))));
                 modView.View.BindCall("k45::euis.saveAppSelectionAsDefault", new Action(() => SaveAppSelectionAsDefault()));
                 modView.View.BindCall("k45::euis.removeAppButton", new Action<string, int>(RemoveAppFromMonitor));
                 modView.View.BindCall("k45::euis.reintroduceAppButton", new Action<string, int>(AddAppToMonitor));
@@ -289,13 +288,6 @@ namespace ExtraUIScreens
             yield return DoCallToMonitorToGetApplicationsEnabled(monitorId, wrapper);
             callerView.TriggerEvent("k45::euis.getMonitorEnabledApplcations->" + monitorId, wrapper.Value);
         }
-        private IEnumerator GetVosEnabledApplcations(View callerView)
-        {
-            yield return 0;
-            var wrapper = new Wrapper<string[]>();
-            yield return DoCallToMonitorToGetApplicationsEnabled(0, wrapper);
-            callerView.TriggerEvent("k45::euis.getVosEnabledApplcations->", wrapper.Value);
-        }
 
 
         private IEnumerator DoCallToMonitorToGetApplicationsEnabled(int monitorId, Wrapper<string[]> appList)
@@ -374,8 +366,8 @@ namespace ExtraUIScreens
                         View targetMonitor;
                         if (args.Length >= 1 && args[0] is int monitorNum)
                         {
-                            targetMonitor = monitorNum < uiSystemArray.Length && monitorNum > 0 && uiSystemArray[monitorNum] is UISystem sys && sys.UIViews[0].enabled
-                                ? sys.UIViews[0].View
+                            targetMonitor = monitorNum < uiSystemArray.Length && monitorNum > 0 && uiSystemArray[monitorNum] is UISystem sys && sys.UIViews[0].enabled ? sys.UIViews[0].View
+                                : monitorNum == 0 ? GameManager.instance.userInterface.view.View
                                 : throw new Exception($"Invalid monitor index! It's out of bounds (1 to {uiSystemArray.Length - 1}) or it's not activated. Check the mod code! Value: {monitorNum}");
                         }
                         else
@@ -395,8 +387,9 @@ namespace ExtraUIScreens
             {
                 var eventNameFull = $"{modderId}::{appName}.{eventName}";
                 if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("Calling event: {0}", eventNameFull);
-                foreach (var uiSys in uiSystemArray)
+                for (int i = -1; i < uiSystemArray.Length; i++)
                 {
+                    UISystem uiSys = i < 0 ? GameManager.instance.userInterface.view.uiSystem : uiSystemArray[i];
                     if (uiSys != null && uiSys.UIViews[0].enabled && uiSys.UIViews[0].View.IsReadyForBindings())
                     {
                         var targetView = uiSys.UIViews[0].View;
@@ -426,9 +419,9 @@ namespace ExtraUIScreens
         {
             if (ValidateAppRegister(appRegisterData))
             {
-                for (int i = 0; i < uiSystemArray.Length; i++)
+                for (int i = -1; i < uiSystemArray.Length; i++)
                 {
-                    UISystem uiSys = uiSystemArray[i];
+                    UISystem uiSys = i < 0 ? GameManager.instance.userInterface.view.uiSystem : uiSystemArray[i];
                     if (uiSys != null)
                     {
                         if (uiSys.UIViews[0].View.IsReadyForBindings())
@@ -459,7 +452,7 @@ namespace ExtraUIScreens
         {
             if (targetMonitor < 0)
             {
-                for (int i = 0; i < uiSystemArray.Length; i++)
+                for (int i = -1; i < uiSystemArray.Length; i++)
                 {
                     RegisterCallInDisplay(appRegisterData, callName, action, i);
                 }
@@ -472,7 +465,7 @@ namespace ExtraUIScreens
 
         private void RegisterCallInDisplay(IEUISModRegister appRegisterData, string callName, Delegate action, int displayId)
         {
-            UISystem uiSys = uiSystemArray[displayId];
+            UISystem uiSys = displayId < 0 ? GameManager.instance.userInterface.view.uiSystem : uiSystemArray[displayId];
             if (uiSys != null)
             {
                 var monitorId = displayId + 1;
@@ -480,17 +473,26 @@ namespace ExtraUIScreens
                 if (BasicIMod.TraceMode) LogUtils.DoTraceLog("Sending call '{0}' for register @ Monitor #'{1}'", callAddress, monitorId);
                 void registerCall()
                 {
-                    uiSys.UIViews[0].View.BindCall(callAddress, action);
-                    if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("Registered call '{0}' @ Monitor #'{1}'", callAddress, monitorId);
+                    try
+                    {
+                        uiSys.UIViews[0].View.BindCall(callAddress, action);
+                        if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("Registered call '{0}' @ Monitor #'{1}'", callAddress, monitorId);
+                    }
+                    catch (Exception e)
+                    {
+                        LogUtils.DoErrorLog("Error linking call'{0}' @ Monitor #'{1}'", e, callAddress, monitorId);
+                    }
                 }
-                if (uiSys.UIViews[0].View.IsReadyForBindings())
+                var ready = uiSys.UIViews[0].View.IsReadyForBindings();
+                if (ready)
                 {
                     registerCall();
                 }
-                else
+                if (!ready || displayId < 0)
                 {
                     uiSys.UIViews[0].Listener.ReadyForBindings += registerCall;
                 }
+
             }
         }
 
@@ -498,7 +500,7 @@ namespace ExtraUIScreens
         {
             if (targetMonitor < 0)
             {
-                for (int i = 0; i < uiSystemArray.Length; i++)
+                for (int i = -1; i < uiSystemArray.Length; i++)
                 {
                     RegisterEventToDisplay(appRegisterData, eventName, action, i);
                 }
@@ -511,7 +513,7 @@ namespace ExtraUIScreens
 
         private void RegisterEventToDisplay(IEUISModRegister appRegisterData, string eventName, Delegate action, int displayId)
         {
-            UISystem uiSys = uiSystemArray[displayId];
+            UISystem uiSys = displayId < 0 ? GameManager.instance.userInterface.view.uiSystem : uiSystemArray[displayId];
             if (uiSys != null)
             {
                 var monitorId = displayId + 1;
@@ -522,11 +524,12 @@ namespace ExtraUIScreens
                     uiSys.UIViews[0].View.RegisterForEvent(eventAddress, action);
                     if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("Registered for event '{0}' @ Monitor #'{1}'", eventAddress, monitorId);
                 }
-                if (uiSys.UIViews[0].View.IsReadyForBindings())
+                var ready = uiSys.UIViews[0].View.IsReadyForBindings();
+                if (ready)
                 {
                     registerCall();
                 }
-                else
+                if (!ready || displayId < 0)
                 {
                     uiSys.UIViews[0].Listener.ReadyForBindings += registerCall;
                 }

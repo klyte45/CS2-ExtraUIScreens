@@ -29,7 +29,7 @@
   <!--Mod data-->
   <PropertyGroup>
     <ModId>74151</ModId>
-    <Version>0.1.0.1</Version>
+    <Version>0.1.0.2</Version>
     <GameVersion>1.0.*</GameVersion>
     <ThumbnailPath>Properties/Thumbnail.png</ThumbnailPath>
     <DisplayName>Extra UI Screens</DisplayName>
@@ -73,13 +73,12 @@
       <Output TaskParameter="Lines" ItemName="LongDescription" />
     </ReadLinesFromFile>
     <XmlPoke  XmlInputPath="$(PublishConfigurationPath)" Value="@(LongDescription->'%(Identity)','%0a%0d')" Query="//LongDescription" />
-
+    
     <ReadLinesFromFile File="$(ProjectDir)changelog.md">
       <Output TaskParameter="Lines" ItemName="ChangeLog" />
     </ReadLinesFromFile>
-    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Value="@(ChangeLog->'%(Identity)','%0a%0d')" Query="//ChangeLog" />
-   
-  </Target>    
+    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Value="@(ChangeLog->'%(Identity)','%0a%0d')" Query="//ChangeLog" />   
+  </Target> 
 
 
   <ItemGroup>
