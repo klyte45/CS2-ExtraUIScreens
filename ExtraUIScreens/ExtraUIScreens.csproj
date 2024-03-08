@@ -30,7 +30,7 @@
   <PropertyGroup>
     <ModId>74151</ModId>
     <Version>0.1.0.2</Version>
-    <GameVersion>1.0.*</GameVersion>
+    <GameVersion>1.0.21*</GameVersion>
     <ThumbnailPath>Properties/Thumbnail.png</ThumbnailPath>
     <DisplayName>Extra UI Screens</DisplayName>
     <ShortDescription>Add extra screens!</ShortDescription>
@@ -54,7 +54,7 @@
   <Target Name="SetupAttributes" BeforeTargets="BeforeBuild">
     <PropertyGroup>
       <PublishContent>
-        <ModId Value="" />
+        <ModId Value="$(ModId)" />
         <DisplayName Value="$(DisplayName)" />
         <ShortDescription Value="$(ShortDescription)" />
         <LongDescription />

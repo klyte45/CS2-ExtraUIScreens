@@ -1,5 +1,5 @@
 <Publish>
-  <ModId Value="" />
+  <ModId Value="74151" />
   <DisplayName Value="Extra UI Screens" />
   <ShortDescription Value="Add extra screens!" />
   <LongDescription># Extra UI Screens Mod
@@ -56,8 +56,8 @@ The most up to date information about installation and known issues and bugs is 
   <Thumbnail Value="Properties/Thumbnail.png" />
   <ForumLink Value="" />
   <ModVersion Value="0.1.0.2" />
-  <GameVersion Value="1.0.*" />
-  <ChangeLog># v0.1.0 r2 (XX-XXX-XX)
+  <GameVersion Value="1.0.21*" />
+  <ChangeLog># v0.1.0 r2 (08-MAR-24)
 - Adding register bind from mods to the vanilla screen
 ## v0.1.0 r0 (17-FEB-24)
 - Update to most recent mod project structure</ChangeLog>
