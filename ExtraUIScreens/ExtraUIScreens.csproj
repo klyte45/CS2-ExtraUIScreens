@@ -29,7 +29,7 @@
   <!--Mod data-->
   <PropertyGroup>
     <ModId>74151</ModId>
-    <Version>0.1.1.0</Version>
+    <Version>0.1.1.1</Version>
     <GameVersion>1.1.*</GameVersion>
     <ThumbnailPath>Properties/Thumbnail.png</ThumbnailPath>
     <DisplayName>Extra UI Screens</DisplayName>

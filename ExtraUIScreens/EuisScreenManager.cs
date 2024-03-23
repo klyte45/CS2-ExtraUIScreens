@@ -10,6 +10,7 @@ using Game.Input;
 using Game.SceneFlow;
 using Game.Settings;
 using Game.UI.Localization;
+using Game.UI.Menu;
 using K45EUIS_Ext;
 using System;
 using System.Collections;
@@ -184,6 +185,7 @@ namespace ExtraUIScreens
                 }));
 
                 modView.View.BindCall("k45::euis.interfaceStyle", () => SharedSettings.instance.userInterface.interfaceStyle);
+                modView.View.BindCall("k45::euis.getUnits", () => new OptionsUISystem.UnitSettings(SharedSettings.instance.userInterface));
 
             };
             modView.Listener.NodeMouseEvent += (a, eventData, c, d) =>

@@ -26,11 +26,8 @@ Detailed tutorials soon!
 - ✅ Allow selecting which app to be available each screen
 - ✅ Allow creating a new layer over main screen (toggle using Ctrl+Tab when enabled)
 - ✅ Allow each mod to create more than one app for different purpoises
-- ❌ ~~Allow creating integrated apps in the main game UI~~ Vanilla will handle it 
-- ❌ ~~Allow creating a shortcut toolbox for tools like UUI did back in CS1~~ Vanilla will handle it 
 - 🔜 Allow have more than one app open in some screen
 - ✅ Disponibilize basic project for modders to create apps in extra screens/main UI overlay
-- ❌ ~~Disponibilize basic project for modders to create integrated apps to main UI~~  Vanilla will handle it 
 
 ### Notice!
 Cities Skylines 2 uses Coherent UI to emulate a simplified version of Chromium to render the game UI, so not all common web features are available to use in game UI. For more information check the [Coherent UI documentation](https://docs.coherent-labs.com/unity-gameface/)
@@ -43,15 +40,14 @@ Since it's a very complex mod, it may cause issues in the game due their early s
 The most up to date information about installation and known issues and bugs is at the mod topic.)</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <ForumLink Value="" />
-  <ModVersion Value="0.1.1.0" />
+  <ModVersion Value="0.1.1.1" />
   <GameVersion Value="1.1.*" />
-  <ChangeLog># v0.1.1 r0 (21-MAR-24)
+  <ChangeLog># v0.1.1 r1 (23-MAR-24)
+- Added support to get the players preferences for units
+
+## v0.1.1 r0 (21-MAR-24)
 - Paradox mods release's version
-
-## v0.1.0 r2 (08-MAR-24)
-- Adding register bind from mods to the vanilla screen
-
-## v0.1.0 r0 (17-FEB-24)
-- Update to most recent mod project structure)</ChangeLog>
+)</ChangeLog>
   <Tag Value="Code Mod" />
+  <Screenshot Value="Screenshots\Desktop.jpg" />
 </Publish>

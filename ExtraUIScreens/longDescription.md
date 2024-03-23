@@ -22,11 +22,8 @@ Detailed tutorials soon!
 - ✅ Allow selecting which app to be available each screen
 - ✅ Allow creating a new layer over main screen (toggle using Ctrl+Tab when enabled)
 - ✅ Allow each mod to create more than one app for different purpoises
-- ❌ ~~Allow creating integrated apps in the main game UI~~ Vanilla will handle it 
-- ❌ ~~Allow creating a shortcut toolbox for tools like UUI did back in CS1~~ Vanilla will handle it 
 - 🔜 Allow have more than one app open in some screen
 - ✅ Disponibilize basic project for modders to create apps in extra screens/main UI overlay
-- ❌ ~~Disponibilize basic project for modders to create integrated apps to main UI~~  Vanilla will handle it 
 
 ### Notice!
 Cities Skylines 2 uses Coherent UI to emulate a simplified version of Chromium to render the game UI, so not all common web features are available to use in game UI. For more information check the [Coherent UI documentation](https://docs.coherent-labs.com/unity-gameface/)
