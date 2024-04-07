@@ -99,6 +99,7 @@ namespace ExtraUIScreens
 
         private IEnumerator InitializeMonitor_impl(int displayId)
         {
+            if (displayId >= Display.displays.Length) yield break;
             if (displayId > 0 && Display.displays[displayId].active) yield break;
             if (displayId == 0 && uiSystemArray[0] != null) yield break;
             yield return 0;
@@ -403,7 +404,8 @@ namespace ExtraUIScreens
 
         private static void SendTriggerToView(object[] args, string eventNameFull, View targetView)
         {
-            switch (args is null ? 0 : args.Length)
+            var argsLenght = args is null ? 0 : args.Length;
+            switch (argsLenght)
             {
                 case 0: targetView.TriggerEvent(eventNameFull); break;
                 case 1: targetView.TriggerEvent(eventNameFull, args[0]); break;
@@ -413,7 +415,10 @@ namespace ExtraUIScreens
                 case 5: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4]); break;
                 case 6: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5]); break;
                 case 7: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
-                default: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
+                case 8: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
+                default:
+                    LogUtils.DoWarnLog($"Too much arguments for trigger event! {argsLenght}: {args}");
+                    break;
             }
         }
 
