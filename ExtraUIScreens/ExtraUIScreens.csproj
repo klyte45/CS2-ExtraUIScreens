@@ -28,7 +28,7 @@
     <ThumbnailPath>Properties/Thumbnail.png</ThumbnailPath>
     <DisplayName>Extra UI Screens</DisplayName>
     <ShortDescription>Add extra screens!</ShortDescription>
-    <ForumLink></ForumLink>
+    <ForumLink>https://forum.paradoxplaza.com/forum/threads/euis-extended-ui-screens.1651552/</ForumLink>
   </PropertyGroup>
 
   <!--Mod multíple value data-->
@@ -53,7 +53,7 @@
         <ShortDescription Value="$(ShortDescription)" />
         <LongDescription />
         <Thumbnail Value="$(ThumbnailPath)" />
-        <ForumLink Value="" />
+        <ForumLink Value="$(ForumLink)" />
         <ModVersion Value="$(Version)" />
         <GameVersion Value="$(GameVersion)" />
         <ChangeLog />
