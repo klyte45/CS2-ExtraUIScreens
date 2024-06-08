@@ -5,17 +5,20 @@ using UnityEngine;
 using Colossal.IO.AssetDatabase;
 using Game.Modding;
 using Game.Settings;
+using Game.Input;
+using UnityEngine.InputSystem;
 
 
 namespace ExtraUIScreens
 {
 
-    [FileLocation("K45_EUIS")]
+    [FileLocation("ModsData\\Klyte45Mods\\ExtraUIScreens\\settings")]
     [SettingsUITabOrder(kMonitorsTab, kAboutTab)]
 
     public class EuisModData : BasicModData
     {
         public const string kMonitorsTab = "MonitorsData";
+        public const string kActionToggleScreen1 = "K45_EUIS_ToggleMonitor1";
         public static ExtraUIScreensMod EuisInstance { get; private set; }
         public static EuisModData EuisDataInstance { get; private set; }
 
@@ -25,6 +28,7 @@ namespace ExtraUIScreens
             EuisInstance = mod as ExtraUIScreensMod;
 
             EuisDataInstance = this;
+            RegisterKeyBindings();
         }
 
         [SettingsUIHidden]
@@ -70,11 +74,18 @@ namespace ExtraUIScreens
         public bool IsMonitor5Unavailable() => Display.displays.Length < 6;
         public bool IsMonitor6Unavailable() => Display.displays.Length < 7;
         public bool IsMonitor7Unavailable() => Display.displays.Length < 8;
+        public bool IsMonitor1Enabled() => IsMonitorActive(0);
 
 
         [SettingsUISection(kMonitorsTab, null)]
-
         public bool UseMonitor1 { get => IsMonitorActive(0); set => SetMonitorActive(0, value); }
+
+        [SettingsUISection(kMonitorsTab, null)]
+        [SettingsUIKeyboardBinding(Key.Tab, kActionToggleScreen1, ctrl: true)]
+        [SettingsUIHideByCondition(typeof(EuisModData), nameof(IsMonitor1Enabled))]
+        public ProxyBinding Monitor1ToggleAction { get; set; }
+
+
 
         [SettingsUISection(kMonitorsTab, null)]
         [SettingsUIHideByCondition(typeof(EuisModData), nameof(IsMonitor1Unavailable))]

@@ -40,6 +40,7 @@ namespace ExtraUIScreens
         private UISystem[] uiSystemArray;
 
         private bool showMonitor1;
+        private ProxyAction actionToggleScreen1;
 
         public void Awake()
         {
@@ -80,12 +81,13 @@ namespace ExtraUIScreens
                     ReadyCountTarget--;
                 }
             }
+            actionToggleScreen1 = EuisModData.EuisDataInstance.GetAction(EuisModData.kActionToggleScreen1);
         }
         private static readonly FieldInfo fieldUIInput = typeof(GameManager).GetField("m_UIInputSystem", RedirectorUtils.allFlags);
 
         public void Update()
         {
-            if (lastMonitorId < 2 && EuisModData.EuisDataInstance.IsMonitorActive(0) && Input.GetKeyDown(KeyCode.Tab) && Input.GetKey(KeyCode.LeftControl))
+            if (lastMonitorId < 2 && EuisModData.EuisDataInstance.IsMonitorActive(0) && actionToggleScreen1.WasPressedThisFrame())
             {
                 showMonitor1 = !showMonitor1;
                 uiSystemArray[0].UIViews[0].View.TriggerEvent("k45::euis.toggleMon1", showMonitor1);
@@ -243,7 +245,7 @@ namespace ExtraUIScreens
         }
 
         private int lastMonitorId = -1;
-        private ProxyActionMap.Barrier m_GlobalBarrier;
+        private Barrier m_GlobalBarrier;
         private bool UpdateInputSystem(IMouseEventData b, int thisMonitorId)
         {
             if (b.Type == MouseEventData.EventType.MouseMove || b.Type == MouseEventData.EventType.MouseWheel || b.Type == MouseEventData.EventType.MouseDown)
@@ -279,7 +281,7 @@ namespace ExtraUIScreens
                         inputSys.Disable();
                     }
                 }
-                m_GlobalBarrier.blocked = lastMonitorId != 0;
+                m_GlobalBarrier.blocked = lastMonitorId > 1;
             }
 
         }
