@@ -17,13 +17,15 @@
   <!--Imports must be after PropertyGroup block-->
   <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
   <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
-  <Target Name="RunModPostProcessor" AfterTargets="AfterBuild" Condition="false" />
+  <Import Project="$(SolutionDir)\_Build\belzont_public.targets" />
+
+  <!--File with machine specific data - can be disabled-->
   <Import Project="$(K45_CS2_ALLROOT)\_Shared\belzont.targets" />
   
   <!--Mod data-->
   <PropertyGroup>
     <ModId>74151</ModId>
-    <Version>0.1.1.4</Version>
+    <Version>0.1.1.5</Version>
     <GameVersion>1.1.*</GameVersion>
     <ThumbnailPath>Properties/Thumbnail.png</ThumbnailPath>
     <DisplayName>Extra UI Screens</DisplayName>
@@ -45,29 +47,6 @@
       <_Parameter3>$(ShortDescription)</_Parameter3>
     </AssemblyAttribute>
   </ItemGroup>
-  <!--Publishing generation files-->
-  <Target Name="SetupAttributes" BeforeTargets="BeforeBuild">
-    <PropertyGroup>
-      <PublishContent>
-        <ModId Value="$(ModId)" />
-        <DisplayName Value="$(DisplayName)" />
-        <ShortDescription Value="$(ShortDescription)" />
-        <LongDescription />
-        <Thumbnail Value="$(ThumbnailPath)" />
-        <ForumLink Value="$(ForumLink)" />
-        <ModVersion Value="$(Version)" />
-        <GameVersion Value="$(GameVersion)" />
-        <ChangeLog />
-      </PublishContent>
-      <PublishContent>$(PublishContent)@(ModTag->'&lt;Tag Value="%(Identity)" /&gt;','%0a%0d')</PublishContent>
-      <PublishContent>$(PublishContent)@(Screenshots->'&lt;Screenshot Value="%(Identity)" /&gt;','%0a%0d')</PublishContent>
-    </PropertyGroup>
-    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Value="$(PublishContent)" Query="//Publish" />
-
-    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Value="$([System.IO.File]::ReadAllText($(ProjectDir)/longDescription.md)))" Query="//LongDescription" />
-    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Value="$([System.IO.File]::ReadAllText($(ProjectDir)changelog.md)))" Query="//ChangeLog" />
-  </Target> 
-
 
   <ItemGroup>
     <Reference Include="Game">

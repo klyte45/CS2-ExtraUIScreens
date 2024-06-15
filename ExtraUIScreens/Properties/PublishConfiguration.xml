@@ -37,10 +37,10 @@ Since it's a very complex mod, it may cause issues in the game due their early s
 
 ## Support
 
-The most up to date information about installation and known issues and bugs is at the mod topic.)</LongDescription>
+The most up to date information about installation and known issues and bugs is at the mod topic.</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/euis-extended-ui-screens.1651552/" />
-  <ModVersion Value="0.1.1.4" />
+  <ModVersion Value="0.1.1.5" />
   <GameVersion Value="1.1.*" />
   <ChangeLog># v0.1.1 r2 (06-APR-24)
 - Fixed UI errors behavior
@@ -50,7 +50,7 @@ The most up to date information about installation and known issues and bugs is 
 
 **Previously: v0.1.1 r0 (21-MAR-24)**
 - Paradox mods release's version
-)</ChangeLog>
+&amp;&amp;&amp;&amp;</ChangeLog>
   <Tag Value="Code Mod" />
   <Screenshot Value="Screenshots\Desktop.jpg" />
 </Publish>
