@@ -363,6 +363,7 @@ namespace ExtraUIScreens
 
         private void SendEventToApp(string modderId, string appName, string eventName, params object[] args)
         {
+            if (GameManager.instance.isLoading) return;
             if (eventName.StartsWith("^"))
             {
                 var appNameFull = $"@{modderId}/{appName}";
@@ -408,6 +409,7 @@ namespace ExtraUIScreens
 
         private static void SendTriggerToView(object[] args, string eventNameFull, View targetView)
         {
+            if (GameManager.instance.isLoading) return;
             var argsLenght = args is null ? 0 : args.Length;
             switch (argsLenght)
             {
