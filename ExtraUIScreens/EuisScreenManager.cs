@@ -173,8 +173,10 @@ namespace ExtraUIScreens
                     {
                         ReadyCount++;
                         Ready = ReadyCount >= ReadyCountTarget;
+                        if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"ReadyCount = {ReadyCount}, Target = {ReadyCountTarget}");
                         if (Ready)
                         {
+                            if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Ready = {Ready}");
                             OnReady?.Invoke();
                             OnceOnReady?.Invoke(-1);
                         }

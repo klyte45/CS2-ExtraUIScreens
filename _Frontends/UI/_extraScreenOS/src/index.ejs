@@ -50,19 +50,20 @@
       <!-- Add your organization's prod import map URL to this script's src  -->
       <!-- <script type="systemjs-importmap" src="/importmap.json"></script> -->
 
-  
-          <!--
+
+      <!--
     If you need to support Angular applications, uncomment the script tag below to ensure only one instance of ZoneJS is loaded
     Learn more about why at https://single-spa.js.org/docs/ecosystem-angular/#zonejs
   -->
-          <!-- <script src="https://cdn.jsdelivr.net/npm/zone.js@0.11.3/dist/zone.min.js"></script> -->
+      <!-- <script src="https://cdn.jsdelivr.net/npm/zone.js@0.11.3/dist/zone.min.js"></script> -->
 
-          <script src="dependencies/import-map-overrides.js"></script>
-          <script src="dependencies/system.min.js"></script>
-          <script src="dependencies/amd.min.js"></script>
-          <link href="coui://gameui/index.css" rel="stylesheet">
-          <link href="base.css" rel="stylesheet">
-          <script src="dependencies/cohtml.js"></script>
+      <script src="dependencies/import-map-overrides.js"></script>
+      <script src="dependencies/system.min.js"></script>
+      <script src="dependencies/amd.min.js"></script>
+      <link href="coui://gameui/index.css" rel="stylesheet">
+      <link href="base.css" rel="stylesheet">
+      <script src="dependencies/cohtml.js"></script>
+      <script>window.postMessage = function () { }</script>
 </head>
 
 <body class="transparent">
