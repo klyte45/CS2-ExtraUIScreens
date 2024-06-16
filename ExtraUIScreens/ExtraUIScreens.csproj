@@ -25,7 +25,7 @@
   <!--Mod data-->
   <PropertyGroup>
     <ModId>74151</ModId>
-    <Version>0.1.1.5</Version>
+    <Version>0.1.2.0</Version>
     <GameVersion>1.1.*</GameVersion>
     <ThumbnailPath>Properties/Thumbnail.png</ThumbnailPath>
     <DisplayName>Extra UI Screens</DisplayName>
@@ -45,6 +45,7 @@
       <_Parameter1>$(ModId)</_Parameter1>
       <_Parameter2>$(DisplayName)</_Parameter2>
       <_Parameter3>$(ShortDescription)</_Parameter3>
+      <_Parameter4>$(ForumLink)</_Parameter4>
     </AssemblyAttribute>
   </ItemGroup>
 
@@ -179,6 +180,14 @@
     </None>
     <Resource Include="*.md" />
       
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Remove="changelog.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="changelog.md" />
   </ItemGroup>
 
 </Project>

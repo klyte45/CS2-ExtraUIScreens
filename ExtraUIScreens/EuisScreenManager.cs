@@ -101,6 +101,12 @@ namespace ExtraUIScreens
 
         private IEnumerator InitializeMonitor_impl(int displayId)
         {
+            var counter = (5 * displayId);
+            while (counter-- > 0)
+            {
+                yield return 0;
+            }
+
             if (displayId >= Display.displays.Length) yield break;
             if (displayId > 0 && Display.displays[displayId].active) yield break;
             if (displayId == 0 && uiSystemArray[0] != null) yield break;
@@ -115,9 +121,8 @@ namespace ExtraUIScreens
                 HostLocationsMap.SetValue(defaultResourceHandlerDisplays, currentHosts);
                 defaultResourceHandlerDisplays.coroutineHost = defaultRH.coroutineHost;
                 defaultResourceHandlerDisplays.userImagesManager = defaultRH.userImagesManager;
-                defaultResourceHandlerDisplays.System = CohtmlUISystem.GetDefaultUISystem();
+                //defaultResourceHandlerDisplays.System = CohtmlUISystem.GetDefaultUISystem();
             }
-
             uiSystemArray[displayId] = UIManager.instance.CreateUISystem(new UISystem.Settings
             {
                 debuggerPort = 9450 + displayId,
