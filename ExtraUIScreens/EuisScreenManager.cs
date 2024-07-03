@@ -63,7 +63,7 @@ namespace ExtraUIScreens
             var uiSys = GameManager.instance.userInterface.view.uiSystem;
             inputSystemArray = new UIInputSystem[9];
             inputSystemArray[0] = GameManager.UIInputSystem;
-            m_GlobalBarrier = InputManager.instance.CreateGlobalBarrier();
+            m_GlobalBarrier = InputManager.instance.CreateGlobalBarrier("K45_EUIS");
             defView.Listener.NodeMouseEvent += (a, eventData, c, d) =>
             {
                 UpdateInputSystem(eventData, 0);

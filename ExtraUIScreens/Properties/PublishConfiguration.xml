@@ -40,10 +40,10 @@ Since it's a very complex mod, it may cause issues in the game due their early s
 The most up to date information about installation and known issues and bugs is at the mod topic.</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/euis-extended-ui-screens.1651552/" />
-  <ModVersion Value="0.1.2.0" />
+  <ModVersion Value="0.1.2.1" />
   <GameVersion Value="1.1.*" />
-  <ChangeLog># v0.1.2r0 (24-JUN-24)
-- Update for Economy 2.0</ChangeLog>
+  <ChangeLog># v0.1.2r1 (03-JUL-24)
+- Update for game patch 1.1.6</ChangeLog>
   <Tag Value="Code Mod" />
   <Screenshot Value="Screenshots\Desktop.jpg" />
 </Publish>
