@@ -74,15 +74,15 @@ namespace ExtraUIScreens
         public bool IsMonitor5Unavailable() => Display.displays.Length < 6;
         public bool IsMonitor6Unavailable() => Display.displays.Length < 7;
         public bool IsMonitor7Unavailable() => Display.displays.Length < 8;
-        public bool IsMonitor1Enabled() => IsMonitorActive(0);
+        public bool IsMonitor1Disabled() => !IsMonitorActive(0);
 
 
         [SettingsUISection(kMonitorsTab, null)]
         public bool UseMonitor1 { get => IsMonitorActive(0); set => SetMonitorActive(0, value); }
 
         [SettingsUISection(kMonitorsTab, null)]
-        [SettingsUIKeyboardBinding(Key.Tab, kActionToggleScreen1, ctrl: true)]
-        [SettingsUIHideByCondition(typeof(EuisModData), nameof(IsMonitor1Enabled))]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Tab, kActionToggleScreen1, ctrl: true)]
+        [SettingsUIHideByCondition(typeof(EuisModData), nameof(IsMonitor1Disabled))]
         public ProxyBinding Monitor1ToggleAction { get; set; }
 
 

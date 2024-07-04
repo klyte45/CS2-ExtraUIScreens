@@ -87,6 +87,7 @@ namespace ExtraUIScreens
 
         public void Update()
         {
+            actionToggleScreen1.shouldBeEnabled = true;
             if (lastMonitorId < 2 && EuisModData.EuisDataInstance.IsMonitorActive(0) && actionToggleScreen1.WasPressedThisFrame())
             {
                 showMonitor1 = !showMonitor1;
