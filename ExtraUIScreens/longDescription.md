@@ -11,7 +11,8 @@ This mod is just a platform for other mods, it does almost nothing in the game a
 
 Check the base react project at my [GitHub](https://github.com/klyte45/EUIS-baseproj-fe) to get instructions about how to create a new frontend application into EUIS.
 
-Soon will be available a base project for creating mods windows over the vanilla UI keeping the interactivity with vanilla UI.
+To have a reference about how integrate the react projects into a mod project, check this sample available [at Live Translation Editor mod GitHub](https://github.com/klyte45/CS2-LiveTranslationEditor/releases/tag/EUIS_BaseProject).
+You can check the commits after this to get details on how to implementate endpoints for your applications.
 
 Also there will have a way to add simple buttons to toggle tools in the vanilla UI in a dock group - like Unified UI (UUI) used to do in CS1. The mod window over vanilla UI explained above also will generate a button there.
 
