@@ -15,7 +15,8 @@ This mod is just a platform for other mods, it does almost nothing in the game a
 
 Check the base react project at my [GitHub](https://github.com/klyte45/EUIS-baseproj-fe) to get instructions about how to create a new frontend application into EUIS.
 
-Soon will be available a base project for creating mods windows over the vanilla UI keeping the interactivity with vanilla UI.
+To have a reference about how integrate the react projects into a mod project, check this sample available [at Live Translation Editor mod GitHub](https://github.com/klyte45/CS2-LiveTranslationEditor/releases/tag/EUIS_BaseProject).
+You can check the commits after this to get details on how to implementate endpoints for your applications.
 
 Also there will have a way to add simple buttons to toggle tools in the vanilla UI in a dock group - like Unified UI (UUI) used to do in CS1. The mod window over vanilla UI explained above also will generate a button there.
 
@@ -40,11 +41,10 @@ Since it's a very complex mod, it may cause issues in the game due their early s
 The most up to date information about installation and known issues and bugs is at the mod topic.</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/euis-extended-ui-screens.1651552/" />
-  <ModVersion Value="0.1.2.2" />
+  <ModVersion Value="0.1.2.4" />
   <GameVersion Value="1.1.*" />
-  <ChangeLog># v0.1.2r2 (04-JUL-24)
-- Update for game patch 1.1.7
-- Fixing action to open the main monitor EUIS Screen was not working</ChangeLog>
+  <ChangeLog># v0.1.2r4 (24-OCT-24)
+- Update for game patch 1.1.11</ChangeLog>
   <Tag Value="Code Mod" />
   <Screenshot Value="Screenshots\Desktop.jpg" />
 </Publish>
