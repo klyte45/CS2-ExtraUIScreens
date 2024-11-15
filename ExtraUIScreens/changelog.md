@@ -1,2 +1,2 @@
-# v0.1.2r4 (24-OCT-24)
-- Update for game patch 1.1.11
+# v0.1.2r5 (??-???-24)
+- Fixed multiple registering same endpoints, generating errors at log

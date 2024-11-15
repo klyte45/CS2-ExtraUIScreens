@@ -1,11 +1,9 @@
 ﻿using Belzont.Interfaces;
 using Belzont.Utils;
-using cohtml;
 using cohtml.InputSystem;
 using cohtml.Net;
 using Colossal.Logging;
 using Colossal.UI;
-using Colossal.UI.Binding;
 using Game.Input;
 using Game.SceneFlow;
 using Game.Settings;
@@ -161,8 +159,9 @@ namespace ExtraUIScreens
             //var baseUri = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8425, Path = "index.html" }.Uri.AbsoluteUri;
             yield return 0;
 
-            var modView = uiSystemArray[displayId].CreateView(baseUri, settings, cam);
+            var modView = uiSystemArray[displayId].CreateView("", settings, cam);
             modView.enabled = true;
+            var uiReadyForAll = false;
             modView.Listener.ReadyForBindings += () =>
             {
                 modView.View.BindCall("k45::euis.getMonitorId", new Func<int>(() => thisMonitorId));
@@ -185,6 +184,7 @@ namespace ExtraUIScreens
                             if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Ready = {Ready}");
                             OnReady?.Invoke();
                             OnceOnReady?.Invoke(-1);
+                            uiReadyForAll = true;
                         }
                     }
                     else
@@ -206,7 +206,7 @@ namespace ExtraUIScreens
             };
             GameManager.instance.localizationManager.onActiveDictionaryChanged += () => modView.View.TriggerEvent("k45::euis.localeChanged");
             OnBeforeSceneLoad += () => StartCoroutine(DisableViewOnLoad(modView, displayId != 0 ? cam : null));
-            GameManager.instance.onGameLoadingComplete += (x, y) => { if (displayId != 0) cam.enabled = true; modView.enabled = true; modView.View.LoadURL(modView.url); };
+            GameManager.instance.onGameLoadingComplete += (x, y) => { if (displayId != 0) cam.enabled = true; modView.enabled = true; modView.View.LoadURL(baseUri); };
         }
 
         private event Action OnBeforeSceneLoad;
@@ -218,6 +218,7 @@ namespace ExtraUIScreens
 
         private IEnumerator DisableViewOnLoad(UIView view, Camera cam)
         {
+            view.url = "";
             view.enabled = false;
             yield return 0;
             if (cam != null)
@@ -464,8 +465,6 @@ namespace ExtraUIScreens
                 modRegisterData.OnGetEventsBinder((string eventName, Delegate action) => RegisterEvent(modRegisterData, eventName, action, targetMonitor));
             }
         }
-
-        private readonly Dictionary<string, RawValueBinding> m_cachedBindings = new();
 
         private void RegisterCall(IEUISModRegister appRegisterData, string callName, Delegate action, int targetMonitor)
         {

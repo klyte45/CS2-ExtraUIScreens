@@ -9,6 +9,8 @@ using System.Reflection;
 using UnityEngine;
 using System.IO;
 using Game.Modding;
+using System.Diagnostics;
+
 #if BEPINEX_CS2
 using BepInEx;
 #else
@@ -65,7 +67,7 @@ namespace ExtraUIScreens
                     EuisScreenManager.Instance.DoOnceWhenReady((x) =>
                     {
                         var mods = BridgeUtils.GetAllLoadableClassesByTypeName<IEUISModRegister, IEUISModRegister>(() => new EUISModRegisterCurrent(), assembly);
-                        if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"[ESOS] Apps to load from '{{0}}':\n {string.Join("\n", mods.Select(x => x.ModAcronym))}", assemblyPath);
+                        if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"[ESOS] Mods to load from '{{0}}':\n {string.Join("\n", mods.Select(x => x.ModAcronym))}\n{new StackTrace()}", assemblyPath);
                         foreach (var mod in mods)
                         {
                             EuisScreenManager.Instance.RegisterModActions(mod, x);
