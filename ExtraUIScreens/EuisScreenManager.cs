@@ -161,7 +161,6 @@ namespace ExtraUIScreens
 
             var modView = uiSystemArray[displayId].CreateView("", settings, cam);
             modView.enabled = true;
-            var uiReadyForAll = false;
             modView.Listener.ReadyForBindings += () =>
             {
                 modView.View.BindCall("k45::euis.getMonitorId", new Func<int>(() => thisMonitorId));
@@ -184,7 +183,6 @@ namespace ExtraUIScreens
                             if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Ready = {Ready}");
                             OnReady?.Invoke();
                             OnceOnReady?.Invoke(-1);
-                            uiReadyForAll = true;
                         }
                     }
                     else
