@@ -252,7 +252,7 @@ namespace ExtraUIScreens
         }
 
         private int lastMonitorId = -1;
-        private Barrier m_GlobalBarrier;
+        private InputBarrier m_GlobalBarrier;
         private bool UpdateInputSystem(IMouseEventData b, int thisMonitorId)
         {
             if (b.Type == MouseEventData.EventType.MouseMove || b.Type == MouseEventData.EventType.MouseWheel || b.Type == MouseEventData.EventType.MouseDown)

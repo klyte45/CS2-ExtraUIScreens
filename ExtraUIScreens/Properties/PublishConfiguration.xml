@@ -43,8 +43,10 @@ The most up to date information about installation and known issues and bugs is 
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/euis-extended-ui-screens.1651552/" />
   <ModVersion Value="0.1.2.5" />
   <GameVersion Value="1.1.*" />
-  <ChangeLog># v0.1.2r5 (??-???-24)
-- Fixed multiple registering same endpoints, generating errors at log</ChangeLog>
+  <ChangeLog># v0.1.2r5 (26-NOV-24)
+- Fixes for 1.1.12
+- Fixed multiple registering same endpoints, generating errors at log
+- DEVELOPMENT: Added support to webpack auto-reload when using serving an EUIS application locally</ChangeLog>
   <ExternalLink Type="github" Url="" />
   <ExternalLink Type="youtube" Url="https://www.youtube.com/Klyte45" />
   <ExternalLink Type="kofi" Url="https://ko-fi.com/klyte45" />
