@@ -22,7 +22,7 @@
   <!--Mod data-->
   <PropertyGroup>
     <ModId>74151</ModId>
-    <Version>0.1.2.6</Version>
+    <Version>0.1.2.7</Version>
     <GameVersion>1.2.*</GameVersion>
     <ThumbnailPath>Properties/Thumbnail.png</ThumbnailPath>
     <DisplayName>Extra UI Screens</DisplayName>
@@ -170,7 +170,7 @@
     <Content Include="..\_Frontends\bin\$(Configuration)\$(TargetFramework)\*\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory> 
     </Content>
-    <None Remove="longDescription.md" />
+    <None Remove="README.md" />
     <None Update="i18n\i18n.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

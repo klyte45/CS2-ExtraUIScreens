@@ -204,7 +204,18 @@ namespace ExtraUIScreens
             };
             GameManager.instance.localizationManager.onActiveDictionaryChanged += () => modView.View.TriggerEvent("k45::euis.localeChanged");
             OnBeforeSceneLoad += () => StartCoroutine(DisableViewOnLoad(modView, displayId != 0 ? cam : null));
-            GameManager.instance.onGameLoadingComplete += (x, y) => { if (displayId != 0) cam.enabled = true; modView.enabled = true; modView.View.LoadURL(baseUri); };
+            GameManager.instance.onGameLoadingComplete += (x, y) => LoadScreen(displayId, cam, baseUri, modView);
+            if (!GameManager.instance.isGameLoading)
+            {
+                LoadScreen(displayId, cam, baseUri, modView);
+            }
+        }
+
+        private static void LoadScreen(int displayId, Camera cam, string baseUri, UIView modView)
+        {
+            if (displayId != 0) cam.enabled = true; 
+            modView.enabled = true;
+            modView.View.LoadURL(baseUri);
         }
 
         private event Action OnBeforeSceneLoad;
