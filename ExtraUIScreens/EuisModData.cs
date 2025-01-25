@@ -1,12 +1,12 @@
 ﻿using Belzont.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using Colossal.IO.AssetDatabase;
+using Game.Input;
 using Game.Modding;
 using Game.Settings;
-using Game.Input;
-using UnityEngine.InputSystem;
+using System.Collections.Generic;
+using System.Linq;
+using Unity.Entities;
+using UnityEngine;
 
 
 namespace ExtraUIScreens
@@ -43,13 +43,13 @@ namespace ExtraUIScreens
             if (newValue)
             {
                 InactiveMonitors &= ~(1 << displayId);
-                EuisScreenManager.Instance?.InitializeMonitor(displayId);
+                World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<EuisScreenManager>().InitializeMonitor(displayId);
             }
             else
             {
                 InactiveMonitors |= (1 << displayId);
             }
-            EuisScreenManager.Instance?.OnMonitorActivityChanged();
+            World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<EuisScreenManager>().OnMonitorActivityChanged();
         }
 
         private string[][] m_DisabledApps { get; set; }

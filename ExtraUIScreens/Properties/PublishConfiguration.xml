@@ -41,7 +41,7 @@ Since it's a very complex mod, it may cause issues in the game due their early s
 The most up to date information about installation and known issues and bugs is at the mod topic.</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/euis-extended-ui-screens.1651552/" />
-  <ModVersion Value="0.1.2.7" />
+  <ModVersion Value="0.2.0.9999" />
   <GameVersion Value="1.2.*" />
   <ChangeLog># v0.1.2r7 (17-DEC-24)
 - Fixing issue that was affecting other mods to load properly. The mod view shall be loaded also at main menu.</ChangeLog>

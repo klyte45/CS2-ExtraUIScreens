@@ -4,10 +4,11 @@ using Colossal.IO.AssetDatabase;
 using Colossal.Serialization.Entities;
 using Colossal.UI;
 using Game;
+using Game.Input;
 using Game.SceneFlow;
 using Game.Settings;
 using System;
-using System.Threading.Tasks;
+using Unity.Entities;
 using UnityEngine;
 
 namespace ExtraUIScreens
@@ -31,11 +32,11 @@ namespace ExtraUIScreens
     {
         public void Awake()
         {
-            AddRedirect(typeof(InterfaceSettings).GetProperty("interfaceStyle", RedirectorUtils.allFlags).SetMethod, null, GetType().GetMethod("AfterSetInterfaceStyle", RedirectorUtils.allFlags));
+            AddRedirect(typeof(InterfaceSettings).GetProperty("interfaceStyle", RedirectorUtils.allFlags).SetMethod, null, GetType().GetMethod(nameof(AfterSetInterfaceStyle), RedirectorUtils.allFlags));
         }
         private static void AfterSetInterfaceStyle()
         {
-            EuisScreenManager.Instance?.OnInterfaceStyleChanged();
+            World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<EuisScreenManager>().OnInterfaceStyleChanged();
         }
     }
     public class GameManagerOverrides : Redirector, IRedirectableWorldless
@@ -44,11 +45,11 @@ namespace ExtraUIScreens
         public void Awake()
         {
             AddRedirect(typeof(GameManager).GetMethod("Load", RedirectorUtils.allFlags, null, new[] { typeof(GameMode), typeof(Purpose), typeof(AsyncReadDescriptor), typeof(Guid) }, null),
-                GetType().GetMethod("BeforeSceneLoad", RedirectorUtils.allFlags), GetType().GetMethod("AfterSceneLoad", RedirectorUtils.allFlags));
+                GetType().GetMethod(nameof(BeforeSceneLoad), RedirectorUtils.allFlags));
         }
         private static void BeforeSceneLoad()
         {
-            EuisScreenManager.Instance.RunOnBeforeSceneLoad();
+            World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<EuisScreenManager>().RunOnBeforeSceneLoad();
         }
     }
 
@@ -56,12 +57,12 @@ namespace ExtraUIScreens
     {
         public void Awake()
         {
-            var overrideMethod = GetType().GetMethod("TakeScreenShot", RedirectorUtils.allFlags);
+            var overrideMethod = GetType().GetMethod(nameof(TakeScreenShot), RedirectorUtils.allFlags);
             AddRedirect(typeof(ScreenCapture).GetMethod("CaptureScreenshotAsTexture", RedirectorUtils.allFlags, null, new Type[] { }, null), overrideMethod);
             AddRedirect(typeof(ScreenCapture).GetMethod("CaptureScreenshotAsTexture", RedirectorUtils.allFlags, null, new[] { typeof(int) }, null), overrideMethod);
             AddRedirect(typeof(ScreenCapture).GetMethod("CaptureScreenshotAsTexture", RedirectorUtils.allFlags, null, new[] { typeof(ScreenCapture.StereoScreenCaptureMode) }, null), overrideMethod);
         }
-        public static bool TakeScreenShot(ref Texture2D __result)
+        private static bool TakeScreenShot(ref Texture2D __result)
         {
             int photoWidth = Display.displays[0].renderingWidth;
             int photoHeight = Display.displays[0].renderingHeight;

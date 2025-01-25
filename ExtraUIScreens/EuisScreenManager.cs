@@ -9,13 +9,13 @@ using Game.SceneFlow;
 using Game.Settings;
 using Game.UI.Localization;
 using Game.UI.Menu;
-using K45EUIS_Ext;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Unity.Entities;
 using UnityEngine;
 using Action = System.Action;
 using DefaultResourceHandler = Colossal.UI.DefaultResourceHandler;
@@ -24,35 +24,27 @@ using UISystem = Colossal.UI.UISystem;
 namespace ExtraUIScreens
 {
 
-    public class EuisScreenManager : MonoBehaviour
+    public partial class EuisScreenManager : SystemBase
     {
-        public static EuisScreenManager Instance { get; private set; }
-        private static PropertyInfo HostLocationsMap = typeof(DefaultResourceHandler).GetProperty("HostLocationsMap", ReflectionUtils.allFlags);
+        private static readonly PropertyInfo HostLocationsMap = typeof(DefaultResourceHandler).GetProperty("HostLocationsMap", ReflectionUtils.allFlags);
+        private static EuisScreenManager instance;
         private int ReadyCount { get; set; }
         private int ReadyCountTarget { get; set; } = -1;
         private bool Ready { get; set; }
-        private event Action OnReady;
-        private event Action<int> OnceOnReady;
 
         private UIInputSystem[] inputSystemArray;
         private UISystem[] uiSystemArray;
 
-        private bool showMonitor1;
-        private ProxyAction actionToggleScreen1;
+        public bool ShowMonitor1 { get; private set; }
+        public ProxyAction ActionToggleScreen1 { get; private set; }
 
-        public void Awake()
-        {
-            if (Instance != null)
-            {
-                Destroy(this);
-                return;
-            }
-            Instance = this;
-            DontDestroyOnLoad(this);
-        }
 
-        public void Start()
+
+        protected override void OnCreate()
         {
+            if (instance != null) return;
+            instance = this;
+            base.OnCreate();
             uiSystemArray = new UISystem[8];
             ReadyCount = 0;
             ReadyCountTarget = Display.displays.Length;
@@ -67,7 +59,6 @@ namespace ExtraUIScreens
                 UpdateInputSystem(eventData, 0);
                 return Actions.ContinueHandling;
             };
-
             for (int i = 0; i < Display.displays.Length; i++)
             {
                 if (EuisModData.EuisDataInstance.IsMonitorActive(i))
@@ -79,22 +70,22 @@ namespace ExtraUIScreens
                     ReadyCountTarget--;
                 }
             }
-            actionToggleScreen1 = EuisModData.EuisDataInstance.GetAction(EuisModData.kActionToggleScreen1);
+            ActionToggleScreen1 = EuisModData.EuisDataInstance.GetAction(EuisModData.kActionToggleScreen1);
         }
         private static readonly FieldInfo fieldUIInput = typeof(GameManager).GetField("m_UIInputSystem", RedirectorUtils.allFlags);
 
-        public void Update()
+        protected override void OnUpdate()
         {
-            actionToggleScreen1.shouldBeEnabled = true;
-            if (lastMonitorId < 2 && EuisModData.EuisDataInstance.IsMonitorActive(0) && actionToggleScreen1.WasPressedThisFrame())
+            ActionToggleScreen1.shouldBeEnabled = true;
+            if (lastMonitorId < 2 && EuisModData.EuisDataInstance.IsMonitorActive(0) && ActionToggleScreen1.WasPressedThisFrame())
             {
-                showMonitor1 = !showMonitor1;
-                uiSystemArray[0].UIViews[0].View.TriggerEvent("k45::euis.toggleMon1", showMonitor1);
+                ShowMonitor1 = !ShowMonitor1;
+                uiSystemArray[0].UIViews[0].View.TriggerEvent("k45::euis.toggleMon1", ShowMonitor1);
                 UpdateActiveMonitor();
             }
         }
 
-        public void InitializeMonitor(int displayId) => StartCoroutine(InitializeMonitor_impl(displayId));
+        public void InitializeMonitor(int displayId) => GameManager.instance.StartCoroutine(InitializeMonitor_impl(displayId));
 
         private EuisResourceHandler defaultResourceHandlerDisplays;
 
@@ -112,6 +103,7 @@ namespace ExtraUIScreens
             yield return 0;
             var defView = GameManager.instance.userInterface.view;
             if (displayId > 0) Display.displays[displayId].Activate();
+            if (uiSystemArray[displayId] is not null) yield break;
             if (defaultResourceHandlerDisplays is null)
             {
                 defaultResourceHandlerDisplays = new EuisResourceHandler();
@@ -120,7 +112,6 @@ namespace ExtraUIScreens
                 HostLocationsMap.SetValue(defaultResourceHandlerDisplays, currentHosts);
                 defaultResourceHandlerDisplays.coroutineHost = defaultRH.coroutineHost;
                 defaultResourceHandlerDisplays.userImagesManager = defaultRH.userImagesManager;
-                //defaultResourceHandlerDisplays.System = CohtmlUISystem.GetDefaultUISystem();
             }
             uiSystemArray[displayId] = UIManager.instance.CreateUISystem(new UISystem.Settings
             {
@@ -166,29 +157,16 @@ namespace ExtraUIScreens
                 modView.View.BindCall("k45::euis.getMonitorId", new Func<int>(() => thisMonitorId));
                 modView.View.BindCall("k45::euis.getQuantityMonitors", new Func<int>(() => Display.displays.Length));
                 modView.View.BindCall("k45::euis.getDisabledAppsByDisplay", new Func<string[][]>(() => EuisModData.EuisDataInstance.GetDisabledAppsByMonitor()));
-                modView.View.RegisterForEvent("k45::euis.getMonitorEnabledApplcations", new Action<int>((monitorId) => StartCoroutine(GetMonitorEnabledApplcations(monitorId, modView.View))));
+                modView.View.RegisterForEvent("k45::euis.getMonitorEnabledApplcations", new Action<int>((monitorId) => GameManager.instance.StartCoroutine(GetMonitorEnabledApplcations(monitorId, modView.View))));
                 modView.View.BindCall("k45::euis.saveAppSelectionAsDefault", new Action(() => SaveAppSelectionAsDefault()));
                 modView.View.BindCall("k45::euis.removeAppButton", new Action<string, int>(RemoveAppFromMonitor));
                 modView.View.BindCall("k45::euis.reintroduceAppButton", new Action<string, int>(AddAppToMonitor));
                 modView.View.BindCall("k45::euis.getActiveMonitorMask", new Func<int>(() => EuisModData.EuisDataInstance.InactiveMonitors));
                 modView.View.BindCall("k45::euis.frontEndReady", new Action<int>((x) =>
                 {
-                    if (!Ready)
+                    foreach (var mod in modsRegistered.Values)
                     {
-                        ReadyCount++;
-                        Ready = ReadyCount >= ReadyCountTarget;
-                        if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"ReadyCount = {ReadyCount}, Target = {ReadyCountTarget}");
-                        if (Ready)
-                        {
-                            if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Ready = {Ready}");
-                            OnReady?.Invoke();
-                            OnceOnReady?.Invoke(-1);
-                        }
-                    }
-                    else
-                    {
-                        OnReady?.Invoke();
-                        OnceOnReady?.Invoke(x);
+                        RegisterModActions(mod, x);
                     }
                     OnMonitorActivityChanged();
                 }));
@@ -203,7 +181,7 @@ namespace ExtraUIScreens
                 return Actions.ContinueHandling;
             };
             GameManager.instance.localizationManager.onActiveDictionaryChanged += () => modView.View.TriggerEvent("k45::euis.localeChanged");
-            OnBeforeSceneLoad += () => StartCoroutine(DisableViewOnLoad(modView, displayId != 0 ? cam : null));
+            OnBeforeSceneLoad += () => GameManager.instance.StartCoroutine(DisableViewOnLoad(modView, displayId != 0 ? cam : null));
             GameManager.instance.onGameLoadingComplete += (x, y) => LoadScreen(displayId, cam, baseUri, modView);
             if (!GameManager.instance.isGameLoading)
             {
@@ -213,7 +191,7 @@ namespace ExtraUIScreens
 
         private static void LoadScreen(int displayId, Camera cam, string baseUri, UIView modView)
         {
-            if (displayId != 0) cam.enabled = true; 
+            if (displayId != 0) cam.enabled = true;
             modView.enabled = true;
             modView.View.LoadURL(baseUri);
         }
@@ -242,7 +220,7 @@ namespace ExtraUIScreens
         private void SaveAppSelectionAsDefault()
         {
             if (RunningAppSelectionDefaultSave != null) return;
-            RunningAppSelectionDefaultSave = StartCoroutine(SaveAppSelectionAsDefault_impl());
+            RunningAppSelectionDefaultSave = GameManager.instance.StartCoroutine(SaveAppSelectionAsDefault_impl());
         }
         private IEnumerator SaveAppSelectionAsDefault_impl()
         {
@@ -277,8 +255,8 @@ namespace ExtraUIScreens
         {
             var relativePos = Display.RelativeMouseAt(Input.mousePosition);
             var targetIdx = Mathf.RoundToInt(relativePos.z); ;
-            if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("inputPos: {0} relPos: {1} mouseCurrent: ??", Input.mousePosition, relativePos);
-            if (targetIdx != 0 || showMonitor1) { targetIdx++; }
+            //  if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("inputPos: {0} relPos: {1} mouseCurrent: ??", Input.mousePosition, relativePos);
+            if (targetIdx != 0 || ShowMonitor1) { targetIdx++; }
             if (targetIdx > 0) InputManager.instance.mouseOverUI = true;
             if (targetIdx != lastMonitorId)
             {
@@ -375,7 +353,9 @@ namespace ExtraUIScreens
             }
         }
 
-        private readonly HashSet<IEUISAppRegister> registeredApplications = new();
+        private readonly HashSet<EUISAppRegister> registeredApplications = new();
+
+        private const string kOpenModAppCmd = "^openApp";
 
         private void SendEventToApp(string modderId, string appName, string eventName, params object[] args)
         {
@@ -385,7 +365,7 @@ namespace ExtraUIScreens
                 var appNameFull = $"@{modderId}/{appName}";
                 switch (eventName)
                 {
-                    case EUISSpecialEventEmitters.kOpenModAppCmd:
+                    case kOpenModAppCmd:
 
                         View targetMonitor;
                         if (args.Length >= 1 && args[0] is int monitorNum)
@@ -444,42 +424,46 @@ namespace ExtraUIScreens
             }
         }
 
-        internal void RegisterApplication(IEUISAppRegister appRegisterData)
+        private void RegisterApplication(EUISAppRegister appRegisterData, int targetMonitor)
         {
-            if (ValidateAppRegister(appRegisterData))
+
+            for (int i = 0; i < uiSystemArray.Length; i++)
             {
-                for (int i = -1; i < uiSystemArray.Length; i++)
+                if (i >= 0 && i != targetMonitor) continue;
+                UISystem uiSys = i == 0 ? GameManager.instance.userInterface.view.uiSystem : uiSystemArray[i - 1];
+                if (uiSys != null)
                 {
-                    UISystem uiSys = i < 0 ? GameManager.instance.userInterface.view.uiSystem : uiSystemArray[i];
-                    if (uiSys != null)
+                    if (uiSys.UIViews[0].View.IsReadyForBindings())
                     {
-                        if (uiSys.UIViews[0].View.IsReadyForBindings())
-                        {
-                            if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Sending app for monitor {i + 1}: {appRegisterData.GetFullAppName()}");
-                            uiSys.UIViews[0].View.TriggerEvent("k45::euis.registerApplication", appRegisterData.GetFullAppName(), appRegisterData.DisplayName, appRegisterData.UrlJs, appRegisterData.UrlCss, appRegisterData.UrlIcon);
-                            registeredApplications.Add(appRegisterData);
-                        }
+                        if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Sending app for monitor {i}: {appRegisterData.GetFullAppName()}");
+                        uiSys.UIViews[0].View.TriggerEvent("k45::euis.registerApplication", appRegisterData.GetFullAppName(), appRegisterData.DisplayName, appRegisterData.UrlJs, appRegisterData.UrlCss, appRegisterData.UrlIcon);
+                        registeredApplications.Add(appRegisterData);
                     }
                 }
             }
         }
-        internal void RegisterModActions(IEUISModRegister modRegisterData, int targetMonitor)
+        private void RegisterModActions(EUISModRegister modRegisterData, int targetMonitor)
         {
-            if (ValidateModRegister(modRegisterData))
+
+            var internalAppName = modRegisterData.ModAcronym;
+            var modderId = modRegisterData.ModderIdentifier;
+            modRegisterData.RegisterBindCalls((string eventName, Delegate action) => RegisterCall(modRegisterData, eventName, action, targetMonitor));
+            modRegisterData.RegisterEventsCalls((string eventName, Delegate action) => RegisterEvent(modRegisterData, eventName, action, targetMonitor));
+            if (targetMonitor >= 0)
             {
-                var internalAppName = modRegisterData.ModAcronym;
-                var modderId = modRegisterData.ModderIdentifier;
-                modRegisterData.OnGetEventEmitter((string eventName, object[] args) => SendEventToApp(modderId, internalAppName, eventName, args));
-                modRegisterData.OnGetCallsBinder((string eventName, Delegate action) => RegisterCall(modRegisterData, eventName, action, targetMonitor));
-                modRegisterData.OnGetEventsBinder((string eventName, Delegate action) => RegisterEvent(modRegisterData, eventName, action, targetMonitor));
+                modRegisterData.RegisterEventsEmiter((string eventName, object[] args) => SendEventToApp(modderId, internalAppName, eventName, args));
+                foreach (var app in modRegisterData.Applications.Values)
+                {
+                    RegisterApplication(app, targetMonitor);
+                }
             }
         }
 
-        private void RegisterCall(IEUISModRegister appRegisterData, string callName, Delegate action, int targetMonitor)
+        private void RegisterCall(EUISModRegister appRegisterData, string callName, Delegate action, int targetMonitor)
         {
             if (targetMonitor < 0)
             {
-                for (int i = -1; i < uiSystemArray.Length; i++)
+                for (int i = 0; i < uiSystemArray.Length; i++)
                 {
                     RegisterCallInDisplay(appRegisterData, callName, action, i);
                 }
@@ -490,7 +474,7 @@ namespace ExtraUIScreens
             }
         }
 
-        private void RegisterCallInDisplay(IEUISModRegister appRegisterData, string callName, Delegate action, int displayId)
+        private void RegisterCallInDisplay(EUISModRegister appRegisterData, string callName, Delegate action, int displayId)
         {
             UISystem uiSys = displayId < 0 ? GameManager.instance.userInterface.view.uiSystem : uiSystemArray[displayId];
             if (uiSys != null)
@@ -523,7 +507,7 @@ namespace ExtraUIScreens
             }
         }
 
-        private void RegisterEvent(IEUISModRegister appRegisterData, string eventName, Delegate action, int targetMonitor)
+        private void RegisterEvent(EUISModRegister appRegisterData, string eventName, Delegate action, int targetMonitor)
         {
             if (targetMonitor < 0)
             {
@@ -538,7 +522,7 @@ namespace ExtraUIScreens
             }
         }
 
-        private void RegisterEventToDisplay(IEUISModRegister appRegisterData, string eventName, Delegate action, int displayId)
+        private void RegisterEventToDisplay(EUISModRegister appRegisterData, string eventName, Delegate action, int displayId)
         {
             UISystem uiSys = displayId < 0 ? GameManager.instance.userInterface.view.uiSystem : uiSystemArray[displayId];
             if (uiSys != null)
@@ -564,65 +548,65 @@ namespace ExtraUIScreens
         }
 
 
-        private bool ValidateAppRegister(IEUISAppRegister appRegisterData)
+        private bool ValidateAppRegister(EUISAppRegister appRegisterData)
         {
             if (!Regex.IsMatch(appRegisterData.ModderIdentifier, "^[a-z0-9\\-]{3,10}$"))
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': Modder name must be 3-10 characters and must contain only characters in this regex: [a-z0-9\\-]");
+                LogUtils.DoWarnLog($"Invalid app register for '{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}/{appRegisterData.ModAppIdentifier}':  Modder name must be 3-10 characters and must contain only characters in this regex: [a-z0-9\\-]");
                 return false;
             }
             if (!Regex.IsMatch(appRegisterData.ModAcronym, "^[a-z0-9]{2,5}$"))
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': Mod acronym must be 2-5 characters and must contain only characters in this regex: [a-z0-9]");
+                LogUtils.DoWarnLog($"Invalid app register for '{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}/{appRegisterData.ModAppIdentifier}':  Mod acronym must be 2-5 characters and must contain only characters in this regex: [a-z0-9]");
                 return false;
             }
             if (!Regex.IsMatch(appRegisterData.ModAppIdentifier, "^[a-z0-9\\-]{0,24}$"))
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': App name must be 0-24 characters and must contain only characters in this regex: [a-z0-9\\-]");
+                LogUtils.DoWarnLog($"Invalid app register for '{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}/{appRegisterData.ModAppIdentifier}':  App name must be 0-24 characters and must contain only characters in this regex: [a-z0-9\\-]");
                 return false;
             }
             if (!appRegisterData.UrlJs.StartsWith("coui://") && !appRegisterData.UrlJs.StartsWith("http://localhost"))
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': The application js must be registered in the game ui system (under coui://) or under localhost if under development (starting with http://localhost).");
+                LogUtils.DoWarnLog($"Invalid app register for '{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}/{appRegisterData.ModAppIdentifier}':  The application js must be registered in the game ui system (under coui://) or under localhost if under development (starting with http://localhost).");
                 return false;
             }
             if (!appRegisterData.UrlCss.StartsWith("coui://") && !appRegisterData.UrlCss.StartsWith("http://localhost"))
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': The application css must be registered in the game ui system (under coui://) or under localhost if under development (starting with http://localhost).");
+                LogUtils.DoWarnLog($"Invalid app register for '{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}/{appRegisterData.ModAppIdentifier}':  The application css must be registered in the game ui system (under coui://) or under localhost if under development (starting with http://localhost).");
                 return false;
             }
             if (!appRegisterData.UrlIcon.StartsWith("coui://"))
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': The application icon must be registered in the game ui system (under coui://).");
+                LogUtils.DoWarnLog($"Invalid app register for '{appRegisterData.ModderIdentifier}::{appRegisterData.ModAcronym}/{appRegisterData.ModAppIdentifier}':  The application icon must be registered in the game ui system (under coui://). Value: '{appRegisterData.UrlIcon}'");
                 return false;
             }
             return true;
         }
-        internal static bool ValidateModRegister(IEUISModRegister appRegisterData)
+        private static bool ValidateModRegister(EUISModRegister registerData)
         {
-            if (!Regex.IsMatch(appRegisterData.ModderIdentifier, "^[a-z0-9\\-]{3,10}$"))
+            if (!Regex.IsMatch(registerData.ModderIdentifier, "^[a-z0-9\\-]{3,10}$"))
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': Modder name must be 3-10 characters and must contain only characters in this regex: [a-z0-9\\-]");
+                LogUtils.DoWarnLog($"Invalid app register for mod '{registerData.ModderIdentifier}::{registerData.ModAcronym}': Modder name must be 3-10 characters and must contain only characters in this regex: [a-z0-9\\-]");
                 return false;
             }
-            if (!Regex.IsMatch(appRegisterData.ModAcronym, "^[a-z0-9]{2,5}$"))
+            if (!Regex.IsMatch(registerData.ModAcronym, "^[a-z0-9]{2,5}$"))
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': Mod acronym must be 2-5 characters and must contain only characters in this regex: [a-z0-9]");
+                LogUtils.DoWarnLog($"Invalid app register for mod '{registerData.ModderIdentifier}::{registerData.ModAcronym}':  Mod acronym must be 2-5 characters and must contain only characters in this regex: [a-z0-9]");
                 return false;
             }
-            if (appRegisterData.OnGetCallsBinder is null)
+            if (registerData.RegisterBindCalls is null)
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': OnGetCallsBinder must not be null!");
+                LogUtils.DoWarnLog($"Invalid app register for mod '{registerData.ModderIdentifier}::{registerData.ModAcronym}':  OnGetCallsBinder must not be null!");
                 return false;
             }
-            if (appRegisterData.OnGetEventsBinder is null)
+            if (registerData.RegisterEventsCalls is null)
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': OnGetEventsBinder must not be null!");
+                LogUtils.DoWarnLog($"Invalid app register for mod '{registerData.ModderIdentifier}::{registerData.ModAcronym}':  OnGetEventsBinder must not be null!");
                 return false;
             }
-            if (appRegisterData.OnGetEventEmitter is null)
+            if (registerData.RegisterEventsEmiter is null)
             {
-                LogUtils.DoWarnLog($"Invalid app register for type '{appRegisterData.GetType().FullName}': OnGetEventEmitter must not be null!");
+                LogUtils.DoWarnLog($"Invalid app register for mod '{registerData.ModderIdentifier}::{registerData.ModAcronym}':  OnGetEventEmitter must not be null!");
                 return false;
             }
             return true;
@@ -659,22 +643,45 @@ namespace ExtraUIScreens
             }
         }
 
-        public void DoWhenReady(Action action)
-        {
-            OnReady += action;
-            if (Ready)
-            {
-                action();
-            }
-        }
-        public void DoOnceWhenReady(Action<int> action)
-        {
-            OnceOnReady += action;
-        }
-
         internal void OnInterfaceStyleChanged()
         {
             DoWithEachMonitorView(View => View.TriggerEvent("k45::euis.interfaceStyle->", SharedSettings.instance.userInterface.interfaceStyle));
+        }
+
+        internal bool InitialRegisterApplication(string modderIdentifier, string modAcronym, string modAppIdentifier, string displayName, string urlJs, string urlCss, string urlIcon)
+        {
+            if (!modsRegistered.TryGetValue((modderIdentifier, modAcronym), out var modRegister)) throw new Exception($"The mod '{modAcronym}' from modder '{modderIdentifier}' wasn't registered yet. Register the mod before registering apps!");
+            var app = new EUISAppRegister(modderIdentifier, modAcronym, modAppIdentifier, displayName, urlJs, urlCss, urlIcon);
+            if (!modRegister.Applications.ContainsKey(modAppIdentifier) && ValidateAppRegister(app))
+            {
+                modRegister.Applications.Add(modAppIdentifier, app);
+                return true;
+            }
+            return false;
+        }
+
+        internal bool InitialRegisterModActions(string modderIdentifier, string modAcronym, Action<Action<string, object[]>> registerEventsEmmiter, Action<Action<string, Delegate>> registerEventsCalls, Action<Action<string, Delegate>> registerBindCalls)
+        {
+            var modData = new EUISModRegister(modderIdentifier, modAcronym, registerEventsEmmiter, registerEventsCalls, registerBindCalls);
+            if (!modsRegistered.ContainsKey((modderIdentifier, modAcronym)) && ValidateModRegister(modData))
+            {
+                modsRegistered[(modderIdentifier, modAcronym)] = modData;
+                return true;
+            }
+            return false;
+        }
+
+        private readonly Dictionary<(string, string), EUISModRegister> modsRegistered = new();
+
+        private record EUISAppRegister(string ModderIdentifier, string ModAcronym, string ModAppIdentifier, string DisplayName, string UrlJs, string UrlCss, string UrlIcon)
+        {
+            public string GetFullAppName() => $"@{ModderIdentifier}/{ModAcronym}{(ModAppIdentifier?.Length > 0 ? "-" : "")}{ModAppIdentifier}";
+            public string GetInternalAppName() => $"{ModAcronym}{(ModAppIdentifier?.Length > 0 ? "-" : "")}{ModAppIdentifier}";
+        }
+
+        private record EUISModRegister(string ModderIdentifier, string ModAcronym, Action<Action<string, object[]>> RegisterEventsEmiter, Action<Action<string, Delegate>> RegisterEventsCalls, Action<Action<string, Delegate>> RegisterBindCalls)
+        {
+            public Dictionary<string, EUISAppRegister> Applications { get; } = new();
         }
     }
 }
