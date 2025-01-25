@@ -38,7 +38,7 @@ namespace ExtraUIScreens
         public bool ShowMonitor1 { get; private set; }
         public ProxyAction ActionToggleScreen1 { get; private set; }
 
-
+        private InputBarrier NonEuisInputBarrier;
 
         protected override void OnCreate()
         {
@@ -71,6 +71,8 @@ namespace ExtraUIScreens
                 }
             }
             ActionToggleScreen1 = EuisModData.EuisDataInstance.GetAction(EuisModData.kActionToggleScreen1);
+            var allMaps = typeof(InputManager).GetField("m_Maps", RedirectorUtils.allFlags).GetValue(InputManager.instance) as Dictionary<string, ProxyActionMap>;
+            NonEuisInputBarrier = new InputBarrier("K45::EUIS-Barrier", allMaps.Select(x => x.Value).Where(x => x != ActionToggleScreen1.map).ToArray(), InputManager.DeviceType.All);
         }
         private static readonly FieldInfo fieldUIInput = typeof(GameManager).GetField("m_UIInputSystem", RedirectorUtils.allFlags);
 
@@ -82,6 +84,7 @@ namespace ExtraUIScreens
                 ShowMonitor1 = !ShowMonitor1;
                 uiSystemArray[0].UIViews[0].View.TriggerEvent("k45::euis.toggleMon1", ShowMonitor1);
                 UpdateActiveMonitor();
+                NonEuisInputBarrier.blocked = ShowMonitor1;
             }
         }
 
@@ -146,7 +149,7 @@ namespace ExtraUIScreens
                 cam = defView.RenderingCamera;
                 settings.enableBackdropFilter = false;
             }
-            var baseUri = new UriBuilder() { Scheme = "coui", Host = BasicIMod.Instance.CouiHost, Path = @"UI/esos/index.html" }.Uri.AbsoluteUri;
+            var baseUri = new UriBuilder() { Scheme = "coui", Host = EuisModData.EuisInstance.Host, Path = @"UI/esos/index.html" }.Uri.AbsoluteUri;
             //var baseUri = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8425, Path = "index.html" }.Uri.AbsoluteUri;
             yield return 0;
 

@@ -20,5 +20,7 @@ namespace ExtraUIScreens
             var modData = new EuisModData(this);
             return modData;
         }
+
+        public string Host => CouiHost;
     }
 }
