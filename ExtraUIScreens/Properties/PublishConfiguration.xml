@@ -41,11 +41,10 @@ Since it's a very complex mod, it may cause issues in the game due their early s
 The most up to date information about installation and known issues and bugs is at the mod topic.</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/euis-extended-ui-screens.1651552/" />
-  <ModVersion Value="0.2.0.0" />
+  <ModVersion Value="0.2.0.1" />
   <GameVersion Value="1.2.*" />
-  <ChangeLog># v0.2.0r0 (25-JAN-25)
-- New mod apps registration format, not using external .euis files anymore (reflection register)
-- Fixed inputs not being blocked when the main screen's EUIS overlay is on</ChangeLog>
+  <ChangeLog># v0.2.0r1 (18-MAR-25)
+- Fixes for 1.2.5 (CS1 10th anniversary) patch</ChangeLog>
   <Tag Value="Code Mod" />
   <Screenshot Value="Screenshots\Desktop.jpg" />
   <ExternalLink Type="youtube" Url="https://www.youtube.com/Klyte45" />

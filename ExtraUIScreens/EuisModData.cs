@@ -12,7 +12,7 @@ using UnityEngine;
 namespace ExtraUIScreens
 {
 
-    [FileLocation("ModsData\\Klyte45Mods\\ExtraUIScreens\\settings")]
+    [FileLocation("K45_EUIS_settings")]
     [SettingsUITabOrder(kMonitorsTab, kAboutTab)]
 
     public class EuisModData : BasicModData

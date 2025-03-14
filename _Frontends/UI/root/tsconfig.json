@@ -1,10 +1,28 @@
 {
   "extends": "ts-config-single-spa",
   "compilerOptions": {
+    "baseUrl": "./",
     "jsx": "react-jsx",
-    "declarationDir": "dist"
+    "declarationDir": "dist",
+    "target": "ES2015",
+    "paths": {
+      "#components/*": [
+        "src/components/*"
+      ],
+      "#enum/*": [
+        "src/enum/*"
+      ],
+      "@klyte45/adr-commons": [
+        "src/service/*"
+      ],
+      "#styles/*": [
+        "src/styles/*"
+      ],
+      "#utility/*": [
+        "src/utility/*"
+      ],
+    }
   },
-  "files": ["src/k45-euis-root.tsx", "./src/TableScreenSelect.tsx"],
   "include": ["src/**/*"],
   "exclude": ["src/**/*.test*"]
 }

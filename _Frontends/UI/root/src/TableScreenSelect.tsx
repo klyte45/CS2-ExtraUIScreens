@@ -1,5 +1,3 @@
-///<reference path="cohtml.d.ts" />
-///<reference path="euis.d.ts" />
 import { CSSProperties, Component } from "react";
 import { Cs2Checkbox } from "@klyte45/euis-components";
 import { ObjectTyped } from "object-typed";
@@ -98,15 +96,10 @@ export class TableScreenSelect extends Component<{ rootProps: RootProps }, {
           <div style={flexSpace}></div>
           {new Array(this.state.quantityMonitors).fill(null).map((_, i) => {
             if (this.checkMonitorActive(i + 1))
-              return <div key={i} className="label__DGc7_" style={columnStyleRightCheck}>
-                <Cs2Checkbox isChecked={() => {
-                  console.log(thisComponent.state.appsByMonitor);
-
-                  return thisComponent.state.appsByMonitor[i + 1]?.includes(x); }} onValueToggle={(k) => {
-                  (k ? rootProps.reintroduceAppButton(x, i + 1) : rootProps.removeAppButton(x, i + 1));
-                }}>
-                </Cs2Checkbox>
-              </div>;
+              return <><div key={i} className="label__DGc7_" style={columnStyleRightCheck}>
+                <Cs2Checkbox isChecked={() => thisComponent.state.appsByMonitor[i + 1]?.includes(x)} onValueToggle={(k) => (k ? rootProps.reintroduceAppButton(x, i + 1) : rootProps.removeAppButton(x, i + 1))} />
+              </div>
+              </>;
           })}
         </div>
       })

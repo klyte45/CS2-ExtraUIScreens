@@ -1,5 +1,3 @@
-///<reference path="cohtml.d.ts" />
-///<reference path="euis.d.ts" />
 import React from "react";
 import ReactDOM from "react-dom";
 import singleSpaReact from "single-spa-react";

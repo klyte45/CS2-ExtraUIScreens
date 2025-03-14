@@ -2,7 +2,9 @@
 using Belzont.Utils;
 using cohtml.InputSystem;
 using cohtml.Net;
+using Colossal.IO.AssetDatabase;
 using Colossal.Logging;
+using Colossal.PSI.Environment;
 using Colossal.UI;
 using Game.Input;
 using Game.SceneFlow;
@@ -27,6 +29,7 @@ namespace ExtraUIScreens
     public partial class EuisScreenManager : SystemBase
     {
         private static readonly PropertyInfo HostLocationsMap = typeof(DefaultResourceHandler).GetProperty("HostLocationsMap", ReflectionUtils.allFlags);
+        private static readonly FieldInfo DatabaseHostLocationsMap = typeof(DefaultResourceHandler).GetRuntimeFields().Where(a => Regex.IsMatch(a.Name, $"\\A<DatabaseHostLocationsMap>k__BackingField\\Z")).FirstOrDefault();
         private static EuisScreenManager instance;
         private int ReadyCount { get; set; }
         private int ReadyCountTarget { get; set; } = -1;
@@ -111,8 +114,8 @@ namespace ExtraUIScreens
             {
                 defaultResourceHandlerDisplays = new EuisResourceHandler();
                 var defaultRH = defView.uiSystem.resourceHandler as DefaultResourceHandler;
-                var currentHosts = HostLocationsMap.GetValue(defaultRH) as IDictionary<string, HashSet<string>>;
-                HostLocationsMap.SetValue(defaultResourceHandlerDisplays, currentHosts);
+                HostLocationsMap.SetValue(defaultResourceHandlerDisplays, HostLocationsMap.GetValue(defaultRH));
+                DatabaseHostLocationsMap.SetValue(defaultResourceHandlerDisplays, DatabaseHostLocationsMap.GetValue(defaultRH));
                 defaultResourceHandlerDisplays.coroutineHost = defaultRH.coroutineHost;
                 defaultResourceHandlerDisplays.userImagesManager = defaultRH.userImagesManager;
             }
@@ -152,8 +155,8 @@ namespace ExtraUIScreens
             var baseUri = new UriBuilder() { Scheme = "coui", Host = EuisModData.EuisInstance.Host, Path = @"UI/esos/index.html" }.Uri.AbsoluteUri;
             //var baseUri = new UriBuilder { Scheme = "http", Host = "localhost", Port = 8425, Path = "index.html" }.Uri.AbsoluteUri;
             yield return 0;
-
-            var modView = uiSystemArray[displayId].CreateView("", settings, cam);
+            UIView modView = null;
+            modView = uiSystemArray[displayId].CreateView("", settings, cam);
             modView.enabled = true;
             modView.Listener.ReadyForBindings += () =>
             {

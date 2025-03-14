@@ -1,3 +1,2 @@
-# v0.2.0r0 (25-JAN-25)
-- New mod apps registration format, not using external .euis files anymore (reflection register)
-- Fixed inputs not being blocked when the main screen's EUIS overlay is on
+# v0.2.0r1 (18-MAR-25)
+- Fixes for 1.2.5 (CS1 10th anniversary) patch

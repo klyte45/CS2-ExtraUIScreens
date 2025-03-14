@@ -1,7 +1,7 @@
   body {
     height: 100%;
     font-family: var(--fontFamily);
-    background-image: url('coui://gameui/Media/Menu/OverlayBackground.png');
+    background-image: url('assetdb://gameui/Media/Menu/OverlayBackground.png');
     background-size: cover;
 
     &.mon1 {
@@ -502,7 +502,7 @@
   .checkmark__NXVuH {
     width: 100%;
     height: 100%;
-    mask-image: url('coui://gameui/Media/Glyphs/Checkmark.svg');
+    mask-image: url('assetdb://gameui/Media/Glyphs/Checkmark.svg');
     mask-size: 100%;
     background-color: var(--checkmarkColor);
     opacity: 0;
